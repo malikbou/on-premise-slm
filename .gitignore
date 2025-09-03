@@ -1,0 +1,63 @@
+# Python
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+.Python
+*.so
+.venv/
+venv/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+
+# Results (keep structure, ignore content)
+results/runs/*
+!results/runs/README.md
+results/comparisons/*
+!results/comparisons/README.md
+results/archive/*
+!results/archive/README.md
+
+# Docker
+.dockerignore
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Data (keep structure, ignore large files)
+data/processed/*
+!data/processed/README.md
+data/*.pdf
+data/*.zip
+
+# Generated testsets (keep baseline)
+testset/generated/*
+!testset/generated/README.md
+
+# FAISS indices
+*.faiss
+*.index

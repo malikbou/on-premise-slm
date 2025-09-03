@@ -1,0 +1,47 @@
+# This configuration tells LiteLLM to act as a pass-through proxy
+# for any model it receives. It will forward the request to the
+# OLLAMA_BASE_URL defined in the .env file.
+
+# Enable cost tracking and monitoring
+litellm_settings:
+  store_model_in_db: true
+  track_cost_per_request: true
+
+model_list:
+  # Route any request for an Ollama model (prefixed as "ollama/<model>") to the local Ollama server
+  - model_name: "ollama/*"
+    litellm_params:
+      model: "ollama/*"
+      api_base: os.environ/OLLAMA_BASE_URL
+
+  # OpenAI models - specific mappings
+  - model_name: "gpt-4o-mini"
+    litellm_params:
+      model: "gpt-4o-mini"
+      api_key: os.environ/OPENAI_API_KEY
+
+  - model_name: "gpt-4o"
+    litellm_params:
+      model: "gpt-4o"
+      api_key: os.environ/OPENAI_API_KEY
+
+  # OpenAI models (general pattern)
+  - model_name: "gpt-*"
+    litellm_params:
+      model: "openai/*"
+      api_key: os.environ/OPENAI_API_KEY
+
+  # Anthropic models (e.g., claude-3-5-sonnet-20240620)
+  # - model_name: "claude-*"
+  #   litellm_params:
+  #     model: "anthropic/*"
+
+  # Google Gemini models (e.g., gemini-1.5-pro)
+  # - model_name: "gemini-*"
+  #   litellm_params:
+  #     model: "gemini/*"
+
+  # Fallback to OpenAI provider for any unknown model pattern
+  - model_name: "*"
+    litellm_params:
+      model: "openai/*"
