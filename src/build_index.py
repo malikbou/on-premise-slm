@@ -12,6 +12,8 @@ from langchain_ollama import OllamaEmbeddings
 load_dotenv()
 
 # --- Configuration ---
+# Allow overriding the handbook markdown path for A/B testing
+HANDBOOK_MD_PATH = os.getenv("HANDBOOK_MD_PATH")
 DATA_DIR = "data/"
 INDEX_DIR = os.getenv("INDEX_DIR")  # may be None; we'll derive if missing
 EMBEDDING_MODEL_NAME = os.getenv("EMBEDDING_MODEL", "nomic-embed-text")
@@ -29,18 +31,44 @@ def main():
 
     # --- 1. Load Documents ---
     print(f"Loading documents from '{DATA_DIR}' directory...")
-    loader = DirectoryLoader(
-        DATA_DIR,
-        glob="**/*.md",
-        loader_cls=UnstructuredMarkdownLoader,
-        show_progress=True,
-        use_multithreading=True
-    )
-    docs = loader.load()
+    # Prefer a single handbook file if provided; else load all markdown files
+    if HANDBOOK_MD_PATH:
+        paths = [HANDBOOK_MD_PATH]
+    else:
+        # Default to loading all markdown files under data/
+        loader = DirectoryLoader(
+            DATA_DIR,
+            glob="**/*.md",
+            loader_cls=UnstructuredMarkdownLoader,
+            show_progress=True,
+            use_multithreading=True
+        )
+        docs = loader.load()
+        if not docs:
+            print("No documents found. Exiting.")
+            return
+        print(f"Loaded {len(docs)} documents.")
+        paths = []
+
+    if HANDBOOK_MD_PATH:
+        print(f"Loading single markdown file: {HANDBOOK_MD_PATH}")
+        try:
+            single_loader = DirectoryLoader(
+                os.path.dirname(HANDBOOK_MD_PATH) or ".",
+                glob=os.path.basename(HANDBOOK_MD_PATH),
+                loader_cls=UnstructuredMarkdownLoader,
+                show_progress=False,
+                use_multithreading=False
+            )
+            docs = single_loader.load()
+            print(f"Loaded {len(docs)} document(s) from HANDBOOK_MD_PATH.")
+        except Exception as e:
+            print(f"Failed to load HANDBOOK_MD_PATH='{HANDBOOK_MD_PATH}': {e}")
+            return
     if not docs:
         print("No documents found. Exiting.")
         return
-    print(f"Loaded {len(docs)} documents.")
+    # docs have been loaded above
 
     # --- 2. Split Documents into Chunks ---
     print("Splitting documents into chunks...")

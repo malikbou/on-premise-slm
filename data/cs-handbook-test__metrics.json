@@ -1,0 +1,7 @@
+{
+  "status": "ok",
+  "engine": "docling",
+  "primary_status": "ok",
+  "fallback_tables": 0,
+  "output_path": "data/cs-handbook-test.md"
+}

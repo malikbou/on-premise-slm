@@ -33,3 +33,8 @@ httpx[http2]
 numpy
 tqdm
 matplotlib
+
+# Document processing (hybrid)
+docling
+pdfplumber
+pytesseract
