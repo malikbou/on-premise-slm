@@ -1,0 +1,40 @@
+{
+  "timestamp": "2025-09-03T18:54:05.509524",
+  "old": {
+    "path": "data/cs-handbook-test.md",
+    "tables_found": 38,
+    "skipping_markers": 0,
+    "links": {
+      "urls_total": 36,
+      "md_links": 34,
+      "emails": 24
+    },
+    "heading_depth": {
+      "2": 28,
+      "3": 97,
+      "4": 70
+    }
+  },
+  "new": {
+    "path": "data/cs-handbook-hybrid.md",
+    "tables_found": 38,
+    "skipping_markers": 0,
+    "links": {
+      "urls_total": 90,
+      "md_links": 88,
+      "emails": 8
+    },
+    "heading_depth": {
+      "2": 28,
+      "3": 97,
+      "4": 70
+    }
+  },
+  "delta": {
+    "tables_found": 0,
+    "skipping_markers": 0,
+    "links_total": 54,
+    "md_links": 54,
+    "emails": -16
+  }
+}
