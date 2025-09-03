@@ -11,7 +11,7 @@ echo "=============================================="
 
 # Create profile directories if they don't exist
 mkdir -p "$CURSOR_PROFILES_ROOT/agent1-conservative"
-mkdir -p "$CURSOR_PROFILES_ROOT/agent2-aggressive" 
+mkdir -p "$CURSOR_PROFILES_ROOT/agent2-aggressive"
 mkdir -p "$CURSOR_PROFILES_ROOT/agent3-hybrid"
 
 echo "📁 Created isolated Cursor profile directories"
@@ -22,14 +22,14 @@ launch_agent() {
     local approach=$2
     local branch=$3
     local profile_dir="$CURSOR_PROFILES_ROOT/agent${agent_num}-${approach}"
-    
+
     echo "🔧 Launching Agent ${agent_num} (${approach}) on branch ${branch}"
     echo "   Profile: ${profile_dir}"
     echo "   Project: ${PROJECT_ROOT}"
-    
+
     # Launch Cursor with isolated profile
     cursor --user-data-dir="$profile_dir" "$PROJECT_ROOT" &
-    
+
     # Give it a moment to start
     sleep 2
 }
@@ -37,7 +37,7 @@ launch_agent() {
 echo ""
 echo "🎯 Competition Branches:"
 echo "   Agent 1: agent-1-conservative-docprocessing"
-echo "   Agent 2: agent-2-aggressive-docprocessing" 
+echo "   Agent 2: agent-2-aggressive-docprocessing"
 echo "   Agent 3: agent-3-hybrid-docprocessing"
 echo ""
 
@@ -55,8 +55,8 @@ echo "      Window 1: git checkout agent-1-conservative-docprocessing"
 echo "      Window 2: git checkout agent-2-aggressive-docprocessing"
 echo "      Window 3: git checkout agent-3-hybrid-docprocessing"
 echo ""
-echo "   2. Use the agent-specific prompts provided in the README"
+echo "   2. Use the agent-specific prompts in .agent-prompts/competition/agent-prompts.md"
 echo "   3. Each agent should read .agent-prompts/document-processor.md first"
 echo "   4. Agents must create implementation plans and get approval before coding"
 echo ""
-echo "🔍 Monitor progress and use ./evaluate-competition.sh when ready to compare"
+echo "🔍 Monitor progress and use scripts/evaluate-competition.sh when ready to compare"

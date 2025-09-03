@@ -19,6 +19,9 @@ ENV/
 .agent-prompts/
 .cursorrules
 
+# Competition scripts (development only)
+scripts/
+
 # OS
 .DS_Store
 Thumbs.db
