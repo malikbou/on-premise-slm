@@ -14,6 +14,16 @@ from .postprocess import (
     add_per_section_link_summaries,
     inline_links_from_section_summaries,
     trim_before_first_main_section,
+    normalize_tables,
+    deduplicate_tables,
+    clean_symbols,
+    reflow_paragraphs,
+    deduplicate_headings,
+    remove_navigation_cruft_and_bloat,
+    fix_malformed_double_links,
+    improve_url_display_text,
+    create_authentic_inline_links,
+    inline_annotations_by_keyword,
 )
 
 
@@ -51,52 +61,64 @@ def run(pdf_path: str, output_path: str) -> Dict[str, Any]:
     # Postprocess
     md = postprocess_markdown(md)
     md = remove_additional_noise(md)
+    md = clean_symbols(md)
+    # Link quality cleanup and authentic linking before autolink
+    md = fix_malformed_double_links(md)
+
+    def _extract_pdf_links(path: str) -> list[str]:
+        try:
+            from pypdf import PdfReader
+        except Exception:
+            return []
+        try:
+            reader = PdfReader(path)
+            urls: list[str] = []
+            for page in reader.pages:
+                try:
+                    annots = page.get("/Annots", [])
+                    for annot in annots or []:
+                        try:
+                            obj = annot.get_object()
+                            a = obj.get("/A")
+                            if a and a.get("/S") == "/URI":
+                                uri = a.get("/URI")
+                                if uri:
+                                    urls.append(str(uri))
+                        except Exception:
+                            continue
+                except Exception:
+                    continue
+            return urls
+        except Exception:
+            return []
+
+    annotations = _extract_pdf_links(pdf_path)
+    md = create_authentic_inline_links(md, annotations)
+    md = inline_annotations_by_keyword(md, annotations)
+    md = improve_url_display_text(md)
     md = autolink_emails_and_urls(md)
 
     # Remove Annexes
     if os.getenv("REMOVE_ANNEXES", "true").lower() in {"1", "true", "yes", "on"}:
         md = remove_sections_by_title_regex(md, r"\bannex(es)?\b")
 
-    # Links placement
-    if os.getenv("LINK_MODE", "inline_then_fallback") != "off":
-        # Extract URLs from PDF annotations to build quick links
-        def _extract_pdf_links(path: str) -> list[str]:
-            try:
-                from pypdf import PdfReader
-            except Exception:
-                return []
-            try:
-                reader = PdfReader(path)
-                urls: list[str] = []
-                for page in reader.pages:
-                    try:
-                        annots = page.get("/Annots", [])
-                        for annot in annots or []:
-                            try:
-                                obj = annot.get_object()
-                                a = obj.get("/A")
-                                if a and a.get("/S") == "/URI":
-                                    uri = a.get("/URI")
-                                    if uri:
-                                        urls.append(str(uri))
-                            except Exception:
-                                continue
-                    except Exception:
-                        continue
-                return urls
-            except Exception:
-                return []
-
-        urls = _extract_pdf_links(pdf_path)
-        md = insert_quick_links(md, urls)
-        # Per-section summaries based on URLs found in section body
-        md = add_per_section_link_summaries(md, max_links_per_section=12)
-        # Attempt inline link wrapping using hostnames from URLs
-        md = inline_links_from_section_summaries(md, per_section_limit=3)
+    # Links placement: disable adding "Quick Links"/"Links" sections to avoid polluting markdown
+    # Keep only inline linking behavior from earlier passes
+    # Remove any residual 'Links' sections extracted from source or summaries
+    md = remove_sections_by_title_regex(md, r"^#{2,6}\s*Links(\s*\(\d+\))?\s*$")
 
     # Trim to first section
     if os.getenv("TRIM_BEFORE_SECTION1", "true").lower() in {"1", "true", "yes", "on"}:
         md = trim_before_first_main_section(md)
+
+    # Remove nav-only sections anywhere in document (e.g., Quick Links blocks)
+    md = remove_navigation_cruft_and_bloat(md)
+
+    # Additional normalization passes (conservative, no new env flags)
+    md = deduplicate_headings(md)
+    md = reflow_paragraphs(md)
+    md = normalize_tables(md)
+    md = deduplicate_tables(md)
 
     md = _normalize_markdown(md)
     with open(output_path, "w") as f:
