@@ -4,7 +4,7 @@
 
 ### 1. Launch All Agents
 ```bash
-./launch-multi-agent-competition.sh
+scripts/launch-multi-agent-competition.sh
 ```
 
 This will open 3 Cursor windows with isolated profiles.
@@ -18,7 +18,7 @@ git checkout agent-1-conservative-docprocessing
 ```
 
 **Window 2 (Aggressive):**
-```bash  
+```bash
 git checkout agent-2-aggressive-docprocessing
 ```
 
@@ -28,10 +28,10 @@ git checkout agent-3-hybrid-docprocessing
 ```
 
 ### 3. Agent Instructions
-Copy and paste the appropriate prompt from `agent-prompts.md` into each Cursor window:
+Copy and paste the appropriate prompt from `.agent-prompts/competition/agent-prompts.md` into each Cursor window:
 
 - **Agent 1**: Conservative approach (reliability-focused)
-- **Agent 2**: Aggressive approach (performance-focused)  
+- **Agent 2**: Aggressive approach (performance-focused)
 - **Agent 3**: Hybrid approach (balanced)
 
 **IMPORTANT**: Each agent must read `.agent-prompts/document-processor.md` first!
@@ -46,7 +46,7 @@ Let each agent work independently. They should:
 ### 5. Evaluate Results
 When all agents are done:
 ```bash
-./evaluate-competition.sh
+scripts/evaluate-competition.sh
 ```
 
 ## Competition Structure
@@ -78,7 +78,7 @@ Each agent should produce:
 - Memory usage
 - Error rate
 
-### Qualitative  
+### Qualitative
 - Code quality and maintainability
 - Integration with existing pipeline
 - Documentation and comments
@@ -88,7 +88,7 @@ Each agent should produce:
 ## Manual Testing Queries
 Test each implementation with these queries:
 - "Who is the Departmental Tutor?" (requires staff table)
-- "When is the coursework deadline?" (requires term dates table)  
+- "When is the coursework deadline?" (requires term dates table)
 - "What are the progression requirements?" (requires assessment table)
 - "How do I contact my Programme Director?" (requires contact table)
 

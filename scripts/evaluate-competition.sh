@@ -22,27 +22,27 @@ evaluate_agent() {
     local approach=$2
     local branch=$3
     local output_file="cs-handbook-${approach}.md"
-    
+
     echo "🤖 Evaluating Agent ${agent_num} (${approach})"
     echo "   Branch: ${branch}"
     echo "   Expected Output: data/${output_file}"
-    
+
     # Check if the agent has produced output
     if [ -f "data/${output_file}" ]; then
         echo "   ✅ Output file exists"
-        
+
         # Count tables in output
         table_count=$(grep -c "^|.*|.*|" "data/${output_file}" 2>/dev/null || echo "0")
         echo "   📊 Tables found: ${table_count}"
-        
+
         # Check file size
         file_size=$(ls -lh "data/${output_file}" | awk '{print $5}')
         echo "   📁 File size: ${file_size}"
-        
+
         # Check for missing table markers
         missing_tables=$(grep -c "\[SKIPPING TABLE SECTION" "data/${output_file}" 2>/dev/null || echo "0")
         echo "   ❌ Missing table sections: ${missing_tables}"
-        
+
         # Save detailed analysis
         cat > "$RESULTS_DIR/$TIMESTAMP/agent${agent_num}_${approach}_analysis.txt" << EOF
 Agent ${agent_num} (${approach}) - Detailed Analysis
@@ -80,7 +80,7 @@ Missing Table Markers:
 --------------------
 $(grep -n "\[SKIPPING TABLE SECTION" "data/${output_file}")
 EOF
-        
+
     else
         echo "   ❌ Output file not found"
         cat > "$RESULTS_DIR/$TIMESTAMP/agent${agent_num}_${approach}_analysis.txt" << EOF
@@ -94,7 +94,7 @@ Error: Expected output file data/${output_file} was not found.
 This agent may not have completed the task or encountered errors.
 EOF
     fi
-    
+
     echo ""
 }
 
@@ -103,9 +103,9 @@ check_implementation() {
     local agent_num=$1
     local approach=$2
     local impl_file="src/process_documents_${approach}.py"
-    
+
     echo "🔧 Checking Agent ${agent_num} Implementation"
-    
+
     if [ -f "${impl_file}" ]; then
         echo "   ✅ Implementation file exists: ${impl_file}"
         lines=$(wc -l < "${impl_file}")
@@ -140,7 +140,7 @@ cat > "$RESULTS_DIR/$TIMESTAMP/competition_summary.md" << 'EOF'
 ## Competition Overview
 Three agents implemented different approaches to PDF-to-Markdown conversion using Docling:
 - **Agent 1**: Conservative (reliability-focused)
-- **Agent 2**: Aggressive (performance-focused)  
+- **Agent 2**: Aggressive (performance-focused)
 - **Agent 3**: Hybrid (balanced approach)
 
 ## Evaluation Criteria
@@ -187,7 +187,7 @@ echo ""
 echo "📁 Generated files:"
 echo "   - competition_summary.md (overview)"
 echo "   - agent1_conservative_analysis.txt"
-echo "   - agent2_aggressive_analysis.txt" 
+echo "   - agent2_aggressive_analysis.txt"
 echo "   - agent3_hybrid_analysis.txt"
 echo ""
 echo "🔍 Review the analysis files to determine the winning approach!"
