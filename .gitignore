@@ -15,6 +15,10 @@ ENV/
 *.swp
 *.swo
 
+# Development Infrastructure (should not be public)
+.agent-prompts/
+.cursorrules
+
 # OS
 .DS_Store
 Thumbs.db
