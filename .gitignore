@@ -17,6 +17,7 @@ ENV/
 
 # Development Infrastructure (should not be public)
 .agent-prompts/
+.agent-prompts/competition
 .cursorrules
 
 # Competition scripts (development only)
