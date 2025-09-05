@@ -74,15 +74,19 @@ class UCLSingleHopQuerySynthesizer(SingleHopQuerySynthesizer):
 
         # Find all nodes with keyphrases (CHUNK nodes after HeadlineSplitter)
         qualified_nodes = []
+        total_chunk_nodes = 0
+
         for node in knowledge_graph.nodes:
-            if node.type.name == "CHUNK" and node.get_property(property_name):
-                qualified_nodes.append(node)
+            if node.type.name == "CHUNK":
+                total_chunk_nodes += 1
+                if node.get_property(property_name):
+                    qualified_nodes.append(node)
 
         if not qualified_nodes:
             print("⚠️ No qualified CHUNK nodes found with keyphrases")
             return []
 
-        print(f"✅ Found {len(qualified_nodes)} qualified nodes for single-hop generation")
+        print(f"✅ Found {len(qualified_nodes)} qualified nodes (out of {total_chunk_nodes} CHUNK nodes) for single-hop generation")
 
         # Calculate samples per node
         number_of_samples_per_node = max(1, n // len(qualified_nodes))
@@ -135,8 +139,13 @@ def create_knowledge_graph(file_path: str, llm: LangchainLLMWrapper) -> Knowledg
         doc_text = re.sub(pattern, "", doc_text, flags=re.IGNORECASE | re.MULTILINE)
     cleaned_text = re.sub(r"\n\s*\n\s*\n", "\n\n", doc_text)
 
-    # Split into sections using markdown headers
-    headers_to_split_on = [("##", "section"), ("###", "subsection")]
+    # Split into sections using all markdown header levels for better granularity
+    headers_to_split_on = [
+        ("##", "section"),
+        ("###", "subsection"),
+        ("####", "topic"),
+        ("#####", "subtopic")
+    ]
     splitter = MarkdownHeaderTextSplitter(headers_to_split_on=headers_to_split_on)
     chunks = splitter.split_text(cleaned_text)
 
@@ -155,9 +164,10 @@ def create_knowledge_graph(file_path: str, llm: LangchainLLMWrapper) -> Knowledg
     kg = KnowledgeGraph(nodes=nodes)
 
     # Apply transforms (no relationship builders needed for single-hop)
+    # Adjusted token limits for more granular chunks from enhanced header splitting
     transforms = [
         HeadlinesExtractor(llm=llm),
-        HeadlineSplitter(min_tokens=300, max_tokens=1000),
+        HeadlineSplitter(min_tokens=200, max_tokens=800),
         KeyphrasesExtractor(llm=llm, property_name="keyphrases", max_num=10),
     ]
 
