@@ -145,8 +145,13 @@ def create_knowledge_graph(file_path: str, llm: LangchainLLMWrapper) -> Knowledg
     transforms = [
         HeadlinesExtractor(llm=llm),
         HeadlineSplitter(min_tokens=300, max_tokens=1000),
-        KeyphrasesExtractor(llm=llm),
-        OverlapScoreBuilder(),
+        KeyphrasesExtractor(llm=llm, property_name="keyphrases", max_num=10),
+        OverlapScoreBuilder(
+            property_name="keyphrases",
+            new_property_name="overlap_score",
+            threshold=0.01,
+            distance_threshold=0.9,
+        ),
     ]
 
     apply_transforms(kg, transforms=transforms)
