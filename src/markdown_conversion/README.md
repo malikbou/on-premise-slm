@@ -31,6 +31,53 @@ Index for RAG:
 HANDBOOK_MD_PATH=data/cs-handbook-hybrid.md python src/build_index.py
 ```
 
+### Repair step (OpenAI‑assisted link/table fixing)
+
+Requires `OPENAI_API_KEY` set. Default model is `gpt-4o-mini`; you can override with `--model`.
+
+```bash
+# Dump PDF link annotations (once):
+python -m src.markdown_conversion.dump_pdf_links "data/Computer Science Student Handbook 2024-25.pdf" data/output/pdf_links.csv
+
+# Repair the Docling+postprocess output:
+python -m src.markdown_conversion.cli repair \
+  --links data/output/pdf_links.csv \
+  --in-md data/cs-handbook-hybrid.md \
+  --out-md data/cs-handbook-repaired.md \
+  --model gpt-4o-mini \
+  --max-tokens 2500 \
+  --delay-s 0.2
+
+# Then point indexing at the repaired file:
+HANDBOOK_MD_PATH=data/cs-handbook-repaired.md python src/build_index.py
+```
+
+One-shot (no chunking) via Responses API:
+
+```bash
+python -m src.markdown_conversion.cli repair-one-shot \
+  --in-md data/cs-handbook-hybrid.md \
+  --csv data/output/pdf_links.csv \
+  --out data/cs-handbook-one-shot.md \
+  --model gpt-5-mini \
+  --max-tokens 0 \
+  --fail-on-missing
+```
+
+Vision one-shot directly from PDF (optional):
+
+```bash
+python -m src.markdown_conversion.cli repair-from-pdf \
+  --pdf "data/Computer Science Student Handbook 2024-25.pdf" \
+  --out data/cs-handbook-from-pdf.md \
+  --model gpt-4o-mini \
+  --max-tokens 0
+```
+
+Notes:
+- If you know section→page ranges, pass them as repeated `--pages` (e.g., `--pages 1-20 --pages 21-40`). Otherwise, the tool passes the full CSV for each slice.
+- Use `--dry-run` to run the slicing/token-budget logic without making API calls.
+
 ## Key Features
 
 - Docling-first conversion with optional fallbacks

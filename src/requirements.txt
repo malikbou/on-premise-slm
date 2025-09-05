@@ -10,6 +10,8 @@ langchain-core
 langchain-text-splitters
 langchain-openai # For talking to the LiteLLM proxy
 langchain-ollama # For the Ragas judge model
+openai
+tiktoken
 
 # Vector Store
 faiss-cpu

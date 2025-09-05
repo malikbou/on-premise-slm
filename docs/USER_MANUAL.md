@@ -51,6 +51,34 @@ cd load-testing
 python openai_llm_benchmark.py
 ```
 
+### Markdown Conversion and Repair
+```bash
+# 1) Convert PDF to Markdown with Docling
+python -m src.markdown_conversion.cli convert \
+  --input "data/Computer Science Student Handbook 2024-25.pdf" \
+  --output data/cs-handbook-hybrid.md --save-metrics
+
+# 2) Dump PDF link annotations (once)
+python -m src.markdown_conversion.dump_pdf_links \
+  "data/Computer Science Student Handbook 2024-25.pdf" data/output/pdf_links.csv
+
+# 3) Repair Markdown using OpenAI (requires OPENAI_API_KEY)
+python -m src.markdown_conversion.cli repair \
+  --links data/output/pdf_links.csv \
+  --in-md data/cs-handbook-hybrid.md \
+  --out-md data/cs-handbook-repaired.md \
+  --model gpt-4o-mini \
+  --max-tokens 2500 \
+  --delay-s 0.2
+
+# 4) Index repaired Markdown
+HANDBOOK_MD_PATH=data/cs-handbook-repaired.md python src/build_index.py
+```
+
+Troubleshooting:
+- Ensure `OPENAI_API_KEY` is exported in your environment.
+- If requests are large, pass repeated `--pages` ranges to narrow CSV per slice.
+
 ## Configuration
 
 ### Environment Variables
