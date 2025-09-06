@@ -143,20 +143,27 @@ OLLAMA_BASE_URL=http://localhost:11434
 LITELLM_API_BASE=http://localhost:4000
 
 # Benchmarking Configuration
-MODELS_TO_TEST=ollama/gemma3:4b,ollama/nemotron-mini:4b
-EMBEDDING_MODELS=nomic-embed-text,all-minilm
+MODELS_TO_TEST=ollama/gemma2:2b,ollama/Qwen2.5-3B-Instruct-GGUF:Q4_K_M,ollama/Llama-3.2-3B-Instruct-GGUF:Q4_K_M
+EMBEDDING_MODELS=nomic-embed-text,bge-m3,yxchia/multilingual-e5-large-instruct
 NUM_QUESTIONS_TO_TEST=10  # Use 100 for full evaluation
 
 # Platform-Specific (auto-detected)
 PLATFORM=auto  # auto, mac_local, vast_ai_gpu
 MEMORY_MANAGEMENT=auto  # auto, aggressive, relaxed, minimal
+
+# Azure OpenAI (optional)
+# Use the deployment-as-model form via LiteLLM alias 'azure-gpt5' or direct 'azure/<deployment_name>'
+AZURE_OPENAI_API_BASE=https://emtechfoundrytrial2.cognitiveservices.azure.com
+AZURE_OPENAI_API_VERSION=2024-12-01-preview
+AZURE_OPENAI_API_KEY=your_azure_key
 ```
 
 ### Docker Services
 - **litellm**: LLM gateway proxy for cloud/local model routing
 - **rag-api**: Main RAG API with FAISS retrieval
-- **rag-api-minilm**: Dedicated API for all-minilm embedding model
+- **rag-api-bge**: Dedicated API for bge-m3 embedding model
 - **rag-api-nomic**: Dedicated API for nomic-embed-text embedding model
+- **rag-api-e5**: Dedicated API for multilingual-e5-large-instruct embedding model
 - **benchmarker**: Automated RAGAS evaluation runner
 - **ollama-benchmark**: Throughput testing runner
 - **open-webui**: Web interface for manual testing
