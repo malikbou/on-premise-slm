@@ -269,7 +269,7 @@ def main():
 
     # Phase 5: Save Results
     print("\n🚀 Phase 5: Saving results...")
-    out_dir = "testset"
+    out_dir = "data/testset"
     os.makedirs(out_dir, exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     model_slug = args.generator_model.replace(":", "_").replace("/", "_")
