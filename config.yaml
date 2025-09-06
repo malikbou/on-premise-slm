@@ -31,6 +31,22 @@ model_list:
       model: "openai/*"
       api_key: os.environ/OPENAI_API_KEY
 
+  # Azure OpenAI - route any model starting with 'azure/' to Azure
+  - model_name: "azure/*"
+    litellm_params:
+      model: "azure/*"         # expects 'azure/<deployment_name>' as the model string
+      api_base: os.environ/AZURE_OPENAI_API_BASE
+      api_version: os.environ/AZURE_OPENAI_API_VERSION
+      api_key: os.environ/AZURE_OPENAI_API_KEY
+
+  # Azure OpenAI - friendly alias for your GPT-5 deployment
+  - model_name: "azure-gpt5"
+    litellm_params:
+      model: "azure/gpt-5-3"   # deployment name
+      api_base: os.environ/AZURE_OPENAI_API_BASE
+      api_version: os.environ/AZURE_OPENAI_API_VERSION
+      api_key: os.environ/AZURE_OPENAI_API_KEY
+
   # Anthropic models (e.g., claude-3-5-sonnet-20240620)
   # - model_name: "claude-*"
   #   litellm_params:

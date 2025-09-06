@@ -23,6 +23,44 @@ def _parse_list_env(var_name: str, default_list: list[str]) -> list[str]:
     if value is None or value.strip() == "":
         return default_list
     return [item.strip() for item in value.split(",") if item.strip()]
+# --- Small utils for readiness and autopull ---
+def wait_for_service_info(base_url: str, timeout_seconds: int = 30) -> bool:
+    """Poll the /info endpoint until it responds or timeout."""
+    import time
+    url = base_url.rstrip("/") + "/info"
+    start = time.time()
+    while time.time() - start < timeout_seconds:
+        try:
+            resp = requests.get(url, timeout=3)
+            if resp.status_code // 100 == 2:
+                return True
+        except Exception:
+            pass
+        time.sleep(1)
+    print(f"WARNING: Service at {base_url} not ready after {timeout_seconds}s")
+    return False
+
+
+def ensure_ollama_model_present(model_id: str, base_url: str) -> None:
+    """Best-effort: try pulling a local Ollama model if missing. Controlled by env OLLAMA_AUTOPULL=1."""
+    autopull = os.getenv("OLLAMA_AUTOPULL", "0") == "1"
+    if not model_id.startswith("ollama/"):
+        return
+    if not autopull:
+        return
+    local_name = model_id.split("/", 1)[-1]
+    try:
+        # Check tags
+        resp = requests.get(f"{base_url.rstrip('/')}/api/tags", timeout=5)
+        if resp.status_code // 100 == 2 and any(t.get("name") == local_name for t in resp.json().get("models", [])):
+            return
+    except Exception:
+        pass
+    try:
+        print(f"Attempting to pull missing Ollama model '{local_name}'...")
+        requests.post(f"{base_url.rstrip('/')}/api/pull", json={"name": local_name}, timeout=600)
+    except Exception as e:
+        print(f"WARNING: Autopull failed for '{local_name}': {e}")
 
 
 def get_ollama_loaded_models(base_url: str) -> list[str]:
@@ -192,20 +230,30 @@ def stop_models_by_base_name(base_url: str, base_name: str) -> None:
         print(f"WARNING: stop_models_by_base_name failed for '{base_name}': {e}")
 
 # --- Configuration ---
-RAG_API_URL = "http://rag-api:8000/query"  # Fallback/default API URL
-TESTSET_FILE = "testset/CS_testset_from_markdown_gpt-4o-mini_20250803_175526.json"
+# Base URL for the RAG API service (without trailing endpoint). Append '/query' where needed.
+RAG_API_BASE = os.getenv("RAG_API_BASE", "http://rag-api:8000")
+# Allow overriding testset path via env; default to a small baseline for quick dry runs
+TESTSET_FILE = os.getenv("TESTSET_FILE", "data/testset/baseline_7_questions.json")
 DEFAULT_MODELS_TO_TEST = [
-    "ollama/gemma3:4b",
+    # Local SLMs (adjust to what's installed)
+    "ollama/hf.co/MaziyarPanahi/Phi-3.5-mini-instruct-GGUF:Q4_K_M",
+    "ollama/hf.co/bartowski/Llama-3.2-3B-Instruct-GGUF:Q4_K_M",
+    # Cloud baseline alias (configured in config.yaml)
+    "azure-gpt5",
 ]
-DEFAULT_EMBEDDING_MODELS = ["nomic-embed-text"]  # Treated as retrieval embeddings list
-OLLAMA_HOST_URL = "http://host.docker.internal:11434"
+DEFAULT_EMBEDDING_MODELS = [
+    "nomic-embed-text",
+    "bge-m3",
+    "yxchia/multilingual-e5-large-instruct",
+]  # Treated as retrieval embeddings list
+# Allow overriding Ollama base URL to support local vs container networking differences
+OLLAMA_HOST_URL = os.getenv("OLLAMA_BASE_URL", "http://host.docker.internal:11434")
 LITELLM_API_BASE = os.getenv("LITELLM_API_BASE", "http://litellm:4000")
 NUM_QUESTIONS_TO_TEST = int(os.getenv("NUM_QUESTIONS_TO_TEST", "1"))
 
 # Allow overriding via env (comma-separated)
 MODELS_TO_TEST = _parse_list_env("MODELS_TO_TEST", DEFAULT_MODELS_TO_TEST)
 EMBEDDING_MODELS = _parse_list_env("EMBEDDING_MODELS", DEFAULT_EMBEDDING_MODELS)
-NUM_QUESTIONS_TO_TEST = int(os.getenv("NUM_QUESTIONS_TO_TEST", "1"))
 RESULTS_DIR = os.getenv("RESULTS_DIR", "results")
 RUN_STAMP = os.getenv("RUN_STAMP", datetime.now().strftime("%Y%m%d_%H%M%S"))
 RUN_DIR = os.path.join(RESULTS_DIR, RUN_STAMP)
@@ -277,8 +325,8 @@ def process_questions_in_batches(questions, api_url, model_name, batch_size=5):
                 response.raise_for_status()
                 data = response.json()
 
-                answer = data['answer']
-                contexts = [doc['page_content'] for doc in data['source_documents']]
+                answer = data.get('answer') or ""
+                contexts = [doc.get('page_content', "") for doc in data.get('source_documents', [])]
 
                 batch_answers.append(answer)
                 batch_contexts.append(contexts)
@@ -321,9 +369,12 @@ def main():
     all_results: dict[str, dict[str, dict]] = {}
     for embedding_model in EMBEDDING_MODELS:
         print(f"\n=== Retrieval Embedding: {embedding_model} ===")
-        api_base = EMBEDDING_API_MAP.get(embedding_model, RAG_API_URL)
+        api_base = EMBEDDING_API_MAP.get(embedding_model, RAG_API_BASE)
         api_url = api_base.rstrip("/") + "/query"
         print(f"Using RAG API: {api_base}")
+
+        # Ensure the per-embedding API is up (helps avoid NameResolutionError/500s)
+        wait_for_service_info(api_base)
 
         all_results.setdefault(embedding_model, {})
 
@@ -331,6 +382,9 @@ def main():
             print(f"\n--- Benchmarking Model: {model_name} with embedding {embedding_model} ---")
             loaded = get_ollama_loaded_models(OLLAMA_HOST_URL)
             print(f"Ollama loaded models (before generation): {loaded}")
+
+            # Optional: pull local model if missing
+            ensure_ollama_model_present(model_name, OLLAMA_HOST_URL)
 
             # Memory-optimized question processing with batching
             batch_size = min(10, max(1, len(questions) // 4))  # Dynamic batch size
@@ -373,6 +427,9 @@ def main():
                     end_idx = min(i + chunk_size, len(questions))
 
                     for j in range(i, end_idx):
+                        # Guard: skip empty responses to avoid downstream metric errors
+                        if not (answers[j] or "").strip():
+                            continue
                         chunk_records.append({
                             "user_input": questions[j],
                             "response": answers[j],
@@ -386,6 +443,13 @@ def main():
                     if len(questions) > 20:
                         print(f"  Processed {end_idx}/{len(questions)} records for evaluation...")
 
+                if not all_records:
+                    print("WARNING: No valid records to evaluate (all answers empty or errors). Skipping evaluation for this combination.")
+                    all_results.setdefault(embedding_model, {})[model_name] = {"error": "no_valid_answers"}
+                    # proceed to next model
+                    loaded = get_ollama_loaded_models(OLLAMA_HOST_URL)
+                    print(f"Ollama loaded models (after evaluation skip): {loaded}")
+                    continue
                 evaluation_dataset = EvaluationDataset.from_list(all_records)
                 print(f"Evaluation dataset created with {len(all_records)} records.")
 
