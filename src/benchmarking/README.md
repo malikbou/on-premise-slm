@@ -46,6 +46,30 @@ NUM_QUESTIONS_TO_TEST=1 \
 python src/benchmark.py
 ```
 
+## Model Unload (Ollama) and keep_alive
+
+- There is no HTTP /api/stop in Ollama. Use the CLI to unload models.
+
+Host (Mac):
+```bash
+# Stop a specific model
+ollama stop "<model:tag>"
+
+# Stop all loaded models
+ollama ps -q | xargs -I{} ollama stop "{}"
+```
+
+Docker (VM with an `ollama` container):
+```bash
+docker exec ollama ollama stop "<model:tag>"
+docker exec ollama sh -lc 'ollama ps -q | xargs -I{} ollama stop "{}"'
+```
+
+keep_alive guidance:
+- Mac/local development: prefer `keep_alive=0` for safety; no extra unload steps needed.
+- VM/GPU: set a short TTL (e.g., 60–120s) so the model remains resident during runs and unloads shortly after.
+  - Make the generator keep-alive configurable via an env in the RAG API (e.g., `GENERATOR_KEEP_ALIVE`).
+
 ## Roadmap
 - Add provider dimension (local vs cloud) to the benchmark loop
 - Memory lifecycle management (pre/post eval unload, GPU monitoring)
