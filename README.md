@@ -88,6 +88,69 @@ docker-compose up rag-api litellm
 python src/benchmark.py
 ```
 
+### Start API Endpoints (for Simple Benchmarker)
+
+#### Mac (local host)
+```bash
+# Ensure Ollama is running on the host
+ollama serve
+
+# Build FAISS indexes for all embeddings (run each once)
+EMBEDDING_MODEL=bge-m3 docker-compose up index-builder
+EMBEDDING_MODEL=nomic-embed-text docker-compose up index-builder
+EMBEDDING_MODEL="yxchia/multilingual-e5-large-instruct" docker-compose up index-builder
+
+# Start LiteLLM and embedding-specific RAG APIs on localhost ports
+docker-compose up -d litellm rag-api-bge rag-api-nomic rag-api-e5
+
+# Verify services are up
+curl -s http://localhost:8001/info | jq .    # bge-m3
+curl -s http://localhost:8002/info | jq .    # nomic-embed-text
+curl -s http://localhost:8003/info | jq .    # e5
+```
+
+Run the simple benchmarker (local):
+```bash
+python src/benchmark_simple.py \
+  --preset local \
+  --testset data/testset/baseline_7_questions.json \
+  --num-questions 10 \
+  --embeddings nomic-embed-text,bge-m3,yxchia/multilingual-e5-large-instruct \
+  --models "ollama/hf.co/bartowski/Llama-3.2-3B-Instruct-GGUF:Q4_K_M,azure-gpt5"
+```
+
+Notes:
+- Use `--preset local` on the host so the script targets `localhost` ports. Service DNS names like `rag-api-nomic` will not resolve from the host.
+- To free VRAM immediately after runs, use the Ollama CLI (e.g., `ollama stop "<model:tag>"`).
+
+#### Vast.ai GPU VM (Docker network)
+```bash
+# Bring up Ollama (GPU) + LiteLLM + embedding RAG APIs
+docker-compose -f docker-compose.yml -f docker-compose.vm.yml up -d \
+  ollama litellm rag-api-bge rag-api-nomic rag-api-e5
+
+# (First time on this VM) build indexes for each embedding
+EMBEDDING_MODEL=bge-m3 docker-compose up index-builder
+EMBEDDING_MODEL=nomic-embed-text docker-compose up index-builder
+EMBEDDING_MODEL="yxchia/multilingual-e5-large-instruct" docker-compose up index-builder
+
+# Verify inside the network (from any service container) or expose ports as needed
+```
+
+Run the simple benchmarker (vm):
+```bash
+python src/benchmark_simple.py \
+  --preset vm \
+  --testset data/testset/baseline_7_questions.json \
+  --num-questions 10 \
+  --embeddings nomic-embed-text,bge-m3,yxchia/multilingual-e5-large-instruct \
+  --models "ollama/hf.co/bartowski/Llama-3.2-3B-Instruct-GGUF:Q4_K_M,azure-gpt5"
+```
+
+Notes:
+- `--preset vm` configures service DNS (e.g., `rag-api-nomic`) and containerized Ollama (`http://ollama:11434`).
+- To unload models immediately, exec into the Ollama container: `docker exec ollama ollama stop "<model:tag>"`.
+
 ### GPU VM Production Workflow
 ```bash
 # 1. Deploy full stack
