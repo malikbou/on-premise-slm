@@ -33,6 +33,7 @@ def main():
     print(f"Loading documents from '{DATA_DIR}' directory...")
     # Prefer a single handbook file if provided; else load all markdown files
     if HANDBOOK_MD_PATH:
+        print(f"Loading single markdown file: {HANDBOOK_MD_PATH}")
         paths = [HANDBOOK_MD_PATH]
     else:
         # Default to loading all markdown files under data/
