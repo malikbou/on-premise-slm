@@ -1,0 +1,62 @@
+{
+  "nomic-embed-text": {
+    "ollama/hf.co/MaziyarPanahi/Phi-3.5-mini-instruct-GGUF:Q4_K_M": {
+      "answer_relevancy": NaN,
+      "context_recall": 0.3333333333333333,
+      "context_precision": 0.0,
+      "faithfulness": 1.0
+    },
+    "ollama/hf.co/bartowski/Llama-3.2-3B-Instruct-GGUF:Q4_K_M": {
+      "answer_relevancy": NaN,
+      "context_recall": 0.3333333333333333,
+      "context_precision": 0.0,
+      "faithfulness": 0.7142857142857143
+    },
+    "azure-gpt5": {
+      "answer_relevancy": 0.8568246334839961,
+      "context_recall": 0.3333333333333333,
+      "context_precision": 0.0,
+      "faithfulness": 1.0
+    }
+  },
+  "bge-m3": {
+    "ollama/hf.co/MaziyarPanahi/Phi-3.5-mini-instruct-GGUF:Q4_K_M": {
+      "answer_relevancy": NaN,
+      "context_recall": 0.3333333333333333,
+      "context_precision": 0.0,
+      "faithfulness": 0.7777777777777778
+    },
+    "ollama/hf.co/bartowski/Llama-3.2-3B-Instruct-GGUF:Q4_K_M": {
+      "context_recall": 0.6666666666666666,
+      "answer_relevancy": 0.7701818398305581,
+      "context_precision": 0.0,
+      "faithfulness": 0.8333333333333334
+    },
+    "azure-gpt5": {
+      "answer_relevancy": NaN,
+      "context_recall": 0.3333333333333333,
+      "context_precision": 0.0,
+      "faithfulness": 1.0
+    }
+  },
+  "yxchia/multilingual-e5-large-instruct": {
+    "ollama/hf.co/MaziyarPanahi/Phi-3.5-mini-instruct-GGUF:Q4_K_M": {
+      "answer_relevancy": 0.0,
+      "context_recall": 0.0,
+      "context_precision": 0.0,
+      "faithfulness": 0.2857142857142857
+    },
+    "ollama/hf.co/bartowski/Llama-3.2-3B-Instruct-GGUF:Q4_K_M": {
+      "answer_relevancy": 0.0,
+      "context_recall": 0.0,
+      "context_precision": 0.0,
+      "faithfulness": 0.4444444444444444
+    },
+    "azure-gpt5": {
+      "answer_relevancy": NaN,
+      "context_recall": 0.0,
+      "context_precision": 0.0,
+      "faithfulness": 1.0
+    }
+  }
+}
