@@ -5,7 +5,7 @@
 ### Core Components
 1. **RAG API** (`src/main.py`): FastAPI service with retrieval and generation
 2. **Index Builder** (`src/build_index.py`): FAISS vector store creation
-3. **RAGAS Benchmarker** (`src/benchmark.py`): Quality evaluation with parallel metrics
+3. **RAGAS Benchmarker** (`src/benchmarking/benchmark.py`): Quality evaluation with parallel metrics
 4. **Throughput Tester** (`load-testing/openai_llm_benchmark.py`): Performance analysis
 5. **Results Visualizer** (`src/benchmarking/plot_rag_results.py`): Figure generation from RAG evaluation
 

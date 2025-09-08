@@ -40,7 +40,7 @@ services:
 
   multi-index-builder:
     build: .
-    command: ["python", "src/build_all_indexes.py"]
+    command: ["python", "src/build_index.py"]
     volumes:
       - ./data:/app/data:ro
       - rag_cache:/app/.rag_cache
@@ -54,7 +54,7 @@ services:
 
   benchmarker:
     build: .
-    command: ["python", "src/benchmark.py"]
+    command: ["python", "src/benchmarking/benchmark.py"]
     volumes:
       - ./data:/app/data:ro
       - ./testset:/app/testset:ro
