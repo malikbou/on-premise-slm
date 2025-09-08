@@ -106,17 +106,27 @@ async def query_rag_pipeline(request: QueryRequest) -> QueryResponse:
 
     retriever = vectorstore.as_retriever()
 
-    # Custom RAG prompt template for better context usage
-    rag_prompt_template = """Use the following pieces of context to answer the question at the end.
-If you don't know the answer, just say that you don't know, don't try to make up an answer.
-Use three sentences maximum and keep the answer as concise as possible.
+    # ---- Problem-solver prompt tailored for handbook-style queries ----
+    rag_prompt_template = """You are a helpful UCL Computer Science handbook assistant.
+Answer using ONLY the context. If the answer is not in the context, say "I don't know based on the handbook excerpts provided."
+
+Write concise, actionable guidance:
+- Start with the direct answer in one short sentence.
+- Then list 2–5 clear steps (what to do / who to contact / forms to submit / deadlines).
+- If relevant, include warnings/caveats (e.g., evidence required, timing rules).
+- End with a one-line source label: "Source: <section or heading>".
+
+STRICT RULES:
+- Do not invent emails, links, or policies not shown in context.
+- Prefer official terms from the context (e.g., Extenuating Circumstances, SORA).
+- Keep total length under ~8 lines.
 
 Context:
 {context}
 
 Question: {question}
 
-Helpful Answer:"""
+Helpful, grounded answer:"""
 
     RAG_PROMPT = PromptTemplate(
         template=rag_prompt_template,
