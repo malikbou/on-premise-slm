@@ -328,7 +328,7 @@ def generate_answers(args: argparse.Namespace) -> None:
         for model in models:
             print(f"\nTesting model: {model}")
 
-            if args.print_ollama_ps and model.startswith("ollama/"):
+            if model.startswith("ollama/"):
                 print("Models before:")
                 print_ollama_models(args.ollama_base)
 
@@ -378,8 +378,6 @@ def generate_answers(args: argparse.Namespace) -> None:
 
                 answers.append(answer_record)
 
-                if (i + 1) % 5 == 0:
-                    print(f"  Completed {i+1}/{len(questions)} questions")
 
             # Save answers
             filename = f"answers__{embedding.replace('/', '_')}__{model.replace('/', '_')}.json"
@@ -390,7 +388,7 @@ def generate_answers(args: argparse.Namespace) -> None:
 
             print(f"Saved answers to: {filename}")
 
-            if args.print_ollama_ps and model.startswith("ollama/"):
+            if model.startswith("ollama/"):
                 print("Models after:")
                 print_ollama_models(args.ollama_base)
 
@@ -398,9 +396,8 @@ def generate_answers(args: argparse.Namespace) -> None:
                 stop_ollama_model(model, args.stop_mode, args.ollama_container)
 
                 # Check models after stop to verify it worked
-                if args.print_ollama_ps:
-                    print("Models after stop:")
-                    print_ollama_models(args.ollama_base)
+                print("Models after stop:")
+                print_ollama_models(args.ollama_base)
 
 
 def main():
