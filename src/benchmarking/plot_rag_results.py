@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from matplotlib.ticker import ScalarFormatter
+import matplotlib as mpl
 
 
 # --- Figure/style constants (aligned with load-testing/results/plot_results.py) ---
@@ -235,7 +236,7 @@ def _figsize_inches() -> Tuple[float, float]:
 def _save(fig, outpath: Path, fmt: str) -> None:
     outname = outpath.with_suffix(f".{fmt}")
     fig.tight_layout()
-    fig.savefig(outname, dpi=DPI if fmt == "png" else None)
+    fig.savefig(outname, dpi=DPI if fmt == "png" else None, bbox_inches="tight")
     plt.close(fig)
     print(f"✓ wrote {outname}")
 
@@ -282,7 +283,17 @@ def plot_grouped_bars(
     ax.set_ylabel(metric.replace("_", " ").capitalize())
     ax.set_title(f"{metric.replace('_', ' ').capitalize()} by LLM (grouped by embedding)")
     ax.grid(True, which="both", ls=GRID_STYLE, axis="y")
-    ax.legend(title="Embedding", fontsize=8)
+    # Place legend outside the plotting area on the right
+    n_embs = len(pivot.columns)
+    ax.legend(
+        title="Embedding",
+        fontsize=8,
+        loc="center left",
+        bbox_to_anchor=(1.02, 0.5),
+        borderaxespad=0.0,
+        frameon=False,
+        ncol=1 if n_embs <= 12 else 2,
+    )
     # Only format Y axis numerically; keep custom categorical X labels
     _plain_numbers_y(ax)
 
@@ -372,6 +383,50 @@ def plot_radar_profiles(
         _save(fig, outdir / f"figure_C_profile_{safe}", fmt)
 
 
+def plot_heatmaps(
+    df: pd.DataFrame,
+    outdir: Path,
+    fmt: str,
+    llm_map: Dict[str, str],
+    emb_map: Dict[str, str],
+) -> None:
+    # Prepare labels
+    df_lab = df.copy()
+    df_lab["llm"] = df_lab["llm"].map(lambda s: llm_map.get(s, _shorten_llm_label(s)))
+    df_lab["embedding"] = df_lab["embedding"].map(lambda s: emb_map.get(s, _shorten_embedding_label(s)))
+
+    cmap = mpl.colormaps.get("viridis")
+    vmin, vmax = 0.0, 1.0
+
+    for metric in METRICS:
+        pivot = (
+            df_lab.pivot_table(index="embedding", columns="llm", values=metric, aggfunc="mean")
+            .sort_index(axis=0)
+            .sort_index(axis=1)
+        )
+        if pivot.empty:
+            print(f"⚠ No data for heatmap '{metric}'. Skipping.")
+            continue
+
+        fig, ax = plt.subplots(figsize=_figsize_inches())
+        im = ax.imshow(pivot.values, cmap=cmap, vmin=vmin, vmax=vmax, aspect="auto")
+
+        # Axis labels
+        ax.set_yticks(np.arange(pivot.shape[0]))
+        ax.set_yticklabels(list(pivot.index))
+        ax.set_xticks(np.arange(pivot.shape[1]))
+        ax.set_xticklabels(list(pivot.columns), rotation=XTICK_ROT, ha="right", fontsize=XTICK_FSIZE)
+        ax.set_xlabel("LLMs")
+        ax.set_ylabel("Embeddings")
+        ax.set_title(f"Heatmap — {metric.replace('_', ' ').capitalize()}")
+
+        # Colorbar
+        cbar = fig.colorbar(im, ax=ax)
+        cbar.ax.set_ylabel("Score (0–1)", rotation=-90, va="bottom")
+
+        _save(fig, outdir / f"heatmap_{metric}", fmt)
+
+
 def main(
     summary_json: Path,
     fmt: str = "png",
@@ -400,6 +455,9 @@ def main(
 
     # Figure C: radar profiles per embedding
     plot_radar_profiles(df, outdir, fmt, emb_map=emb_map)
+
+    # Heatmaps per metric (embedding rows x LLM columns)
+    plot_heatmaps(df, outdir, fmt, llm_map=llm_map, emb_map=emb_map)
 
 
 if __name__ == "__main__":
