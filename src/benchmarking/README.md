@@ -2,6 +2,32 @@
 
 This document explains how to use `benchmark_malik.py` - a simplified RAG benchmarking script that provides real-time feedback and easy-to-use commands.
 
+## Quick: Plot RAG Results (summary.json → figures)
+
+```bash
+# Basic (PNG)
+python src/benchmarking/plot_rag_results.py \
+  results/benchmarking/TIMESTAMP/summary.json -f png
+
+# PDF
+python src/benchmarking/plot_rag_results.py \
+  results/benchmarking/TIMESTAMP/summary.json -f pdf
+
+# With custom metric weights (will normalize to sum=1)
+python src/benchmarking/plot_rag_results.py \
+  results/benchmarking/TIMESTAMP/summary.json \
+  -w faithfulness=0.4,answer_relevancy=0.3,context_precision=0.2,context_recall=0.1
+
+# Optional label overrides (short names)
+python src/benchmarking/plot_rag_results.py \
+  results/benchmarking/TIMESTAMP/summary.json \
+  --label-map label_map.json
+```
+
+Outputs: `results/benchmarking/TIMESTAMP/figures/`
+
+Generates: Figure A (grouped bars), Figure B (ranking), Figure C (radar), Figure D (heatmaps), Figure E (rank table PNG), plus `overall_ranking.csv`, `rank_summary.md`, `rank_summary.html`.
+
 ## Overview
 
 `benchmark_malik.py` is a streamlined version of the RAG benchmarking system that:
