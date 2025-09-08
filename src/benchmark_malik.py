@@ -345,9 +345,15 @@ def generate_answers(args: argparse.Namespace) -> None:
 
                     if response.status_code == 200:
                         result = response.json()
+                        answer = result.get("answer", "")
+
+                        # Print answer snippet for immediate feedback
+                        snippet = (answer or "").strip().replace("\n", " ")[:60]
+                        print(f"    Q{i+1}/{len(questions)}: {snippet}...")
+
                         answer_record = {
                             "user_input": question,
-                            "response": result.get("answer", ""),
+                            "response": answer,
                             # "retrieved_contexts": result.get("contexts", []),
                             "retrieved_contexts": [doc.get('page_content', "") for doc in result.get('source_documents', [])],
                             "reference": reference
@@ -390,6 +396,11 @@ def generate_answers(args: argparse.Namespace) -> None:
 
             if args.stop_after and model.startswith("ollama/"):
                 stop_ollama_model(model, args.stop_mode, args.ollama_container)
+
+                # Check models after stop to verify it worked
+                if args.print_ollama_ps:
+                    print("Models after stop:")
+                    print_ollama_models(args.ollama_base)
 
 
 def main():
