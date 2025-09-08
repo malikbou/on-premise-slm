@@ -7,6 +7,7 @@ import json
 import math
 from dataclasses import dataclass
 import re
+import html
 from pathlib import Path
 from typing import Dict, Iterable, List, Tuple
 
@@ -14,6 +15,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from matplotlib.ticker import ScalarFormatter
+from matplotlib.patches import Patch
 import matplotlib as mpl
 
 
@@ -283,16 +285,15 @@ def plot_grouped_bars(
     ax.set_ylabel(metric.replace("_", " ").capitalize())
     ax.set_title(f"{metric.replace('_', ' ').capitalize()} by LLM (grouped by embedding)")
     ax.grid(True, which="both", ls=GRID_STYLE, axis="y")
-    # Place legend outside the plotting area on the right
+    # Legend at top center (simple and out of bar area)
     n_embs = len(pivot.columns)
     ax.legend(
         title="Embedding",
         fontsize=8,
-        loc="center left",
-        bbox_to_anchor=(1.02, 0.5),
-        borderaxespad=0.0,
+        loc="upper center",
+        bbox_to_anchor=(0.5, 1.18),
         frameon=False,
-        ncol=1 if n_embs <= 12 else 2,
+        ncol=min(4, max(1, (n_embs + 1) // 2)),
     )
     # Only format Y axis numerically; keep custom categorical X labels
     _plain_numbers_y(ax)
@@ -316,10 +317,17 @@ def plot_ranking(
     ranked = ranked.sort_values("aggregate", ascending=True)
 
     fig, ax = plt.subplots(figsize=_figsize_inches())
-    ax.barh(ranked["pair"], ranked["aggregate"], color="tab:blue")
+    # Color-code bars by embedding and add legend
+    unique_embs = list(dict.fromkeys(ranked["embedding"]))
+    cmap = mpl.colormaps.get("tab10")
+    emb_to_color = {emb: cmap(i % 10) for i, emb in enumerate(unique_embs)}
+    colors = [emb_to_color[e] for e in ranked["embedding"]]
+    ax.barh(ranked["pair"], ranked["aggregate"], color=colors)
     ax.set_xlabel("Aggregate score")
-    ax.set_title("Overall performance ranking (weighted mean)")
+    ax.set_title("Figure B — Overall performance ranking (weighted mean)")
     ax.grid(True, which="both", ls=GRID_STYLE, axis="x")
+    handles = [mpl.patches.Patch(color=emb_to_color[e], label=e) for e in unique_embs]
+    ax.legend(handles=handles, title="Embedding", loc="upper left", fontsize=8, frameon=False)
     # Only format X axis numerically; keep categorical Y labels
     _plain_numbers_x(ax)
 
@@ -340,6 +348,132 @@ def plot_ranking(
         csv_path = (outdir / "overall_ranking.csv")
         table.to_csv(csv_path, index=False)
         print(f"✓ wrote {csv_path}")
+
+    # Additionally, write a Markdown summary with icons for metric winners
+    try:
+        winners = {}
+        for metric in METRICS:
+            idx = df[metric].idxmax()
+            if pd.notna(idx):
+                winners[metric] = (df.loc[idx, "embedding"], df.loc[idx, "llm"])  # raw
+
+        ranked_md = ranked.copy()
+        # Icon columns for top performers per metric
+        for metric in METRICS:
+            emb_raw, llm_raw = winners.get(metric, (None, None))
+            if emb_raw is None:
+                ranked_md[f"top_{metric}"] = ""
+                continue
+            # Mark ✅ for the exact winning pair; 🔺 for those within 2% of the max
+            mmax = df[metric].max()
+            ranked_md[f"top_{metric}"] = ranked_md.apply(
+                lambda r: (
+                    "✅" if (r["embedding"] == emb_map.get(emb_raw, _shorten_embedding_label(emb_raw)) and r["llm"] == llm_map.get(llm_raw, _shorten_llm_label(llm_raw)))
+                    else ("🔺" if r[metric] >= 0.98 * mmax else "")
+                ),
+                axis=1,
+            )
+
+        # Prepare Markdown table
+        md_lines: List[str] = []
+        md_lines.append("| Rank | Pair | Faithfulness | Ans. Rel. | Ctx. Prec. | Ctx. Recall | Mean | F | AR | CP | CR |")
+        md_lines.append("|---:|:---|---:|---:|---:|---:|---:|:--:|:--:|:--:|:--:|")
+        for i, r in enumerate(ranked_md.itertuples(index=False), start=1):
+            pair = f"{r.embedding} | {r.llm}"
+            md_lines.append(
+                f"| {i} | {pair} | {r.faithfulness:.3f} | {r.answer_relevancy:.3f} | {r.context_precision:.3f} | {r.context_recall:.3f} | {r.aggregate:.3f} | {getattr(r, 'top_faithfulness', '')} | {getattr(r, 'top_answer_relevancy', '')} | {getattr(r, 'top_context_precision', '')} | {getattr(r, 'top_context_recall', '')} |"
+            )
+
+        md_path = outdir / "rank_summary.md"
+        md_path.write_text("\n".join(md_lines), encoding="utf-8")
+        print(f"✓ wrote {md_path}")
+
+        # Create an HTML table version with similar content and icons
+        html_rows: List[str] = []
+        html_rows.append(
+            "<table><thead><tr>"
+            "<th style='text-align:right'>Rank</th>"
+            "<th>Pair</th>"
+            "<th style='text-align:right'>Faithfulness</th>"
+            "<th style='text-align:right'>Ans. Rel.</th>"
+            "<th style='text-align:right'>Ctx. Prec.</th>"
+            "<th style='text-align:right'>Ctx. Recall</th>"
+            "<th style='text-align:right'>Mean</th>"
+            "<th>F</th><th>AR</th><th>CP</th><th>CR</th>"
+            "</tr></thead><tbody>"
+        )
+        for i, r in enumerate(ranked_md.itertuples(index=False), start=1):
+            pair = f"{r.embedding} | {r.llm}"
+            html_rows.append(
+                "<tr>"
+                f"<td style='text-align:right'>{i}</td>"
+                f"<td>{html.escape(pair)}</td>"
+                f"<td style='text-align:right'>{r.faithfulness:.3f}</td>"
+                f"<td style='text-align:right'>{r.answer_relevancy:.3f}</td>"
+                f"<td style='text-align:right'>{r.context_precision:.3f}</td>"
+                f"<td style='text-align:right'>{r.context_recall:.3f}</td>"
+                f"<td style='text-align:right'>{r.aggregate:.3f}</td>"
+                f"<td>{getattr(r, 'top_faithfulness', '')}</td>"
+                f"<td>{getattr(r, 'top_answer_relevancy', '')}</td>"
+                f"<td>{getattr(r, 'top_context_precision', '')}</td>"
+                f"<td>{getattr(r, 'top_context_recall', '')}</td>"
+                "</tr>"
+            )
+        html_rows.append("</tbody></table>")
+        html_path = outdir / "rank_summary.html"
+        html_path.write_text("\n".join(html_rows), encoding="utf-8")
+        print(f"✓ wrote {html_path}")
+
+        # Also export a PNG figure of the rank table for easy inclusion (Figure E)
+        table_cols = [
+            "Rank",
+            "Pair",
+            "Faithfulness",
+            "Ans. Rel.",
+            "Ctx. Prec.",
+            "Ctx. Recall",
+            "Mean",
+            "F",
+            "AR",
+            "CP",
+            "CR",
+        ]
+        cell_text: List[List[str]] = []
+        for i, r in enumerate(ranked_md.itertuples(index=False), start=1):
+            row = [
+                str(i),
+                f"{r.embedding} | {r.llm}",
+                f"{r.faithfulness:.3f}",
+                f"{r.answer_relevancy:.3f}",
+                f"{r.context_precision:.3f}",
+                f"{r.context_recall:.3f}",
+                f"{r.aggregate:.3f}",
+                getattr(r, "top_faithfulness", ""),
+                getattr(r, "top_answer_relevancy", ""),
+                getattr(r, "top_context_precision", ""),
+                getattr(r, "top_context_recall", ""),
+            ]
+            cell_text.append(row)
+
+        n_rows = len(cell_text)
+        fig_h_in = max(2.5, min(18.0, 0.35 * n_rows))
+        fig_w_in = _mm_to_in(200)
+        fig_tbl, ax_tbl = plt.subplots(figsize=(fig_w_in, fig_h_in))
+        ax_tbl.axis("off")
+        tbl = ax_tbl.table(
+            cellText=cell_text,
+            colLabels=table_cols,
+            loc="center",
+            cellLoc="center",
+            colLoc="center",
+        )
+        tbl.auto_set_font_size(False)
+        tbl.set_fontsize(8)
+        tbl.scale(1.0, 1.3)
+        fig_tbl.suptitle("Figure E — Rank summary (best: ✅, within 2%: 🔺)", y=0.98)
+        _save(fig_tbl, outdir / "figure_E_rank_summary", fmt)
+    except Exception as e:
+        print(f"⚠ Failed to write rank summary markdown: {e}")
 
 
 def plot_radar_profiles(
@@ -418,13 +552,13 @@ def plot_heatmaps(
         ax.set_xticklabels(list(pivot.columns), rotation=XTICK_ROT, ha="right", fontsize=XTICK_FSIZE)
         ax.set_xlabel("LLMs")
         ax.set_ylabel("Embeddings")
-        ax.set_title(f"Heatmap — {metric.replace('_', ' ').capitalize()}")
+        ax.set_title(f"Figure D — {metric.replace('_', ' ').capitalize()}")
 
         # Colorbar
         cbar = fig.colorbar(im, ax=ax)
         cbar.ax.set_ylabel("Score (0–1)", rotation=-90, va="bottom")
 
-        _save(fig, outdir / f"heatmap_{metric}", fmt)
+        _save(fig, outdir / f"figure_D_heatmap_{metric}", fmt)
 
 
 def main(
