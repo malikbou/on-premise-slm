@@ -34,7 +34,7 @@ Academic research project for benchmarking RAG (Retrieval-Augmented Generation) 
 ```bash
 # Quick setup for development and validation
 docker-compose up -d litellm rag-api
-python src/benchmark.py  # Small testset validation
+python src/benchmarking/benchmark.py  # Small testset validation
 python load-testing/openai_llm_benchmark.py --requests 100 --concurrency 2
 ```
 
@@ -48,7 +48,7 @@ python load-testing/openai_llm_benchmark.py --requests 100 --concurrency 2
 ```bash
 # Full deployment for thesis benchmarking
 docker-compose -f docker-compose.vm.yml up -d
-python src/benchmark.py  # Full 100-question evaluation
+python src/benchmarking/benchmark.py  # Full 100-question evaluation
 python load-testing/openai_llm_benchmark.py --requests 1000 --concurrency 16
 ```
 
@@ -76,17 +76,114 @@ cp .env.example .env
 # Edit .env with your API keys (OpenAI, etc.)
 ```
 
+### Index Building Options
+
+You now have multiple ways to build FAISS indexes for your embedding models:
+
+#### Option 1: Automated Multi-Index Builder (Recommended)
+```bash
+# Docker (builds all models automatically)
+docker-compose up index-builder
+
+# Python script (local)
+python src/build_index.py  # Builds multiple embeddings by default
+
+# Shell script (local)
+./scripts/build-all-indexes.sh
+```
+
+#### Option 2: Individual Index Building
+```bash
+# Build specific embedding model indexes
+EMBEDDING_MODEL=bge-m3 docker-compose up index-builder
+EMBEDDING_MODEL=nomic-embed-text docker-compose up index-builder
+EMBEDDING_MODEL="yxchia/multilingual-e5-large-instruct" docker-compose up index-builder
+```
+
+**Embedding Models Configuration:**
+- Default models: `bge-m3`, `hf.co/Qwen/Qwen3-Embedding-0.6B-GGUF:Q8_0`, `yxchia/multilingual-e5-large-instruct`
+- Override via environment: `EMBEDDING_MODELS="model1,model2,model3"`
+
 ### Local Development Workflow
 ```bash
-# 1. Build document index
+# 1. Build all document indexes (automated for all embedding models)
 docker-compose up index-builder
 
 # 2. Start RAG API
 docker-compose up rag-api litellm
 
 # 3. Run quick validation
-python src/benchmark.py
+python src/benchmarking/benchmark.py
 ```
+
+### Start API Endpoints (for Simple Benchmarker)
+
+#### Mac (local host)
+```bash
+# Ensure Ollama is running on the host
+ollama serve
+
+# Build FAISS indexes for all embeddings (automated - run once)
+docker-compose up index-builder
+
+# Alternative: Build individual indexes (if needed)
+# EMBEDDING_MODEL=bge-m3 docker-compose up index-builder
+# EMBEDDING_MODEL=nomic-embed-text docker-compose up index-builder
+# EMBEDDING_MODEL="yxchia/multilingual-e5-large-instruct" docker-compose up index-builder
+
+# Start LiteLLM and embedding-specific RAG APIs on localhost ports
+docker-compose up -d litellm rag-api-bge rag-api-nomic rag-api-e5
+
+# Verify services are up
+curl -s http://localhost:8001/info | jq .    # bge-m3
+curl -s http://localhost:8002/info | jq .    # nomic-embed-text
+curl -s http://localhost:8003/info | jq .    # e5
+```
+
+Run the simple benchmarker (local):
+```bash
+python src/benchmark_simple.py \
+  --preset local \
+  --testset data/testset/baseline_7_questions.json \
+  --num-questions 10 \
+  --embeddings nomic-embed-text,bge-m3,yxchia/multilingual-e5-large-instruct \
+  --models "ollama/hf.co/bartowski/Llama-3.2-3B-Instruct-GGUF:Q4_K_M,azure-gpt5"
+```
+
+Notes:
+- Use `--preset local` on the host so the script targets `localhost` ports. Service DNS names like `rag-api-nomic` will not resolve from the host.
+- To free VRAM immediately after runs, use the Ollama CLI (e.g., `ollama stop "<model:tag>"`).
+
+#### Vast.ai GPU VM (Docker network)
+```bash
+# Bring up Ollama (GPU) + LiteLLM + embedding RAG APIs
+docker-compose -f docker-compose.yml -f docker-compose.vm.yml up -d \
+  ollama litellm rag-api-bge rag-api-nomic rag-api-e5
+
+# (First time on this VM) build indexes for all embeddings (automated)
+docker-compose up multi-index-builder
+
+# Alternative: Build individual indexes (if needed)
+# EMBEDDING_MODEL=bge-m3 docker-compose up index-builder
+# EMBEDDING_MODEL=nomic-embed-text docker-compose up index-builder
+# EMBEDDING_MODEL="yxchia/multilingual-e5-large-instruct" docker-compose up index-builder
+
+# Verify inside the network (from any service container) or expose ports as needed
+```
+
+Run the simple benchmarker (vm):
+```bash
+python src/benchmark_simple.py \
+  --preset vm \
+  --testset data/testset/baseline_7_questions.json \
+  --num-questions 10 \
+  --embeddings nomic-embed-text,bge-m3,yxchia/multilingual-e5-large-instruct \
+  --models "ollama/hf.co/bartowski/Llama-3.2-3B-Instruct-GGUF:Q4_K_M,azure-gpt5"
+```
+
+Notes:
+- `--preset vm` configures service DNS (e.g., `rag-api-nomic`) and containerized Ollama (`http://ollama:11434`).
+- To unload models immediately, exec into the Ollama container: `docker exec ollama ollama stop "<model:tag>"`.
 
 ### GPU VM Production Workflow
 ```bash
@@ -94,7 +191,7 @@ python src/benchmark.py
 docker-compose -f docker-compose.vm.yml up -d
 
 # 2. Run complete evaluation
-python src/benchmark.py
+python src/benchmarking/benchmark.py
 
 # 3. Throughput testing
 cd load-testing
@@ -143,20 +240,29 @@ OLLAMA_BASE_URL=http://localhost:11434
 LITELLM_API_BASE=http://localhost:4000
 
 # Benchmarking Configuration
-MODELS_TO_TEST=ollama/gemma3:4b,ollama/nemotron-mini:4b
-EMBEDDING_MODELS=nomic-embed-text,all-minilm
+MODELS_TO_TEST=ollama/gemma2:2b,ollama/Qwen2.5-3B-Instruct-GGUF:Q4_K_M,ollama/Llama-3.2-3B-Instruct-GGUF:Q4_K_M
+EMBEDDING_MODELS=nomic-embed-text,bge-m3,yxchia/multilingual-e5-large-instruct
 NUM_QUESTIONS_TO_TEST=10  # Use 100 for full evaluation
 
 # Platform-Specific (auto-detected)
 PLATFORM=auto  # auto, mac_local, vast_ai_gpu
 MEMORY_MANAGEMENT=auto  # auto, aggressive, relaxed, minimal
+
+# Azure OpenAI (optional)
+# Use the deployment-as-model form via LiteLLM alias 'azure-gpt5' or direct 'azure/<deployment_name>'
+AZURE_OPENAI_API_BASE=https://emtechfoundrytrial2.cognitiveservices.azure.com
+AZURE_OPENAI_API_VERSION=2024-12-01-preview
+AZURE_OPENAI_API_KEY=your_azure_key
 ```
 
 ### Docker Services
 - **litellm**: LLM gateway proxy for cloud/local model routing
 - **rag-api**: Main RAG API with FAISS retrieval
-- **rag-api-minilm**: Dedicated API for all-minilm embedding model
+- **rag-api-bge**: Dedicated API for bge-m3 embedding model
 - **rag-api-nomic**: Dedicated API for nomic-embed-text embedding model
+- **rag-api-e5**: Dedicated API for multilingual-e5-large-instruct embedding model
+- **index-builder**: Single embedding model index builder
+  (multi-index-builder removed; use index-builder)
 - **benchmarker**: Automated RAGAS evaluation runner
 - **ollama-benchmark**: Throughput testing runner
 - **open-webui**: Web interface for manual testing
@@ -191,7 +297,9 @@ All results include comprehensive hardware information:
 ### Core Implementation
 - `src/main.py` - RAG API with multi-model support
 - `src/benchmark.py` - RAGAS evaluation with memory management
-- `src/build_index.py` - FAISS index creation
+- `src/build_index.py` - Single embedding model FAISS index creation
+- `src/build_index.py` - Single entrypoint to build one or many FAISS indexes
+- `scripts/build-all-indexes.sh` - Shell script for automated index building
 - `load-testing/openai_llm_benchmark.py` - Throughput testing
 - `load-testing/results/plot_results.py` - Chart generation
 

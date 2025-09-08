@@ -69,3 +69,6 @@ testset/generated/*
 # FAISS indices
 *.faiss
 *.index
+
+# Legacy Code
+src/legacy

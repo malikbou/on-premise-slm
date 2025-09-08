@@ -44,12 +44,24 @@ docker-compose -f docker-compose.vm.yml up -d
 python src/build_index.py
 
 # Run RAGAS benchmarking
-python src/benchmark.py
+python src/benchmarking/benchmark.py
 
 # Throughput testing
 cd load-testing
 python openai_llm_benchmark.py
 ```
+
+### Visualize RAG Results (summary.json → figures)
+```bash
+# Basic (PNG)
+python src/benchmarking/plot_rag_results.py \
+  results/benchmarking/TIMESTAMP/summary.json -f png
+
+# PDF
+python src/benchmarking/plot_rag_results.py \
+  results/benchmarking/TIMESTAMP/summary.json -f pdf
+```
+Outputs: `results/benchmarking/TIMESTAMP/figures/` (Figures A–E + CSV/MD/HTML)
 
 ## Configuration
 

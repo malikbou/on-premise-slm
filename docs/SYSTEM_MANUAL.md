@@ -5,8 +5,9 @@
 ### Core Components
 1. **RAG API** (`src/main.py`): FastAPI service with retrieval and generation
 2. **Index Builder** (`src/build_index.py`): FAISS vector store creation
-3. **RAGAS Benchmarker** (`src/benchmark.py`): Quality evaluation with parallel metrics
+3. **RAGAS Benchmarker** (`src/benchmarking/benchmark.py`): Quality evaluation with parallel metrics
 4. **Throughput Tester** (`load-testing/openai_llm_benchmark.py`): Performance analysis
+5. **Results Visualizer** (`src/benchmarking/plot_rag_results.py`): Figure generation from RAG evaluation
 
 ### Service Architecture
 ```
@@ -79,5 +80,13 @@ MEMORY_MANAGEMENT=auto  # auto, aggressive, relaxed, minimal
 - RAGAS metrics: Answer relevancy, faithfulness, context recall/precision
 - Parallel processing with ThreadPoolExecutor
 - Memory-optimized testset loading
+
+### Results Visualization
+- Input: `results/benchmarking/TIMESTAMP/summary.json`
+- Output: `results/benchmarking/TIMESTAMP/figures/` (Figures A–E + CSV/MD/HTML)
+- CLI:
+```bash
+python src/benchmarking/plot_rag_results.py results/benchmarking/TIMESTAMP/summary.json -f png
+```
 
 *This manual is automatically updated by agents when technical changes occur.*
