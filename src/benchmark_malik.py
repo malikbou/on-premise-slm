@@ -53,6 +53,7 @@ from typing import Dict, List, Optional, Tuple
 import requests
 from langchain_openai import ChatOpenAI
 from langchain_ollama import OllamaEmbeddings
+from langchain_openai import OpenAIEmbeddings
 from ragas import evaluate, EvaluationDataset
 from ragas.metrics import (
     answer_relevancy,
@@ -426,9 +427,9 @@ def evaluate_answers(args: argparse.Namespace) -> None:
         base_url=f"{args.litellm}/v1"
     )
 
-    ragas_embeddings = OllamaEmbeddings(
-        model="nomic-embed-text",
-        base_url=args.ollama_base
+    ragas_embeddings = OpenAIEmbeddings(
+        openai_api_key="dummy",  # LiteLLM handles this
+        openai_api_base=f"{args.litellm}/v1"
     )
 
     metrics = [faithfulness, answer_relevancy, context_precision, context_recall]
