@@ -399,6 +399,126 @@ def generate_answers(args: argparse.Namespace) -> None:
                 print("Models after stop:")
                 print_ollama_models(args.ollama_base)
 
+def evaluate_answers(args: argparse.Namespace) -> None:
+    """Evaluate existing answer files using RAGAS."""
+    print(f"\n=== EVALUATE MODE ===")
+
+    results_dir = Path(args.results_dir) / args.run_stamp
+
+    if not results_dir.exists():
+        print(f"Results directory not found: {results_dir}")
+        return
+
+    # Find all answer files
+    answer_files = list(results_dir.glob("answers__*.json"))
+
+    if not answer_files:
+        print(f"No answer files found in {results_dir}")
+        return
+
+    print(f"Found {len(answer_files)} answer files to evaluate")
+
+    # Setup RAGAS components
+    judge_llm = ChatOpenAI(
+        # model="azure-gpt5",
+        model="gpt-4o-mini",
+        api_key="dummy",  # LiteLLM handles this
+        base_url=f"{args.litellm}/v1"
+    )
+
+    ragas_embeddings = OllamaEmbeddings(
+        model="nomic-embed-text",
+        base_url=args.ollama_base
+    )
+
+    metrics = [faithfulness, answer_relevancy, context_precision, context_recall]
+    summary_data = {}
+
+    for answer_file in answer_files:
+        print(f"\nEvaluating: {answer_file.name}")
+
+        # Extract embedding and model from filename
+        parts = answer_file.stem.split("__")
+        if len(parts) >= 3:
+            embedding = parts[1]
+            model = "__".join(parts[2:])  # Handle models with underscores
+        else:
+            print(f"Skipping malformed filename: {answer_file.name}")
+            continue
+
+        try:
+            # Load answers
+            with open(answer_file, 'r') as f:
+                answers = json.load(f)
+
+            # Filter out empty answers
+            valid_answers = [
+                ans for ans in answers
+                if ans.get("response", "").strip() and ans.get("retrieved_contexts")
+            ]
+
+            if not valid_answers:
+                print(f"  No valid answers found, skipping evaluation")
+                summary_data[f"{embedding}__{model}"] = {"error": "no_valid_answers"}
+                continue
+
+            print(f"  Evaluating {len(valid_answers)}/{len(answers)} valid answers")
+
+            # Create RAGAS dataset
+            dataset = Dataset.from_dict({
+                "question": [ans["user_input"] for ans in valid_answers],
+                "answer": [ans["response"] for ans in valid_answers],
+                "contexts": [ans["retrieved_contexts"] for ans in valid_answers],
+                "ground_truth": [ans["reference"] for ans in valid_answers]
+            })
+
+            # Run evaluation
+            result = evaluate(
+                dataset,
+                metrics=metrics,
+                llm=judge_llm,
+                embeddings=ragas_embeddings
+            )
+
+            # Convert to serializable format (simple approach from benchmark.py)
+            scores = {}
+
+            if hasattr(result, "to_pandas"):
+                # Modern RAGAS version - use pandas dataframe
+                df = result.to_pandas()
+                for col in df.select_dtypes(include="number").columns:
+                    score = float(df[col].mean())
+                    scores[col] = score
+            elif hasattr(result, 'items'):
+                # Old RAGAS version - result is dict-like
+                for metric_name, score in result.items():
+                    if hasattr(score, 'item'):  # Handle numpy types
+                        scores[metric_name] = float(score.item())
+                    else:
+                        scores[metric_name] = float(score)
+            else:
+                # Fallback
+                scores = {"result": str(result)}
+
+            print(f"  Scores: {scores}")
+
+            # Save individual scores
+            scores_file = results_dir / f"scores__{embedding.replace('/', '_')}__{model.replace('/', '_')}.json"
+            with open(scores_file, 'w') as f:
+                json.dump(scores, f, indent=2)
+
+            summary_data[f"{embedding}__{model}"] = scores
+
+        except Exception as e:
+            print(f"  Evaluation failed: {e}")
+            summary_data[f"{embedding}__{model}"] = {"error": str(e)}
+
+    # Save summary
+    summary_file = results_dir / "summary.json"
+    with open(summary_file, 'w') as f:
+        json.dump(summary_data, f, indent=2)
+
+    print(f"\nSummary saved to: {summary_file}")
 
 def main():
     """Main entry point."""
@@ -418,7 +538,7 @@ def main():
 
     if args.mode in ["all", "evaluate"]:
         pass
-        # evaluate_answers(args)
+        evaluate_answers(args)
 
     print(f"\nBenchmarking complete!")
 
