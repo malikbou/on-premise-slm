@@ -38,6 +38,20 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
+  multi-index-builder:
+    build: .
+    command: ["python", "src/build_all_indexes.py"]
+    volumes:
+      - ./data:/app/data:ro
+      - rag_cache:/app/.rag_cache
+    env_file:
+      - .env
+    environment:
+      - HANDBOOK_MD_PATH=/app/data/cs-handbook.md
+      - EMBEDDING_MODELS=bge-m3,hf.co/Qwen/Qwen3-Embedding-0.6B-GGUF:Q8_0,yxchia/multilingual-e5-large-instruct
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
   benchmarker:
     build: .
     command: ["python", "src/benchmark.py"]
