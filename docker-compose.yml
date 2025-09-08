@@ -29,26 +29,13 @@ services:
     build: .
     command: ["python", "src/build_index.py"]
     volumes:
+      - ./src:/app/src
       - ./data:/app/data:ro
       - rag_cache:/app/.rag_cache
     env_file:
       - .env
     environment:
       - HANDBOOK_MD_PATH=/app/data/cs-handbook.md
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-
-  multi-index-builder:
-    build: .
-    command: ["python", "src/build_index.py"]
-    volumes:
-      - ./data:/app/data:ro
-      - rag_cache:/app/.rag_cache
-    env_file:
-      - .env
-    environment:
-      - HANDBOOK_MD_PATH=/app/data/cs-handbook.md
-      - EMBEDDING_MODELS=bge-m3,hf.co/Qwen/Qwen3-Embedding-0.6B-GGUF:Q8_0,yxchia/multilingual-e5-large-instruct
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -56,6 +43,7 @@ services:
     build: .
     command: ["python", "src/benchmarking/benchmark.py"]
     volumes:
+      - ./src:/app/src
       - ./data:/app/data:ro
       - ./testset:/app/testset:ro
       - ./results:/app/results
@@ -165,22 +153,6 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     container_name: ollama-benchmark
-    env_file:
-      - .env
-
-  simple-benchmarker:
-    build: .
-    command: ["python", "src/benchmark_simple.py", "--preset", "vm", "--mode", "all"]
-    volumes:
-      - ./data:/app/data:ro
-      - ./testset:/app/testset:ro
-      - ./results:/app/results
-    depends_on:
-      - litellm
-      - rag-api-bge
-      - rag-api-qwen3
-      - rag-api-e5
-    container_name: simple-benchmarker
     env_file:
       - .env
 

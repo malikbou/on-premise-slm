@@ -83,7 +83,7 @@ You now have multiple ways to build FAISS indexes for your embedding models:
 #### Option 1: Automated Multi-Index Builder (Recommended)
 ```bash
 # Docker (builds all models automatically)
-docker-compose up multi-index-builder
+docker-compose up index-builder
 
 # Python script (local)
 python src/build_index.py  # Builds multiple embeddings by default
@@ -107,7 +107,7 @@ EMBEDDING_MODEL="yxchia/multilingual-e5-large-instruct" docker-compose up index-
 ### Local Development Workflow
 ```bash
 # 1. Build all document indexes (automated for all embedding models)
-docker-compose up multi-index-builder
+docker-compose up index-builder
 
 # 2. Start RAG API
 docker-compose up rag-api litellm
@@ -124,7 +124,7 @@ python src/benchmarking/benchmark.py
 ollama serve
 
 # Build FAISS indexes for all embeddings (automated - run once)
-docker-compose up multi-index-builder
+docker-compose up index-builder
 
 # Alternative: Build individual indexes (if needed)
 # EMBEDDING_MODEL=bge-m3 docker-compose up index-builder
@@ -262,7 +262,7 @@ AZURE_OPENAI_API_KEY=your_azure_key
 - **rag-api-nomic**: Dedicated API for nomic-embed-text embedding model
 - **rag-api-e5**: Dedicated API for multilingual-e5-large-instruct embedding model
 - **index-builder**: Single embedding model index builder
-- **multi-index-builder**: Automated multi-embedding index builder (builds all models)
+  (multi-index-builder removed; use index-builder)
 - **benchmarker**: Automated RAGAS evaluation runner
 - **ollama-benchmark**: Throughput testing runner
 - **open-webui**: Web interface for manual testing

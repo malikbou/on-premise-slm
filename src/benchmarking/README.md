@@ -1,6 +1,6 @@
 # Malik's RAG Benchmarking Script
 
-This document explains how to use `benchmark_malik.py` - a simplified RAG benchmarking script that provides real-time feedback and easy-to-use commands.
+This document explains how to use `benchmarking/benchmark.py` - a simplified RAG benchmarking script that provides real-time feedback and easy-to-use commands.
 
 ## Quick: Plot RAG Results (summary.json → figures)
 
@@ -30,7 +30,7 @@ Generates: Figure A (grouped bars), Figure B (ranking), Figure C (radar), Figure
 
 ## Overview
 
-`benchmark_malik.py` is a streamlined version of the RAG benchmarking system that:
+`benchmark.py` is a streamlined version of the RAG benchmarking system that:
 - Shows answer snippets as they're generated (real-time feedback)
 - Automatically monitors Ollama model loading/unloading
 - Supports separate generation and evaluation modes
@@ -66,7 +66,7 @@ ollama serve
 
 ### Generate Answers Only
 ```bash
-python src/benchmark_malik.py --preset local --mode generate
+python src/benchmarking/benchmark.py --preset local --mode generate
 ```
 
 **What this does:**
@@ -78,7 +78,7 @@ python src/benchmark_malik.py --preset local --mode generate
 
 ### Evaluate Existing Answers
 ```bash
-python src/benchmark_malik.py --preset local --mode evaluate --run-stamp TIMESTAMP
+python src/benchmarking/benchmark.py --preset local --mode evaluate --run-stamp TIMESTAMP
 ```
 
 **Example:**
@@ -94,7 +94,7 @@ python src/benchmark_malik.py --preset local --mode evaluate --run-stamp 2025090
 
 ### Generate + Evaluate (Full Pipeline)
 ```bash
-python src/benchmark_malik.py --preset local --mode all
+python src/benchmarking/benchmark.py --preset local --mode all
 ```
 
 **What this does:**
@@ -116,22 +116,22 @@ python src/benchmark_malik.py --preset local --mode all
 ### Ollama Model Management
 ```bash
 # Stop models after answering (saves VRAM)
-python src/benchmark_malik.py --preset local --stop-after
+python src/benchmarking/benchmark.py --preset local --stop-after
 
 # Custom stop mode (auto-detected from preset)
-python src/benchmark_malik.py --preset local --stop-after --stop-mode host
+python src/benchmarking/benchmark.py --preset local --stop-after --stop-mode host
 ```
 
 ### Custom Options
 ```bash
 # Custom number of questions
-python src/benchmark_malik.py --preset local --num-questions 5
+python src/benchmarking/benchmark.py --preset local --num-questions 5
 
 # Custom models to test
-python src/benchmark_malik.py --preset local --models "azure-gpt5,ollama/hf.co/bartowski/Llama-3.2-3B-Instruct-GGUF:Q4_K_M"
+python src/benchmarking/benchmark.py --preset local --models "azure-gpt5,ollama/hf.co/bartowski/Llama-3.2-3B-Instruct-GGUF:Q4_K_M"
 
 # Custom embeddings to test
-python src/benchmark_malik.py --preset local --embeddings "bge-m3,yxchia/multilingual-e5-large-instruct"
+python src/benchmarking/benchmark.py --preset local --embeddings "bge-m3,yxchia/multilingual-e5-large-instruct"
 ```
 
 ## Default Configuration
@@ -188,7 +188,7 @@ cat results/benchmarking/20250908_122129/summary.json
 ### Quick Test (Fewer Questions/Models)
 ```bash
 # Test with just 3 questions and 2 models
-python src/benchmark_malik.py --preset local --num-questions 3 \
+python src/benchmarking/benchmark.py --preset local --num-questions 3 \
   --models "ollama/hf.co/bartowski/Llama-3.2-3B-Instruct-GGUF:Q4_K_M,azure-gpt5" \
   --embeddings "bge-m3"
 ```
@@ -216,7 +216,7 @@ python src/benchmark_malik.py --preset local --num-questions 3 \
 ### No API Mapping Errors
 ```bash
 # Make sure you're using the correct preset
-python src/benchmark_malik.py --preset local  # NOT --preset vm
+python src/benchmarking/benchmark.py --preset local  # NOT --preset vm
 ```
 
 ### Empty Retrieved Contexts
