@@ -1,0 +1,128 @@
+{
+  "yxchia_multilingual-e5-large-instruct__ollama_hf.co_microsoft_Phi-3-mini-4k-instruct-gguf:Phi-3-mini-4k-instruct-q4.gguf": {
+    "faithfulness": 0.5549999999999999,
+    "answer_relevancy": 0.4964551957836729,
+    "context_precision": 0.7749999999576389,
+    "context_recall": 0.8550000000000001
+  },
+  "bge-m3__ollama_hf.co_tiiuae_Falcon3-3B-Instruct-GGUF:Q4_K_M": {
+    "faithfulness": 0.5260671191553544,
+    "answer_relevancy": 0.8017336103595323,
+    "context_precision": 0.6083333333095833,
+    "context_recall": 0.875
+  },
+  "bge-m3__ollama_hf.co_MaziyarPanahi_Phi-4-mini-instruct-GGUF:Q4_K_M": {
+    "faithfulness": 0.6453030303030303,
+    "answer_relevancy": 0.5784792258422596,
+    "context_precision": 0.6583333333083334,
+    "context_recall": 0.875
+  },
+  "hf.co_Qwen_Qwen3-Embedding-0.6B-GGUF:Q8_0__ollama_hf.co_Qwen_Qwen2.5-3B-Instruct-GGUF:Q4_K_M": {
+    "faithfulness": 0.4411363636363636,
+    "answer_relevancy": 0.6103227094904453,
+    "context_precision": 0.691666666632361,
+    "context_recall": 0.775
+  },
+  "yxchia_multilingual-e5-large-instruct__ollama_hf.co_tiiuae_Falcon3-3B-Instruct-GGUF:Q4_K_M": {
+    "faithfulness": 0.575595238095238,
+    "answer_relevancy": 0.6947867932659296,
+    "context_precision": 0.7499999999572221,
+    "context_recall": 0.805
+  },
+  "bge-m3__ollama_hf.co_MaziyarPanahi_Phi-3.5-mini-instruct-GGUF:Q4_K_M": {
+    "faithfulness": 0.643452380952381,
+    "answer_relevancy": 0.5861374947799658,
+    "context_precision": 0.6638888888649537,
+    "context_recall": 0.875
+  },
+  "yxchia_multilingual-e5-large-instruct__ollama_hf.co_MaziyarPanahi_Phi-4-mini-instruct-GGUF:Q4_K_M": {
+    "faithfulness": 0.5750000000000001,
+    "answer_relevancy": 0.6925198853806583,
+    "context_precision": 0.7166666666288888,
+    "context_recall": 0.8550000000000001
+  },
+  "hf.co_Qwen_Qwen3-Embedding-0.6B-GGUF:Q8_0__ollama_hf.co_MaziyarPanahi_Phi-3.5-mini-instruct-GGUF:Q4_K_M": {
+    "faithfulness": 0.5071428571428571,
+    "answer_relevancy": 0.7432509242097234,
+    "context_precision": 0.6583333332984722,
+    "context_recall": 0.875
+  },
+  "hf.co_Qwen_Qwen3-Embedding-0.6B-GGUF:Q8_0__ollama_hf.co_bartowski_Llama-3.2-3B-Instruct-GGUF:Q4_K_M": {
+    "faithfulness": 0.3190476190476191,
+    "answer_relevancy": 0.797464040063207,
+    "context_precision": 0.6999999999633333,
+    "context_recall": 0.875
+  },
+  "bge-m3__ollama_hf.co_Qwen_Qwen2.5-3B-Instruct-GGUF:Q4_K_M": {
+    "faithfulness": 0.5307142857142857,
+    "answer_relevancy": 0.7033971353726035,
+    "context_precision": 0.6083333333095833,
+    "context_recall": 0.875
+  },
+  "bge-m3__ollama_hf.co_bartowski_Llama-3.2-3B-Instruct-GGUF:Q4_K_M": {
+    "faithfulness": 0.5952380952380952,
+    "answer_relevancy": 0.7862266448844194,
+    "context_precision": 0.6583333333075001,
+    "context_recall": 0.875
+  },
+  "bge-m3__ollama_hf.co_microsoft_Phi-3-mini-4k-instruct-gguf:Phi-3-mini-4k-instruct-q4.gguf": {
+    "faithfulness": 0.6126923076923076,
+    "answer_relevancy": 0.5650942209949444,
+    "context_precision": 0.60833333330875,
+    "context_recall": 0.875
+  },
+  "bge-m3__azure-gpt5": {
+    "faithfulness": 0.6438888888888888,
+    "answer_relevancy": 0.33830289430970406,
+    "context_precision": 0.6833333332975,
+    "context_recall": 0.875
+  },
+  "hf.co_Qwen_Qwen3-Embedding-0.6B-GGUF:Q8_0__ollama_hf.co_MaziyarPanahi_Phi-4-mini-instruct-GGUF:Q4_K_M": {
+    "faithfulness": 0.5733333333333334,
+    "answer_relevancy": 0.5719861715203785,
+    "context_precision": 0.5833333333059721,
+    "context_recall": 0.825
+  },
+  "yxchia_multilingual-e5-large-instruct__ollama_hf.co_MaziyarPanahi_Phi-3.5-mini-instruct-GGUF:Q4_K_M": {
+    "faithfulness": 0.5719047619047618,
+    "answer_relevancy": 0.7268588526815154,
+    "context_precision": 0.7666666666222222,
+    "context_recall": 0.805
+  },
+  "yxchia_multilingual-e5-large-instruct__ollama_hf.co_bartowski_Llama-3.2-3B-Instruct-GGUF:Q4_K_M": {
+    "faithfulness": 0.4733333333333333,
+    "answer_relevancy": 0.7915061324618086,
+    "context_precision": 0.7166666666288888,
+    "context_recall": 0.805
+  },
+  "hf.co_Qwen_Qwen3-Embedding-0.6B-GGUF:Q8_0__azure-gpt5": {
+    "faithfulness": 0.8297474747474748,
+    "answer_relevancy": 0.1740042167236656,
+    "context_precision": 0.6833333332959721,
+    "context_recall": 0.875
+  },
+  "hf.co_Qwen_Qwen3-Embedding-0.6B-GGUF:Q8_0__ollama_hf.co_microsoft_Phi-3-mini-4k-instruct-gguf:Phi-3-mini-4k-instruct-q4.gguf": {
+    "faithfulness": 0.6866666666666668,
+    "answer_relevancy": 0.6707433699256404,
+    "context_precision": 0.6666666666351387,
+    "context_recall": 0.875
+  },
+  "hf.co_Qwen_Qwen3-Embedding-0.6B-GGUF:Q8_0__ollama_hf.co_tiiuae_Falcon3-3B-Instruct-GGUF:Q4_K_M": {
+    "faithfulness": 0.37706140350877193,
+    "answer_relevancy": 0.8825765761052164,
+    "context_precision": 0.6833333332959721,
+    "context_recall": 0.875
+  },
+  "yxchia_multilingual-e5-large-instruct__azure-gpt5": {
+    "faithfulness": 0.803887778887779,
+    "answer_relevancy": 0.4323258625511815,
+    "context_precision": 0.7499999999572221,
+    "context_recall": 0.805
+  },
+  "yxchia_multilingual-e5-large-instruct__ollama_hf.co_Qwen_Qwen2.5-3B-Instruct-GGUF:Q4_K_M": {
+    "faithfulness": 0.6499206349206349,
+    "answer_relevancy": 0.6160465590672171,
+    "context_precision": 0.7249999999626388,
+    "context_recall": 0.8550000000000001
+  }
+}
