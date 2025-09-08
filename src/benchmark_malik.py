@@ -422,7 +422,7 @@ def evaluate_answers(args: argparse.Namespace) -> None:
     # Setup RAGAS components
     judge_llm = ChatOpenAI(
         # model="azure-gpt5",
-        model="gpt-4o-mini",
+        model="gpt-4.1-mini",
         api_key="dummy",  # LiteLLM handles this
         base_url=f"{args.litellm}/v1"
     )
