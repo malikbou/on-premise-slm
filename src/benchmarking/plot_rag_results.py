@@ -283,17 +283,15 @@ def plot_grouped_bars(
     ax.set_xticks(x)
     ax.set_xticklabels([str(v) for v in pivot.index], rotation=XTICK_ROT, ha="right", fontsize=XTICK_FSIZE)
     ax.set_ylabel(metric.replace("_", " ").capitalize())
-    ax.set_title(f"{metric.replace('_', ' ').capitalize()} by LLM (grouped by embedding)")
+    ax.set_title(f"{metric.replace('_', ' ').capitalize()} by LLM (grouped by embedding)", pad=6)
     ax.grid(True, which="both", ls=GRID_STYLE, axis="y")
-    # Legend inline (upper-left inside the plot area)
-    n_embs = len(pivot.columns)
+    # Legend outside right (simple, never blocks anything)
     ax.legend(
         title="Embedding",
+        loc="center left",
+        bbox_to_anchor=(1.02, 0.5),
+        frameon=False,
         fontsize=8,
-        loc="upper left",
-        frameon=True,
-        fancybox=True,
-        framealpha=0.85,
     )
     # Only format Y axis numerically; keep custom categorical X labels
     _plain_numbers_y(ax)
