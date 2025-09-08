@@ -285,15 +285,15 @@ def plot_grouped_bars(
     ax.set_ylabel(metric.replace("_", " ").capitalize())
     ax.set_title(f"{metric.replace('_', ' ').capitalize()} by LLM (grouped by embedding)")
     ax.grid(True, which="both", ls=GRID_STYLE, axis="y")
-    # Legend at top center (simple and out of bar area)
+    # Legend inline (upper-left inside the plot area)
     n_embs = len(pivot.columns)
     ax.legend(
         title="Embedding",
         fontsize=8,
-        loc="upper center",
-        bbox_to_anchor=(0.5, 1.18),
-        frameon=False,
-        ncol=min(4, max(1, (n_embs + 1) // 2)),
+        loc="upper left",
+        frameon=True,
+        fancybox=True,
+        framealpha=0.85,
     )
     # Only format Y axis numerically; keep custom categorical X labels
     _plain_numbers_y(ax)
@@ -327,7 +327,16 @@ def plot_ranking(
     ax.set_title("Figure B — Overall performance ranking (weighted mean)")
     ax.grid(True, which="both", ls=GRID_STYLE, axis="x")
     handles = [mpl.patches.Patch(color=emb_to_color[e], label=e) for e in unique_embs]
-    ax.legend(handles=handles, title="Embedding", loc="upper left", fontsize=8, frameon=False)
+    # Legend inline (lower-right inside, away from y labels)
+    ax.legend(
+        handles=handles,
+        title="Embedding",
+        loc="lower right",
+        fontsize=8,
+        frameon=True,
+        fancybox=True,
+        framealpha=0.85,
+    )
     # Only format X axis numerically; keep categorical Y labels
     _plain_numbers_x(ax)
 
