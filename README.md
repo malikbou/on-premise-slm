@@ -34,7 +34,7 @@ Academic research project for benchmarking RAG (Retrieval-Augmented Generation) 
 ```bash
 # Quick setup for development and validation
 docker-compose up -d litellm rag-api
-python src/benchmark.py  # Small testset validation
+python src/benchmarking/benchmark.py  # Small testset validation
 python load-testing/openai_llm_benchmark.py --requests 100 --concurrency 2
 ```
 
@@ -48,7 +48,7 @@ python load-testing/openai_llm_benchmark.py --requests 100 --concurrency 2
 ```bash
 # Full deployment for thesis benchmarking
 docker-compose -f docker-compose.vm.yml up -d
-python src/benchmark.py  # Full 100-question evaluation
+python src/benchmarking/benchmark.py  # Full 100-question evaluation
 python load-testing/openai_llm_benchmark.py --requests 1000 --concurrency 16
 ```
 
@@ -86,7 +86,7 @@ You now have multiple ways to build FAISS indexes for your embedding models:
 docker-compose up multi-index-builder
 
 # Python script (local)
-python src/build_all_indexes.py
+python src/build_index.py  # Builds multiple embeddings by default
 
 # Shell script (local)
 ./scripts/build-all-indexes.sh
@@ -113,7 +113,7 @@ docker-compose up multi-index-builder
 docker-compose up rag-api litellm
 
 # 3. Run quick validation
-python src/benchmark.py
+python src/benchmarking/benchmark.py
 ```
 
 ### Start API Endpoints (for Simple Benchmarker)
@@ -191,7 +191,7 @@ Notes:
 docker-compose -f docker-compose.vm.yml up -d
 
 # 2. Run complete evaluation
-python src/benchmark.py
+python src/benchmarking/benchmark.py
 
 # 3. Throughput testing
 cd load-testing
@@ -298,7 +298,7 @@ All results include comprehensive hardware information:
 - `src/main.py` - RAG API with multi-model support
 - `src/benchmark.py` - RAGAS evaluation with memory management
 - `src/build_index.py` - Single embedding model FAISS index creation
-- `src/build_all_indexes.py` - Automated multi-embedding model index builder
+- `src/build_index.py` - Single entrypoint to build one or many FAISS indexes
 - `scripts/build-all-indexes.sh` - Shell script for automated index building
 - `load-testing/openai_llm_benchmark.py` - Throughput testing
 - `load-testing/results/plot_results.py` - Chart generation

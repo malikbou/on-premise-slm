@@ -44,7 +44,7 @@ docker-compose -f docker-compose.vm.yml up -d
 python src/build_index.py
 
 # Run RAGAS benchmarking
-python src/benchmark.py
+python src/benchmarking/benchmark.py
 
 # Throughput testing
 cd load-testing
