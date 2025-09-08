@@ -76,10 +76,38 @@ cp .env.example .env
 # Edit .env with your API keys (OpenAI, etc.)
 ```
 
+### Index Building Options
+
+You now have multiple ways to build FAISS indexes for your embedding models:
+
+#### Option 1: Automated Multi-Index Builder (Recommended)
+```bash
+# Docker (builds all models automatically)
+docker-compose up multi-index-builder
+
+# Python script (local)
+python src/build_all_indexes.py
+
+# Shell script (local)
+./scripts/build-all-indexes.sh
+```
+
+#### Option 2: Individual Index Building
+```bash
+# Build specific embedding model indexes
+EMBEDDING_MODEL=bge-m3 docker-compose up index-builder
+EMBEDDING_MODEL=nomic-embed-text docker-compose up index-builder
+EMBEDDING_MODEL="yxchia/multilingual-e5-large-instruct" docker-compose up index-builder
+```
+
+**Embedding Models Configuration:**
+- Default models: `bge-m3`, `hf.co/Qwen/Qwen3-Embedding-0.6B-GGUF:Q8_0`, `yxchia/multilingual-e5-large-instruct`
+- Override via environment: `EMBEDDING_MODELS="model1,model2,model3"`
+
 ### Local Development Workflow
 ```bash
-# 1. Build document index
-docker-compose up index-builder
+# 1. Build all document indexes (automated for all embedding models)
+docker-compose up multi-index-builder
 
 # 2. Start RAG API
 docker-compose up rag-api litellm
@@ -95,10 +123,13 @@ python src/benchmark.py
 # Ensure Ollama is running on the host
 ollama serve
 
-# Build FAISS indexes for all embeddings (run each once)
-EMBEDDING_MODEL=bge-m3 docker-compose up index-builder
-EMBEDDING_MODEL=nomic-embed-text docker-compose up index-builder
-EMBEDDING_MODEL="yxchia/multilingual-e5-large-instruct" docker-compose up index-builder
+# Build FAISS indexes for all embeddings (automated - run once)
+docker-compose up multi-index-builder
+
+# Alternative: Build individual indexes (if needed)
+# EMBEDDING_MODEL=bge-m3 docker-compose up index-builder
+# EMBEDDING_MODEL=nomic-embed-text docker-compose up index-builder
+# EMBEDDING_MODEL="yxchia/multilingual-e5-large-instruct" docker-compose up index-builder
 
 # Start LiteLLM and embedding-specific RAG APIs on localhost ports
 docker-compose up -d litellm rag-api-bge rag-api-nomic rag-api-e5
@@ -129,10 +160,13 @@ Notes:
 docker-compose -f docker-compose.yml -f docker-compose.vm.yml up -d \
   ollama litellm rag-api-bge rag-api-nomic rag-api-e5
 
-# (First time on this VM) build indexes for each embedding
-EMBEDDING_MODEL=bge-m3 docker-compose up index-builder
-EMBEDDING_MODEL=nomic-embed-text docker-compose up index-builder
-EMBEDDING_MODEL="yxchia/multilingual-e5-large-instruct" docker-compose up index-builder
+# (First time on this VM) build indexes for all embeddings (automated)
+docker-compose up multi-index-builder
+
+# Alternative: Build individual indexes (if needed)
+# EMBEDDING_MODEL=bge-m3 docker-compose up index-builder
+# EMBEDDING_MODEL=nomic-embed-text docker-compose up index-builder
+# EMBEDDING_MODEL="yxchia/multilingual-e5-large-instruct" docker-compose up index-builder
 
 # Verify inside the network (from any service container) or expose ports as needed
 ```
@@ -227,6 +261,8 @@ AZURE_OPENAI_API_KEY=your_azure_key
 - **rag-api-bge**: Dedicated API for bge-m3 embedding model
 - **rag-api-nomic**: Dedicated API for nomic-embed-text embedding model
 - **rag-api-e5**: Dedicated API for multilingual-e5-large-instruct embedding model
+- **index-builder**: Single embedding model index builder
+- **multi-index-builder**: Automated multi-embedding index builder (builds all models)
 - **benchmarker**: Automated RAGAS evaluation runner
 - **ollama-benchmark**: Throughput testing runner
 - **open-webui**: Web interface for manual testing
@@ -261,7 +297,9 @@ All results include comprehensive hardware information:
 ### Core Implementation
 - `src/main.py` - RAG API with multi-model support
 - `src/benchmark.py` - RAGAS evaluation with memory management
-- `src/build_index.py` - FAISS index creation
+- `src/build_index.py` - Single embedding model FAISS index creation
+- `src/build_all_indexes.py` - Automated multi-embedding model index builder
+- `scripts/build-all-indexes.sh` - Shell script for automated index building
 - `load-testing/openai_llm_benchmark.py` - Throughput testing
 - `load-testing/results/plot_results.py` - Chart generation
 
