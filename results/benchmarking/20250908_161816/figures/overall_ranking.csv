@@ -1,0 +1,22 @@
+pair_id,embedding,llm,faithfulness,answer_relevancy,context_precision,context_recall,aggregate
+hf.co_Qwen_Qwen3-Embedding-0.6B-GGUF:Q8_0__ollama_hf.co_Qwen_Qwen2.5-3B-Instruct-GGUF:Q4_K_M,Qwen3-0.6B (Q8),Qwen2.5-3B (Q4),0.4411363636363636,0.6103227094904453,0.691666666632361,0.775,0.5753846916281513
+bge-m3__azure-gpt5,bge-m3,azure-gpt5,0.6438888888888888,0.33830289430970406,0.6833333332975,0.875,0.5832130905079668
+hf.co_Qwen_Qwen3-Embedding-0.6B-GGUF:Q8_0__ollama_hf.co_bartowski_Llama-3.2-3B-Instruct-GGUF:Q4_K_M,Qwen3-0.6B (Q8),Llama-3.2-3B (Q4),0.3190476190476191,0.797464040063207,0.6999999999633333,0.875,0.5943582596306763
+hf.co_Qwen_Qwen3-Embedding-0.6B-GGUF:Q8_0__ollama_hf.co_MaziyarPanahi_Phi-4-mini-instruct-GGUF:Q4_K_M,Qwen3-0.6B (Q8),Phi-4-mini (Q4),0.5733333333333334,0.5719861715203785,0.5833333333059721,0.825,0.6000958514506414
+hf.co_Qwen_Qwen3-Embedding-0.6B-GGUF:Q8_0__azure-gpt5,Qwen3-0.6B (Q8),azure-gpt5,0.8297474747474748,0.1740042167236656,0.6833333332959721,0.875,0.6082669215752841
+yxchia_multilingual-e5-large-instruct__ollama_hf.co_microsoft_Phi-3-mini-4k-instruct-gguf:Phi-3-mini-4k-instruct-q4.gguf,e5-large,Phi-3-mini-4k (Q4),0.5549999999999999,0.4964551957836729,0.7749999999576389,0.8550000000000001,0.6114365587266296
+bge-m3__ollama_hf.co_microsoft_Phi-3-mini-4k-instruct-gguf:Phi-3-mini-4k-instruct-q4.gguf,bge-m3,Phi-3-mini-4k (Q4),0.6126923076923076,0.5650942209949444,0.60833333330875,0.875,0.6237718560371565
+bge-m3__ollama_hf.co_Qwen_Qwen2.5-3B-Instruct-GGUF:Q4_K_M,bge-m3,Qwen2.5-3B (Q4),0.5307142857142857,0.7033971353726035,0.6083333333095833,0.875,0.632471521559412
+hf.co_Qwen_Qwen3-Embedding-0.6B-GGUF:Q8_0__ollama_hf.co_tiiuae_Falcon3-3B-Instruct-GGUF:Q4_K_M,Qwen3-0.6B (Q8),Falcon3-3B (Q4),0.37706140350877193,0.8825765761052164,0.6833333332959721,0.875,0.6397642008942682
+hf.co_Qwen_Qwen3-Embedding-0.6B-GGUF:Q8_0__ollama_hf.co_MaziyarPanahi_Phi-3.5-mini-instruct-GGUF:Q4_K_M,Qwen3-0.6B (Q8),Phi-3.5-mini (Q4),0.5071428571428571,0.7432509242097234,0.6583333332984722,0.875,0.6449990867797543
+yxchia_multilingual-e5-large-instruct__ollama_hf.co_bartowski_Llama-3.2-3B-Instruct-GGUF:Q4_K_M,e5-large,Llama-3.2-3B (Q4),0.4733333333333333,0.7915061324618086,0.7166666666288888,0.805,0.6506185063976537
+bge-m3__ollama_hf.co_MaziyarPanahi_Phi-4-mini-instruct-GGUF:Q4_K_M,bge-m3,Phi-4-mini (Q4),0.6453030303030303,0.5784792258422596,0.6583333333083334,0.875,0.6508316465355567
+bge-m3__ollama_hf.co_MaziyarPanahi_Phi-3.5-mini-instruct-GGUF:Q4_K_M,bge-m3,Phi-3.5-mini (Q4),0.643452380952381,0.5861374947799658,0.6638888888649537,0.875,0.653499978587933
+bge-m3__ollama_hf.co_tiiuae_Falcon3-3B-Instruct-GGUF:Q4_K_M,bge-m3,Falcon3-3B (Q4),0.5260671191553544,0.8017336103595323,0.6083333333095833,0.875,0.6601135974319182
+yxchia_multilingual-e5-large-instruct__ollama_hf.co_MaziyarPanahi_Phi-4-mini-instruct-GGUF:Q4_K_M,e5-large,Phi-4-mini (Q4),0.5750000000000001,0.6925198853806583,0.7166666666288888,0.8550000000000001,0.6665892989399753
+yxchia_multilingual-e5-large-instruct__ollama_hf.co_tiiuae_Falcon3-3B-Instruct-GGUF:Q4_K_M,e5-large,Falcon3-3B (Q4),0.575595238095238,0.6947867932659296,0.7499999999572221,0.805,0.6691741332093186
+yxchia_multilingual-e5-large-instruct__ollama_hf.co_Qwen_Qwen2.5-3B-Instruct-GGUF:Q4_K_M,e5-large,Qwen2.5-3B (Q4),0.6499206349206349,0.6160465590672171,0.7249999999626388,0.8550000000000001,0.6752822216809469
+yxchia_multilingual-e5-large-instruct__ollama_hf.co_MaziyarPanahi_Phi-3.5-mini-instruct-GGUF:Q4_K_M,e5-large,Phi-3.5-mini (Q4),0.5719047619047618,0.7268588526815154,0.7666666666222222,0.805,0.6806528938908037
+yxchia_multilingual-e5-large-instruct__azure-gpt5,e5-large,azure-gpt5,0.803887778887779,0.4323258625511815,0.7499999999572221,0.805,0.6817528703119105
+bge-m3__ollama_hf.co_bartowski_Llama-3.2-3B-Instruct-GGUF:Q4_K_M,bge-m3,Llama-3.2-3B (Q4),0.5952380952380952,0.7862266448844194,0.6583333333075001,0.875,0.693129898222064
+hf.co_Qwen_Qwen3-Embedding-0.6B-GGUF:Q8_0__ollama_hf.co_microsoft_Phi-3-mini-4k-instruct-gguf:Phi-3-mini-4k-instruct-q4.gguf,Qwen3-0.6B (Q8),Phi-3-mini-4k (Q4),0.6866666666666668,0.6707433699256404,0.6666666666351387,0.875,0.6967230109713867

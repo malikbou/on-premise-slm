@@ -18,10 +18,15 @@ load_dotenv()
 
 # --- Configuration ---
 # Allow overriding index path per service instance (Option A multi-API)
-INDEX_DIR = os.getenv("INDEX_DIR", ".rag_cache/faiss_index")
+INDEX_DIR = os.getenv("INDEX_DIR")
 EMBEDDING_MODEL_NAME = os.getenv("EMBEDDING_MODEL", "nomic-embed-text")
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://ollama:11434")
 LITELLM_API_BASE = os.getenv("LITELLM_API_BASE", "http://litellm:4000")
+
+
+def _slug_from_embedding(model_name: str) -> str:
+    import re as _re
+    return _re.sub(r"[^A-Za-z0-9]+", "_", model_name.lower())
 
 # --- Data Models ---
 class QueryRequest(BaseModel):
@@ -44,14 +49,20 @@ rag_resources = {}
 async def lifespan(app: FastAPI):
     print("--- RAG API is starting up ---")
 
-    print(f"Loading FAISS index from '{INDEX_DIR}'...")
-    if not os.path.exists(INDEX_DIR):
+    # Derive INDEX_DIR from EMBEDDING_MODEL when not explicitly set
+    index_dir = INDEX_DIR
+    if not index_dir:
+        slug = _slug_from_embedding(EMBEDDING_MODEL_NAME)
+        index_dir = f".rag_cache/{slug}/faiss_index"
+
+    print(f"Loading FAISS index from '{index_dir}'...")
+    if not os.path.exists(index_dir):
         raise RuntimeError(f"FAISS index not found. Run the index builder first.")
 
     embeddings = OllamaEmbeddings(model=EMBEDDING_MODEL_NAME, base_url=OLLAMA_BASE_URL, keep_alive=0)
 
     vectorstore = FAISS.load_local(
-        INDEX_DIR,
+        index_dir,
         embeddings,
         allow_dangerous_deserialization=True
     )
@@ -106,17 +117,27 @@ async def query_rag_pipeline(request: QueryRequest) -> QueryResponse:
 
     retriever = vectorstore.as_retriever()
 
-    # Custom RAG prompt template for better context usage
-    rag_prompt_template = """Use the following pieces of context to answer the question at the end.
-If you don't know the answer, just say that you don't know, don't try to make up an answer.
-Use three sentences maximum and keep the answer as concise as possible.
+    # ---- Problem-solver prompt tailored for handbook-style queries ----
+    rag_prompt_template = """You are a helpful UCL Computer Science handbook assistant.
+Answer using ONLY the context. If the answer is not in the context, say "I don't know based on the handbook excerpts provided."
+
+Write concise, actionable guidance:
+- Start with the direct answer in one short sentence.
+- Then list 2–5 clear steps (what to do / who to contact / forms to submit / deadlines).
+- If relevant, include warnings/caveats (e.g., evidence required, timing rules).
+- End with a one-line source label: "Source: <section or heading>".
+
+STRICT RULES:
+- Do not invent emails, links, or policies not shown in context.
+- Prefer official terms from the context (e.g., Extenuating Circumstances, SORA).
+- Keep total length under ~8 lines.
 
 Context:
 {context}
 
 Question: {question}
 
-Helpful Answer:"""
+Helpful, grounded answer:"""
 
     RAG_PROMPT = PromptTemplate(
         template=rag_prompt_template,

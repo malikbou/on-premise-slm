@@ -208,7 +208,7 @@ A summary of how academic teaching teams are comprised.
 
 A degree programme is delivered by a team of staff, led by the Programme Director, which includes Module Leaders, lecturers, guest speakers, and teaching assistants. The programme team is facilitated by the Programme Administrator and supported by a range of professional services staff and tutors who coordinate admissions, affiliate study, teaching support, industry placements, study abroad opportunities, careers support, and more.
 
-- The Programme Director and other key programme staff are set out in [Section 2.4 - Key staff related to programmes and modules](
+- The Programme Director and other key programme staff are set out in [Section 2.4 - Key staff related to programmes and modules]
 
 Each module is delivered by its own team of educators and examiners, led by the Module Leader. The module team often comprises one or more academic teaching staff, teaching assistants, and internal examiners. The module team is facilitated by the Module Administrator.
 
@@ -217,7 +217,7 @@ Each module is delivered by its own team of educators and examiners, led by the 
 The roles and responsibilities of programme and module team members are set out in Section 3.3 below.
 
 Further information:
-- [Section 2.4 - Key staff related to programmes and modules | CS Student Handbook](
+- [Section 2.4 - Key staff related to programmes and modules | CS Student Handbook]
 - [UCL Module Catalogue](https://www.ucl.ac.uk/module-catalogue)
 
 ### 3.2 Professional services teaching and learning team

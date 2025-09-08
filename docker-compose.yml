@@ -29,27 +29,34 @@ services:
     build: .
     command: ["python", "src/build_index.py"]
     volumes:
+      - ./src:/app/src
       - ./data:/app/data:ro
       - rag_cache:/app/.rag_cache
     env_file:
       - .env
+    environment:
+      - HANDBOOK_MD_PATH=/app/data/cs-handbook.md
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   benchmarker:
     build: .
-    command: ["python", "src/benchmark.py"]
+    command: ["python", "src/benchmarking/benchmark.py"]
     volumes:
+      - ./src:/app/src
+      - ./data:/app/data:ro
       - ./testset:/app/testset:ro
       - ./results:/app/results
     depends_on:
-      - rag-api
-      - rag-api-minilm
-      - rag-api-nomic
+      - rag-api-bge
+      - rag-api-qwen3
+      - rag-api-e5
     environment:
-      - EMBEDDING_API_MAP=all-minilm=http://rag-api-minilm:8000,nomic-embed-text=http://rag-api-nomic:8000
+      - EMBEDDING_API_MAP=bge-m3=http://rag-api-bge:8000,hf.co/Qwen/Qwen3-Embedding-0.6B-GGUF:Q8_0=http://rag-api-qwen3:8000,yxchia/multilingual-e5-large-instruct=http://rag-api-e5:8000
     env_file:
       - .env
 
-  rag-api-minilm:
+  rag-api-bge:
     build: .
     ports:
       - "8001:8000"
@@ -58,14 +65,22 @@ services:
       - rag_cache:/app/.rag_cache:ro
     depends_on:
       - litellm
-    container_name: rag-api-minilm
+    container_name: rag-api-bge
     env_file:
       - .env
     environment:
-      - INDEX_DIR=/app/.rag_cache/all_minilm/faiss_index
-      - EMBEDDING_MODEL=all-minilm
+      - INDEX_DIR=/app/.rag_cache/bge_m3/faiss_index
+      - EMBEDDING_MODEL=bge-m3
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8000/info"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
-  rag-api-nomic:
+  rag-api-qwen3:
     build: .
     ports:
       - "8002:8000"
@@ -74,12 +89,44 @@ services:
       - rag_cache:/app/.rag_cache:ro
     depends_on:
       - litellm
-    container_name: rag-api-nomic
+    container_name: rag-api-qwen3
     env_file:
       - .env
     environment:
-      - INDEX_DIR=/app/.rag_cache/nomic_embed_text/faiss_index
-      - EMBEDDING_MODEL=nomic-embed-text
+      - INDEX_DIR=/app/.rag_cache/qwen3/faiss_index
+      - EMBEDDING_MODEL=hf.co/Qwen/Qwen3-Embedding-0.6B-GGUF:Q8_0
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8000/info"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  rag-api-e5:
+    build: .
+    ports:
+      - "8003:8000"
+    volumes:
+      - ./src:/app/src
+      - rag_cache:/app/.rag_cache:ro
+    depends_on:
+      - litellm
+    container_name: rag-api-e5
+    env_file:
+      - .env
+    environment:
+      - INDEX_DIR=/app/.rag_cache/yxchia_multilingual_e5_large_instruct/faiss_index
+      - EMBEDDING_MODEL=yxchia/multilingual-e5-large-instruct
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8000/info"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   open-webui:
     image: ghcr.io/open-webui/open-webui:main
