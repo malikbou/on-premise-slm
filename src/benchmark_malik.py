@@ -84,8 +84,8 @@ def get_default_embedding_api_map(preset: str) -> Dict[str, str]:
     if preset == "local":
         return {
             "bge-m3": "http://localhost:8001",
-            "yxchia/multilingual-e5-large-instruct": "http://localhost:8003"
-            "hf.co/Qwen/Qwen3-Embedding-0.6B-GGUF:Q8_0": "http://localhost:8002"
+            "yxchia/multilingual-e5-large-instruct": "http://localhost:8003",
+            "hf.co/Qwen/Qwen3-Embedding-0.6B-GGUF:Q8_0": "http://localhost:8002",
             # "nomic-embed-text": "http://localhost:8002", # SHOULD NOT BE HERE
         }
     # this will cause problem in VM for sure
@@ -93,7 +93,7 @@ def get_default_embedding_api_map(preset: str) -> Dict[str, str]:
         return {
             "nomic-embed-text": "http://rag-api-nomic:8000",
             "bge-m3": "http://rag-api-bge:8000",
-            "yxchia/multilingual-e5-large-instruct": "http://rag-api-e5:8000"
+            "yxchia/multilingual-e5-large-instruct": "http://rag-api-e5:8000",
         }
     else:
         return {}
@@ -348,7 +348,8 @@ def generate_answers(args: argparse.Namespace) -> None:
                         answer_record = {
                             "user_input": question,
                             "response": result.get("answer", ""),
-                            "retrieved_contexts": result.get("contexts", []),
+                            # "retrieved_contexts": result.get("contexts", []),
+                            "retrieved_contexts": [doc.get('page_content', "") for doc in result.get('source_documents', [])],
                             "reference": reference
                         }
                     else:
