@@ -63,6 +63,28 @@ python src/benchmarking/plot_rag_results.py \
 ```
 Outputs: `results/benchmarking/TIMESTAMP/figures/` (Figures A–E + CSV/MD/HTML)
 
+### Visualize Throughput Results (simple)
+```bash
+# Basic (PNG)
+python src/throughput/plot_simple.py \
+  results/runs/TIMESTAMP_PLATFORM/throughput/benchmark-results.csv \
+  -s results/runs/TIMESTAMP_PLATFORM/throughput/system-info.json -f png
+
+# Example (from latest run)
+python src/throughput/plot_simple.py \
+  results/runs/20250909_130035_mac/throughput/benchmark-results.csv \
+  -s results/runs/20250909_130035_mac/throughput/system-info.json
+```
+Outputs: `results/runs/TIMESTAMP_PLATFORM/throughput/charts/`
+
+Generated figures:
+- models_rps_vs_concurrency.png
+- models_latency_p95_vs_concurrency.png
+- models_tail_ratio_vs_concurrency.png
+- provider_rps_vs_concurrency.png
+- provider_latency_p95_vs_concurrency.png
+- provider_tail_ratio_vs_concurrency.png
+
 ## Configuration
 
 ### Environment Variables
