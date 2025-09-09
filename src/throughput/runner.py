@@ -248,6 +248,7 @@ def summarize(latencies: List[float], tokens: List[int], successes: int, total_r
 
 def create_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(description="SLM vs Cloud Throughput Orchestrator")
+    p.add_argument("--mode", choices=["llm", "rag"], default=_env("MODE", "llm"), help="Benchmark mode: direct LLM API or RAG /query")
     p.add_argument("--ollama-base", default=_env("OLLAMA_BASE_URL", "http://localhost:11434"))
     p.add_argument("--litellm", default=_env("LITELLM_API_BASE", "http://localhost:4000"))
     p.add_argument("--cloud-model", default=_env("CLOUD_MODEL", "azure-gpt5"))
@@ -256,6 +257,9 @@ def create_parser() -> argparse.ArgumentParser:
         default=",".join(FIXED_SLM_MODELS),
         help="Comma-separated Ollama model IDs (fixed list by default)",
     )
+    # RAG API options
+    p.add_argument("--rag-base", default=_env("RAG_API_BASE", "http://localhost:8000"), help="Base URL for RAG API (src/main.py)")
+    p.add_argument("--rag-testset", default=_env("RAG_TESTSET", "data/testset/baseline_7_questions.json"), help="JSON file with a list of objects containing 'user_input' fields")
     p.add_argument("--concurrency", default="1,2,4,8,16", help="Comma-separated concurrencies")
     p.add_argument("--repetitions", type=int, default=3)
     p.add_argument("--requests", type=int, default=100, help="Requests per repetition per concurrency")
@@ -327,7 +331,7 @@ async def run() -> None:
     with open(run_dir / "system-info.json", "w") as f:
         json.dump(sysinfo, f, indent=2)
 
-    vprint("SLM vs Cloud Throughput Orchestrator")
+    vprint("Throughput Orchestrator (mode:", args.mode, ")")
     vprint("Run directory:", run_dir)
     vprint("Platform:", platform_label, "| GPU:", sysinfo.get("gpu"), "| VRAM (GB):", sysinfo.get("vram_gb"))
     vprint("Concurrency levels:", args.concurrency, "| Repetitions:", args.repetitions, "| Requests per rep:", args.requests)
@@ -371,7 +375,7 @@ async def run() -> None:
         }
         return row
 
-    # Benchmark helper to run repetitions and summarize
+    # Benchmark helper to run repetitions and summarize (direct LLM endpoints)
     async def benchmark(provider: str, base_url: str, model: str, concurrency: int) -> Dict[str, Any]:
         vprint(f"Starting: provider={provider} model={model} c={concurrency}")
         all_latencies: List[float] = []
@@ -406,22 +410,128 @@ async def run() -> None:
         )
         return summary
 
+    # -------- RAG mode helpers --------
+    def load_rag_questions(path: Path) -> List[str]:
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            # Expect list of objects with 'user_input'
+            questions = [str(item.get("user_input", "")) for item in data if isinstance(item, dict) and item.get("user_input")]
+            questions = [q for q in questions if q.strip()]
+            return questions or ["Summarize the key deadlines from the handbook."]
+        except Exception:
+            return ["Summarize the key deadlines from the handbook."]
+
+    async def rag_query(
+        client: httpx.AsyncClient,
+        rag_base: str,
+        model_name: str,
+        question: str,
+    ) -> Tuple[Optional[float], Optional[int]]:
+        url = f"{rag_base.rstrip('/')}/query"
+        payload = {"question": question, "model_name": model_name}
+        t0 = time.perf_counter()
+        try:
+            r = await client.post(url, json=payload, timeout=120)
+            latency = time.perf_counter() - t0
+            r.raise_for_status()
+            # No token usage available from RAG API response
+            return latency, 0
+        except Exception:
+            return None, None
+
+    async def run_model_once_rag(
+        rag_base: str,
+        model_full: str,
+        questions: List[str],
+        requests_n: int,
+        concurrency: int,
+    ) -> Tuple[List[float], List[int], float]:
+        latencies: List[float] = []
+        tokens: List[int] = []
+        sem = asyncio.Semaphore(concurrency)
+
+        async def worker(idx: int) -> None:
+            async with sem:
+                q = questions[idx % len(questions)]
+                l, t = await rag_query(client, rag_base, model_full, q)
+                if l is not None:
+                    latencies.append(l)
+                    tokens.append(int(t or 0))
+
+        async with httpx.AsyncClient(http2=True, timeout=None) as client:  # type: ignore
+            # Warm-up single request
+            await rag_query(client, rag_base, model_full, questions[0])
+            tic = time.perf_counter()
+            tasks = [asyncio.create_task(worker(i)) for i in range(requests_n)]
+            await asyncio.gather(*tasks)
+            toc = time.perf_counter()
+
+        wall = toc - tic
+        return latencies, tokens, wall
+
+    async def benchmark_rag(provider: str, rag_base: str, model_full: str, concurrency: int, questions: List[str]) -> Dict[str, Any]:
+        vprint(f"Starting (RAG): provider={provider} model={model_full} c={concurrency}")
+        all_latencies: List[float] = []
+        all_tokens: List[int] = []
+        total_success = 0
+        total_wall = 0.0
+        total_attempts = args.requests * args.repetitions
+        for rep in range(1, args.repetitions + 1):
+            vprint(f"  Rep {rep}/{args.repetitions} ...")
+            lat, tok, wall = await run_model_once_rag(
+                rag_base,
+                model_full,
+                questions,
+                args.requests,
+                concurrency,
+            )
+            total_wall += wall
+            total_success += len(lat)
+            all_latencies.extend(lat)
+            all_tokens.extend(tok)
+        summary = summarize(all_latencies, all_tokens, total_success, total_attempts, total_wall)
+        vprint(
+            f"  Done: success={summary['n_success']}/{summary['n_requests']} | rps={summary['rps']:.2f} | ",
+            f"avg={summary['latency_avg_s']:.3f}s | p95={summary['latency_p95_s']:.3f}s",
+        )
+        return summary
+
     # Run SLMs (Ollama)
-    if not args.skip_ollama:
-        for model in slm_models:
-            for c in conc_list:
-                summary = await benchmark("ollama", args.ollama_base, model, c)
-                rows.append(record_row("ollama", args.ollama_base, model, c, args.repetitions, args.prompt, summary))
-            # After finishing model, unload
-            vprint(f"Unloading Ollama model: {model} ...")
-            stop_ollama_model_safe(model, resolve_stop_mode(args), args.ollama_container)
+    if args.mode == "llm":
+        if not args.skip_ollama:
+            for model in slm_models:
+                for c in conc_list:
+                    summary = await benchmark("ollama", args.ollama_base, model, c)
+                    rows.append(record_row("ollama", args.ollama_base, model, c, args.repetitions, args.prompt, summary))
+                # After finishing model, unload
+                vprint(f"Unloading Ollama model: {model} ...")
+                stop_ollama_model_safe(model, resolve_stop_mode(args), args.ollama_container)
 
     # Run Cloud (LiteLLM/Azure)
-    if not args.skip_cloud:
-        cloud_model = args.cloud_model
-        for c in conc_list:
-            summary = await benchmark("cloud", args.litellm, cloud_model, c)
-            rows.append(record_row("cloud", args.litellm, cloud_model, c, args.repetitions, args.prompt, summary))
+    if args.mode == "llm":
+        if not args.skip_cloud:
+            cloud_model = args.cloud_model
+            for c in conc_list:
+                summary = await benchmark("cloud", args.litellm, cloud_model, c)
+                rows.append(record_row("cloud", args.litellm, cloud_model, c, args.repetitions, args.prompt, summary))
+
+    # RAG mode: call /query on RAG API base, passing model_name as full identifier
+    if args.mode == "rag":
+        questions = load_rag_questions(Path(args.rag_testset))
+        if not args.skip_ollama:
+            for model in slm_models:
+                full_name = f"ollama/{model}"
+                for c in conc_list:
+                    summary = await benchmark_rag("rag-ollama", args.rag_base, full_name, c, questions)
+                    rows.append(record_row("rag-ollama", args.rag_base, full_name, c, args.repetitions, questions[0], summary))
+                vprint(f"Unloading Ollama model: {model} ...")
+                stop_ollama_model_safe(model, resolve_stop_mode(args), args.ollama_container)
+        if not args.skip_cloud:
+            full_name = args.cloud_model
+            for c in conc_list:
+                summary = await benchmark_rag("rag-cloud", args.rag_base, full_name, c, questions)
+                rows.append(record_row("rag-cloud", args.rag_base, full_name, c, args.repetitions, questions[0], summary))
 
     # Save CSV
     df = pd.DataFrame(rows)
