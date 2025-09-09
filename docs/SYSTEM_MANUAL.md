@@ -101,4 +101,19 @@ python src/throughput/plot_simple.py \
   -s results/runs/TIMESTAMP_PLATFORM/throughput/system-info.json -f png
 ```
 
+### Throughput Runner
+- Default mode: RAG (calls `/query` on RAG API)
+- Provider labels: `ollama` and `cloud`, with separate `mode` column in CSV
+- CLI examples:
+```bash
+# Minimal (RAG on 8001)
+python src/throughput/runner.py \
+  --requests 2 --repetitions 1 --concurrency 1 \
+  --skip-cloud --rag-base http://localhost:8001 --quiet
+
+# Direct LLM mode
+python src/throughput/runner.py --mode llm \
+  --requests 20 --repetitions 3 --concurrency 1,2,4
+```
+
 *This manual is automatically updated by agents when technical changes occur.*
