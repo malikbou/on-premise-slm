@@ -324,7 +324,7 @@ def create_parser() -> argparse.ArgumentParser:
     )
     # RAG API options
     p.add_argument("--rag-base", default=_env("RAG_API_BASE", "http://localhost:8000"), help="Base URL for RAG API (src/main.py)")
-    p.add_argument("--rag-testset", default=_env("RAG_TESTSET", "data/testset/baseline_7_questions.json"), help="JSON file with a list of objects containing 'user_input' fields")
+    p.add_argument("--rag-testset", default=_env("RAG_TESTSET", "data/testset/ucl-cs_single_hop_testset_gpt-4.1_20250906_111904.json"), help="JSON file with a list of objects containing 'user_input' fields")
     p.add_argument("--concurrency", default="1,2,4,8,16", help="Comma-separated concurrencies")
     p.add_argument("--repetitions", type=int, default=3)
     p.add_argument("--requests", type=int, default=100, help="Requests per repetition per concurrency")
