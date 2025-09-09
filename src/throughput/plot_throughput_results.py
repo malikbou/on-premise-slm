@@ -54,11 +54,28 @@ def _hardware_context_line(sysinfo: Dict[str, object]) -> str:
     return hw
 
 
+def _shorten_model_label(model: str) -> str:
+    # Keep last path segment, split tag after ':'
+    last = model.split("/")[-1]
+    if ":" in last:
+        base, tag = last.split(":", 1)
+    else:
+        base, tag = last, None
+    # remove noisy suffixes
+    for tok in ["-Instruct-GGUF", "-instruct-gguf", "-Instruct", "-instruct", "-GGUF", "-gguf"]:
+        base = base.replace(tok, "")
+    # compact hyphens
+    while "--" in base:
+        base = base.replace("--", "-")
+    base = base.strip("- ")
+    return f"{base} ({tag})" if tag else base
+
+
 def _plot_multi(ax, df: pd.DataFrame, y: str, ylabel: str) -> None:
     # Each (provider, model) series
     for (provider, model), grp in df.groupby(["provider", "model" ]):
         g = grp.sort_values("concurrency")
-        label = f"{provider}: {model.split('/')[-1]}"
+        label = f"{provider}: {_shorten_model_label(model)}"
         ax.plot(g["concurrency"], g[y], marker=MARKER, linestyle=LINESTYLE, label=label)
 
     ax.set_xscale("log", base=2)
@@ -66,7 +83,7 @@ def _plot_multi(ax, df: pd.DataFrame, y: str, ylabel: str) -> None:
     ax.set_ylabel(ylabel)
     ax.set_title(f"{ylabel} vs concurrency")
     ax.grid(True, which="both", ls=":")
-    ax.legend(title="Series", fontsize=8)
+    ax.legend(title="Series", fontsize=8, loc="center left", bbox_to_anchor=(1.02, 0.5), frameon=False)
 
     _plain_numbers(ax)
     _set_all_xticks(ax, df["concurrency"].unique())
@@ -85,7 +102,7 @@ def _plot_provider_compare(ax, df: pd.DataFrame, y: str, ylabel: str) -> None:
     ax.set_ylabel(ylabel)
     ax.set_title(f"{ylabel} vs concurrency (provider mean)")
     ax.grid(True, which="both", ls=":")
-    ax.legend(title="Provider")
+    ax.legend(title="Provider", loc="center left", bbox_to_anchor=(1.02, 0.5), frameon=False)
 
     _plain_numbers(ax)
     _set_all_xticks(ax, df["concurrency"].unique())
@@ -109,6 +126,22 @@ def main(csv_path: Path, fmt: str = "png", sysinfo_path: Path | None = None, out
         lambda r: (float(r["latency_p95_s"]) / float(r["latency_avg_s"])) if r.get("latency_avg_s", 0) else float("nan"),
         axis=1,
     )
+
+    # Speedup and parallel efficiency per (provider, model) vs concurrency==1
+    try:
+        base = (
+            df.loc[df["concurrency"] == 1, ["provider", "model", "rps"]]
+              .groupby(["provider", "model"], as_index=True)["rps"].mean()
+        )
+        def _speedup(row):
+            key = (row["provider"], row["model"])
+            b = base.get(key, np.nan)
+            return (row["rps"] / b) if b and b > 0 else np.nan
+        df["speedup"] = df.apply(_speedup, axis=1)
+        df["parallel_eff"] = df.apply(lambda r: (r["speedup"] / r["concurrency"]) if pd.notna(r.get("speedup")) and r.get("concurrency", 0) else np.nan, axis=1)
+    except Exception:
+        df["speedup"] = np.nan
+        df["parallel_eff"] = np.nan
 
     # Load hardware context if provided
     sysinfo: Dict[str, object] = {}
@@ -135,6 +168,8 @@ def main(csv_path: Path, fmt: str = "png", sysinfo_path: Path | None = None, out
         ("latency_avg_s", "Average latency (s)", f"latency_avg_vs_concurrency.{fmt}"),
         ("latency_p95_s", "p95 latency (s)", f"latency_p95_vs_concurrency.{fmt}"),
         ("tail_ratio", "p95 / mean latency", f"tail_ratio_vs_concurrency.{fmt}"),
+        ("speedup", "Speed-up (× vs 1-way)", f"speedup_vs_concurrency.{fmt}"),
+        ("parallel_eff", "Parallel efficiency", f"efficiency_vs_concurrency.{fmt}"),
     ]
 
     # Per-series, multi-line plots for each (provider,model)
