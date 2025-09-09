@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 import httpx
+import re
 import numpy as np
 import pandas as pd
 
@@ -60,27 +61,65 @@ def get_system_info() -> Dict[str, Any]:
     # CPU / RAM (best-effort without psutil)
     try:
         info["cpu"] = py_platform.processor() or py_platform.machine()
+        info["processor"] = py_platform.processor()
+        info["machine"] = py_platform.machine()
     except Exception:
         info["cpu"] = None
 
-    # RAM detection (best-effort, no psutil)
+    # RAM detection (prefer psutil if available; fallback per-OS)
     try:
-        if py_platform.system() == "Darwin":
-            # sysctl returns bytes
-            out = subprocess.run(["sysctl", "-n", "hw.memsize"], capture_output=True, text=True, timeout=1)
-            if out.returncode == 0 and out.stdout.strip().isdigit():
-                mem_bytes = int(out.stdout.strip())
-                info["ram_gb"] = int(round(mem_bytes / (1024 ** 3)))
-        elif py_platform.system() == "Linux":
-            # Parse /proc/meminfo MemTotal: kB
-            with open("/proc/meminfo", "r") as f:
-                for line in f:
-                    if line.startswith("MemTotal:"):
-                        parts = line.split()
-                        if len(parts) >= 2 and parts[1].isdigit():
-                            kb = int(parts[1])
-                            info["ram_gb"] = int(round(kb / (1024 ** 2)))
-                        break
+        try:
+            import psutil  # type: ignore
+
+            mem = psutil.virtual_memory()
+            info["ram_gb"] = round(mem.total / (1024 ** 3), 1)
+            # CPU counts
+            try:
+                info["cpu_count"] = psutil.cpu_count(logical=False)
+                info["cpu_count_logical"] = psutil.cpu_count(logical=True)
+            except Exception:
+                pass
+        except Exception:
+            if py_platform.system() == "Darwin":
+                # sysctl returns bytes
+                out = subprocess.run(["sysctl", "-n", "hw.memsize"], capture_output=True, text=True, timeout=1)
+                s = out.stdout.strip() if out.returncode == 0 else ""
+                if s.isdigit():
+                    mem_bytes = int(s)
+                    info["ram_gb"] = round(mem_bytes / (1024 ** 3), 1)
+                else:
+                    # Fallback to system_profiler parsing
+                    sp = subprocess.run(["system_profiler", "SPHardwareDataType"], capture_output=True, text=True, timeout=5)
+                    if sp.returncode == 0 and sp.stdout:
+                        m = re.search(r"Memory:\s*(\d+)\s*GB", sp.stdout)
+                        if m:
+                            info["ram_gb"] = float(m.group(1))
+                        # Extract chip and core breakdown
+                        chip_match = re.search(r"Chip:\s+(.+)", sp.stdout)
+                        if chip_match:
+                            info["chip"] = chip_match.group(1).strip()
+                        cores_match = re.search(r"Total Number of Cores:\s*(\d+)(?:\s*\((\d+)\s+performance\s+and\s+(\d+)\s+efficiency\))?", sp.stdout)
+                        if cores_match:
+                            info["total_cores"] = int(cores_match.group(1))
+                            if cores_match.group(2) and cores_match.group(3):
+                                info["performance_cores"] = int(cores_match.group(2))
+                                info["efficiency_cores"] = int(cores_match.group(3))
+                    # GPU cores (optional)
+                    spg = subprocess.run(["system_profiler", "SPDisplaysDataType"], capture_output=True, text=True, timeout=5)
+                    if spg.returncode == 0 and spg.stdout:
+                        gc = re.search(r"Total Number of Cores:\s*(\d+)", spg.stdout)
+                        if gc:
+                            info["gpu_cores"] = int(gc.group(1))
+            elif py_platform.system() == "Linux":
+                # Parse /proc/meminfo MemTotal: kB
+                with open("/proc/meminfo", "r") as f:
+                    for line in f:
+                        if line.startswith("MemTotal:"):
+                            parts = line.split()
+                            if len(parts) >= 2 and parts[1].isdigit():
+                                kb = int(parts[1])
+                                info["ram_gb"] = round(kb / (1024 ** 2), 1)
+                            break
     except Exception:
         info["ram_gb"] = None
 
