@@ -63,6 +63,27 @@ def get_system_info() -> Dict[str, Any]:
     except Exception:
         info["cpu"] = None
 
+    # RAM detection (best-effort, no psutil)
+    try:
+        if py_platform.system() == "Darwin":
+            # sysctl returns bytes
+            out = subprocess.run(["sysctl", "-n", "hw.memsize"], capture_output=True, text=True, timeout=1)
+            if out.returncode == 0 and out.stdout.strip().isdigit():
+                mem_bytes = int(out.stdout.strip())
+                info["ram_gb"] = int(round(mem_bytes / (1024 ** 3)))
+        elif py_platform.system() == "Linux":
+            # Parse /proc/meminfo MemTotal: kB
+            with open("/proc/meminfo", "r") as f:
+                for line in f:
+                    if line.startswith("MemTotal:"):
+                        parts = line.split()
+                        if len(parts) >= 2 and parts[1].isdigit():
+                            kb = int(parts[1])
+                            info["ram_gb"] = int(round(kb / (1024 ** 2)))
+                        break
+    except Exception:
+        info["ram_gb"] = None
+
     # GPU info (best-effort via torch or nvidia-smi)
     try:
         import torch  # type: ignore
