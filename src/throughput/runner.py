@@ -313,7 +313,7 @@ def summarize(latencies: List[float], tokens: List[int], successes: int, total_r
 
 def create_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(description="SLM vs Cloud Throughput Orchestrator")
-    p.add_argument("--mode", choices=["llm", "rag"], default=_env("MODE", "llm"), help="Benchmark mode: direct LLM API or RAG /query")
+    p.add_argument("--mode", choices=["llm", "rag"], default=_env("MODE", "rag"), help="Benchmark mode: direct LLM API or RAG /query")
     p.add_argument("--ollama-base", default=_env("OLLAMA_BASE_URL", "http://localhost:11434"))
     p.add_argument("--litellm", default=_env("LITELLM_API_BASE", "http://localhost:4000"))
     p.add_argument("--cloud-model", default=_env("CLOUD_MODEL", "azure-gpt5"))
@@ -323,11 +323,11 @@ def create_parser() -> argparse.ArgumentParser:
         help="Comma-separated Ollama model IDs (fixed list by default)",
     )
     # RAG API options
-    p.add_argument("--rag-base", default=_env("RAG_API_BASE", "http://localhost:8000"), help="Base URL for RAG API (src/main.py)")
+    p.add_argument("--rag-base", default=_env("RAG_API_BASE", "http://localhost:8001"), help="Base URL for RAG API (src/main.py)")
     p.add_argument("--rag-testset", default=_env("RAG_TESTSET", "data/testset/ucl-cs_single_hop_testset_gpt-4.1_20250906_111904.json"), help="JSON file with a list of objects containing 'user_input' fields")
     p.add_argument("--concurrency", default="1,2,4,8,16", help="Comma-separated concurrencies")
-    p.add_argument("--repetitions", type=int, default=3)
-    p.add_argument("--requests", type=int, default=100, help="Requests per repetition per concurrency")
+    p.add_argument("--repetitions", type=int, default=1)
+    p.add_argument("--requests", type=int, default=5, help="Requests per repetition per concurrency")
     p.add_argument("--max-tokens", type=int, default=128)
     p.add_argument("--temperature", type=float, default=0.0)
     p.add_argument("--prompt", default="Hello, world!")
@@ -412,6 +412,7 @@ async def run() -> None:
                    summary: Dict[str, Any]) -> Dict[str, Any]:
         row: Dict[str, Any] = {
             "timestamp": datetime.now().isoformat(timespec="seconds"),
+            "mode": args.mode,
             "provider": provider,
             "base_url": base_url,
             "model": model,
@@ -588,15 +589,15 @@ async def run() -> None:
             for model in slm_models:
                 full_name = f"ollama/{model}"
                 for c in conc_list:
-                    summary = await benchmark_rag("rag-ollama", args.rag_base, full_name, c, questions)
-                    rows.append(record_row("rag-ollama", args.rag_base, full_name, c, args.repetitions, questions[0], summary))
+                    summary = await benchmark_rag("ollama", args.rag_base, full_name, c, questions)
+                    rows.append(record_row("ollama", args.rag_base, full_name, c, args.repetitions, questions[0], summary))
                 vprint(f"Unloading Ollama model: {model} ...")
                 stop_ollama_model_safe(model, resolve_stop_mode(args), args.ollama_container)
         if not args.skip_cloud:
             full_name = args.cloud_model
             for c in conc_list:
-                summary = await benchmark_rag("rag-cloud", args.rag_base, full_name, c, questions)
-                rows.append(record_row("rag-cloud", args.rag_base, full_name, c, args.repetitions, questions[0], summary))
+                summary = await benchmark_rag("cloud", args.rag_base, full_name, c, questions)
+                rows.append(record_row("cloud", args.rag_base, full_name, c, args.repetitions, questions[0], summary))
 
     # Save CSV
     df = pd.DataFrame(rows)
