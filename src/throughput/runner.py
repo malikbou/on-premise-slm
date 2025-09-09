@@ -270,6 +270,9 @@ def create_parser() -> argparse.ArgumentParser:
     p.add_argument("--api-key", default="", help="Optional bearer token (e.g., for LiteLLM if needed)")
     p.add_argument("--region", default=_env("AZURE_REGION", ""))
     p.add_argument("--quiet", action="store_true")
+    # Provider toggles
+    p.add_argument("--skip-cloud", action="store_true", help="Skip cloud (LiteLLM) runs")
+    p.add_argument("--skip-ollama", action="store_true", help="Skip local Ollama runs")
     return p
 
 
@@ -404,19 +407,21 @@ async def run() -> None:
         return summary
 
     # Run SLMs (Ollama)
-    for model in slm_models:
-        for c in conc_list:
-            summary = await benchmark("ollama", args.ollama_base, model, c)
-            rows.append(record_row("ollama", args.ollama_base, model, c, args.repetitions, args.prompt, summary))
-        # After finishing model, unload
-        vprint(f"Unloading Ollama model: {model} ...")
-        stop_ollama_model_safe(model, resolve_stop_mode(args), args.ollama_container)
+    if not args.skip_ollama:
+        for model in slm_models:
+            for c in conc_list:
+                summary = await benchmark("ollama", args.ollama_base, model, c)
+                rows.append(record_row("ollama", args.ollama_base, model, c, args.repetitions, args.prompt, summary))
+            # After finishing model, unload
+            vprint(f"Unloading Ollama model: {model} ...")
+            stop_ollama_model_safe(model, resolve_stop_mode(args), args.ollama_container)
 
     # Run Cloud (LiteLLM/Azure)
-    cloud_model = args.cloud_model
-    for c in conc_list:
-        summary = await benchmark("cloud", args.litellm, cloud_model, c)
-        rows.append(record_row("cloud", args.litellm, cloud_model, c, args.repetitions, args.prompt, summary))
+    if not args.skip_cloud:
+        cloud_model = args.cloud_model
+        for c in conc_list:
+            summary = await benchmark("cloud", args.litellm, cloud_model, c)
+            rows.append(record_row("cloud", args.litellm, cloud_model, c, args.repetitions, args.prompt, summary))
 
     # Save CSV
     df = pd.DataFrame(rows)
