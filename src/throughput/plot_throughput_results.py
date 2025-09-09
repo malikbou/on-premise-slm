@@ -44,15 +44,58 @@ def _set_dense_yticks(ax) -> None:
 
 
 def _hardware_context_line(sysinfo: Dict[str, object]) -> str:
-    platform = sysinfo.get("platform", "?")
-    gpu = sysinfo.get("gpu", sysinfo.get("cpu", "unknown"))
-    ram = sysinfo.get("ram_gb")
-    ram_str = f"{ram}GB" if isinstance(ram, (int, float)) else "unknown RAM"
+    plat = sysinfo.get("platform", "?")
+    # prefer chip on Apple Silicon, else processor/machine
+    chip = sysinfo.get("chip")
+    proc = sysinfo.get("processor") or sysinfo.get("cpu") or sysinfo.get("machine") or "unknown CPU"
+    cpu_label = chip or proc
+    # memory
+    ram = sysinfo.get("ram_gb") or sysinfo.get("memory_gb")
+    ram_str = f"{ram}GB RAM" if isinstance(ram, (int, float)) else "RAM unknown"
+    # gpu label
+    gpu_label = sysinfo.get("gpu")
     vram = sysinfo.get("vram_gb")
-    hw = f"{platform} | {gpu} | RAM {ram_str}"
-    if vram is not None:
-        hw += f" | VRAM {vram}GB"
-    return hw
+    parts = [str(plat), str(cpu_label), ram_str]
+    if gpu_label:
+        parts.append(str(gpu_label))
+    if isinstance(vram, (int, float)):
+        parts.append(f"VRAM {vram}GB")
+    # cores (optional)
+    tc = sysinfo.get("total_cores") or sysinfo.get("cpu_count")
+    pc = sysinfo.get("performance_cores")
+    ec = sysinfo.get("efficiency_cores")
+    if tc and pc and ec:
+        parts.append(f"{tc} cores ({pc}P+{ec}E)")
+    elif tc:
+        parts.append(f"{tc} cores")
+    return " | ".join(parts)
+
+
+def _format_hardware_string(hw: Dict[str, object]) -> str:
+    parts = []
+    # CPU/Chip label
+    if hw.get("chip"):
+        parts.append(str(hw.get("chip")))
+    else:
+        proc = hw.get("processor") or hw.get("cpu") or hw.get("machine")
+        if proc:
+            parts.append(str(proc)[:50])
+    # Memory
+    mem = hw.get("memory_gb") or hw.get("ram_gb")
+    if isinstance(mem, (int, float)):
+        parts.append(f"{mem}GB RAM")
+    # Core breakdown
+    tc = hw.get("total_cores") or hw.get("cpu_count")
+    pc = hw.get("performance_cores")
+    ec = hw.get("efficiency_cores")
+    if tc and pc and ec:
+        parts.append(f"{tc} CPU cores ({pc}P+{ec}E)")
+    elif tc:
+        parts.append(f"{tc} CPU cores")
+    # GPU cores (Apple Silicon)
+    if hw.get("gpu_cores"):
+        parts.append(f"{hw.get('gpu_cores')} GPU cores")
+    return ", ".join(parts) if parts else "Unknown hardware"
 
 
 def _shorten_model_label(model: str) -> str:
@@ -99,7 +142,8 @@ def _plot_multi(ax, df: pd.DataFrame, y: str, ylabel: str) -> None:
     ax.set_xscale("log", base=2)
     ax.set_xlabel("Concurrent requests")
     ax.set_ylabel(ylabel)
-    ax.set_title(f"{ylabel} vs concurrency")
+    # Title handled by figure suptitle; avoid duplicate inside-axes title
+    ax.set_title("")
     ax.grid(True, which="both", ls=":")
     # Inline labels at the right edge instead of legend
     try:
@@ -127,7 +171,8 @@ def _plot_provider_compare(ax, df: pd.DataFrame, y: str, ylabel: str) -> None:
     ax.set_xscale("log", base=2)
     ax.set_xlabel("Concurrent requests")
     ax.set_ylabel(ylabel)
-    ax.set_title(f"{ylabel} vs concurrency (provider mean)")
+    # Title handled by figure suptitle; avoid duplicate inside-axes title
+    ax.set_title("")
     ax.grid(True, which="both", ls=":")
     # Compact legend inside the plot (few providers)
     ax.legend(title="Provider", fontsize=8, loc="upper left", frameon=True, framealpha=0.85)
@@ -205,8 +250,9 @@ def main(csv_path: Path, fmt: str = "png", sysinfo_path: Path | None = None, out
         fig, ax = plt.subplots(figsize=figsize)
         _plot_multi(ax, df, col, label)
         if title_suffix:
-            ax.set_title(f"{label} vs concurrency\n{title_suffix}")
-        fig.tight_layout()
+            hw_line = _format_hardware_string(sysinfo)
+            fig.suptitle(f"{label} vs concurrency", fontsize=16, fontweight="bold")
+            plt.title(hw_line, fontsize=10)
         out = outdir / ("models_" + name)
         fig.savefig(out, dpi=DPI if fmt == "png" else None)
         plt.close(fig)
@@ -217,8 +263,9 @@ def main(csv_path: Path, fmt: str = "png", sysinfo_path: Path | None = None, out
         fig, ax = plt.subplots(figsize=figsize)
         _plot_provider_compare(ax, df, col, label)
         if title_suffix:
-            ax.set_title(f"{label} vs concurrency (provider mean)\n{title_suffix}")
-        fig.tight_layout()
+            hw_line = _format_hardware_string(sysinfo)
+            fig.suptitle(f"{label} vs concurrency (provider mean)", fontsize=16, fontweight="bold")
+            plt.title(hw_line, fontsize=10)
         out = outdir / ("provider_" + name)
         fig.savefig(out, dpi=DPI if fmt == "png" else None)
         plt.close(fig)
@@ -231,8 +278,9 @@ def main(csv_path: Path, fmt: str = "png", sysinfo_path: Path | None = None, out
             fig, ax = plt.subplots(figsize=figsize)
             _plot_provider_compare(ax, df, "error_rate", "Error rate")
             if title_suffix:
-                ax.set_title(f"Error rate vs concurrency (provider)\n{title_suffix}")
-            fig.tight_layout()
+                hw_line = _format_hardware_string(sysinfo)
+                fig.suptitle(f"Error rate vs concurrency (provider)", fontsize=16, fontweight="bold")
+                plt.title(hw_line, fontsize=10)
             out = outdir / f"provider_error_rate_vs_concurrency.{fmt}"
             fig.savefig(out, dpi=DPI if fmt == "png" else None)
             plt.close(fig)
