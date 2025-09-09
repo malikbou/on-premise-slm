@@ -82,11 +82,42 @@ MEMORY_MANAGEMENT=auto  # auto, aggressive, relaxed, minimal
 - Memory-optimized testset loading
 
 ### Results Visualization
+RAG Quality Figures
 - Input: `results/benchmarking/TIMESTAMP/summary.json`
 - Output: `results/benchmarking/TIMESTAMP/figures/` (Figures A–E + CSV/MD/HTML)
 - CLI:
 ```bash
 python src/benchmarking/plot_rag_results.py results/benchmarking/TIMESTAMP/summary.json -f png
+```
+
+Throughput Figures (Simple Plotter)
+- Input: `results/runs/TIMESTAMP_PLATFORM/throughput/benchmark-results.csv`
+- Optional: `results/runs/TIMESTAMP_PLATFORM/throughput/system-info.json`
+- Output: `results/runs/TIMESTAMP_PLATFORM/throughput/charts/`
+- CLI:
+```bash
+python src/throughput/plot_simple.py \
+  results/runs/TIMESTAMP_PLATFORM/throughput/benchmark-results.csv \
+  -s results/runs/TIMESTAMP_PLATFORM/throughput/system-info.json -f png
+```
+
+Throughput Runner (RAG default)
+- Default `--mode` is `rag`
+- Default RAG API base: `http://localhost:8001`
+- Produces `benchmark-results.csv` with columns including `mode`, `provider`, `rps`, `latency_p95_s`
+- CLI examples:
+```bash
+# Smoke test
+python src/throughput/runner.py \
+  --requests 2 --repetitions 1 --concurrency 1 \
+  --models hf.co/microsoft/Phi-3-mini-4k-instruct-gguf:Phi-3-mini-4k-instruct-q4.gguf \
+  --skip-cloud --rag-base http://localhost:8001 --quiet
+
+# Full sweep
+python src/throughput/runner.py \
+  --rag-base http://localhost:8001 \
+  --rag-testset data/testset/ucl-cs_single_hop_testset_gpt-4.1_20250906_111904.json \
+  --repetitions 3 --requests 20 --concurrency 1,2,4,8,16 --skip-cloud
 ```
 
 *This manual is automatically updated by agents when technical changes occur.*

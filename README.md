@@ -116,7 +116,7 @@ docker-compose up rag-api litellm
 python src/benchmarking/benchmark.py
 ```
 
-### Start API Endpoints (for Simple Benchmarker)
+### Start API Endpoints (for Throughput Runner)
 
 #### Mac (local host)
 ```bash
@@ -132,7 +132,7 @@ docker-compose up index-builder
 # EMBEDDING_MODEL="yxchia/multilingual-e5-large-instruct" docker-compose up index-builder
 
 # Start LiteLLM and embedding-specific RAG APIs on localhost ports
-docker-compose up -d litellm rag-api-bge rag-api-nomic rag-api-e5
+docker-compose up -d litellm rag-api-bge rag-api-qwen3 rag-api-e5
 
 # Verify services are up
 curl -s http://localhost:8001/info | jq .    # bge-m3
@@ -140,14 +140,12 @@ curl -s http://localhost:8002/info | jq .    # nomic-embed-text
 curl -s http://localhost:8003/info | jq .    # e5
 ```
 
-Run the simple benchmarker (local):
+Run the throughput runner (local, RAG default):
 ```bash
-python src/benchmark_simple.py \
-  --preset local \
-  --testset data/testset/baseline_7_questions.json \
-  --num-questions 10 \
-  --embeddings nomic-embed-text,bge-m3,yxchia/multilingual-e5-large-instruct \
-  --models "ollama/hf.co/bartowski/Llama-3.2-3B-Instruct-GGUF:Q4_K_M,azure-gpt5"
+python src/throughput/runner.py \
+  --rag-base http://localhost:8001 \
+  --rag-testset data/testset/ucl-cs_single_hop_testset_gpt-4.1_20250906_111904.json \
+  --repetitions 3 --requests 20 --concurrency 1,2,4,8,16 --skip-cloud
 ```
 
 Notes:
@@ -171,14 +169,12 @@ docker-compose up multi-index-builder
 # Verify inside the network (from any service container) or expose ports as needed
 ```
 
-Run the simple benchmarker (vm):
+Run the throughput runner (vm):
 ```bash
-python src/benchmark_simple.py \
-  --preset vm \
-  --testset data/testset/baseline_7_questions.json \
-  --num-questions 10 \
-  --embeddings nomic-embed-text,bge-m3,yxchia/multilingual-e5-large-instruct \
-  --models "ollama/hf.co/bartowski/Llama-3.2-3B-Instruct-GGUF:Q4_K_M,azure-gpt5"
+python src/throughput/runner.py \
+  --rag-base http://rag-api-bge:8000 \
+  --rag-testset /app/data/testset/ucl-cs_single_hop_testset_gpt-4.1_20250906_111904.json \
+  --repetitions 3 --requests 20 --concurrency 1,2,4,8,16 --skip-cloud
 ```
 
 Notes:
@@ -197,6 +193,41 @@ python src/benchmarking/benchmark.py
 cd load-testing
 python openai_llm_benchmark.py --requests 1000 --concurrency 16
 ```
+
+## Throughput Plots (RAG End-to-End)
+
+- What we measure
+  - RPS (Requests/s): completed requests per second at each concurrency.
+  - p95 latency: tail latency; user experience under load.
+  - Tail ratio (p95/avg): stability; closer to 1 is better.
+  - Optional: TPS (Tokens/s when usage is returned), Error rate (cloud).
+
+- How to run (RAG mode)
+```bash
+python src/throughput/runner.py \
+  --rag-base http://localhost:8001 \
+  --rag-testset data/testset/ucl-cs_single_hop_testset_gpt-4.1_20250906_111904.json \
+  --repetitions 3 --requests 20 --concurrency 1,2,4,8,16 --skip-cloud
+
+python src/throughput/plot_simple.py \
+  results/runs/<STAMP>_mac/throughput/benchmark-results.csv \
+  -s results/runs/<STAMP>_mac/throughput/system-info.json -f png
+```
+
+- Outputs (saved to `results/runs/<STAMP>_<platform>/throughput/charts`)
+  - `models_rps_vs_concurrency.png` — per-model throughput
+  - `models_p95_latency_vs_concurrency.png` — per-model p95 latency
+  - `models_tail_ratio_vs_concurrency.png` — per-model tail ratio
+  - `provider_rps_vs_concurrency.png` — provider mean RPS (e.g., Ollama vs Cloud)
+  - `provider_p95_latency_vs_concurrency.png` — provider mean p95 latency
+  - `provider_tail_ratio_vs_concurrency.png` — provider mean tail ratio
+  - `provider_error_rate_vs_concurrency.png` — error rate (cloud; if applicable)
+
+- How to interpret
+  - Look for where RPS flattens as concurrency rises (saturation point).
+  - Rising p95 faster than avg indicates long-tail latency growth under load.
+  - Tail ratio near 1 reflects stable performance; >2–3 suggests volatile tails.
+  - Provider mean plots summarize overall trends; models_* plots show per-model differences.
 
 ## Agent-Assisted Development
 

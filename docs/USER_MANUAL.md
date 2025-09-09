@@ -63,6 +63,43 @@ python src/benchmarking/plot_rag_results.py \
 ```
 Outputs: `results/benchmarking/TIMESTAMP/figures/` (Figures A–E + CSV/MD/HTML)
 
+### Visualize Throughput Results (simple)
+```bash
+# Basic (PNG)
+python src/throughput/plot_simple.py \
+  results/runs/TIMESTAMP_PLATFORM/throughput/benchmark-results.csv \
+  -s results/runs/TIMESTAMP_PLATFORM/throughput/system-info.json -f png
+
+# Example (from latest run)
+python src/throughput/plot_simple.py \
+  results/runs/20250909_130035_mac/throughput/benchmark-results.csv \
+  -s results/runs/20250909_130035_mac/throughput/system-info.json
+```
+Outputs: `results/runs/TIMESTAMP_PLATFORM/throughput/charts/`
+
+Generated figures:
+- models_rps_vs_concurrency.png
+- models_latency_p95_vs_concurrency.png
+- models_tail_ratio_vs_concurrency.png
+- provider_rps_vs_concurrency.png
+- provider_latency_p95_vs_concurrency.png
+- provider_tail_ratio_vs_concurrency.png
+
+### Run Throughput Benchmark (RAG default)
+```bash
+# Minimal smoke test (local SLM via RAG API bge @ 8001)
+python src/throughput/runner.py \
+  --requests 2 --repetitions 1 --concurrency 1 \
+  --models hf.co/microsoft/Phi-3-mini-4k-instruct-gguf:Phi-3-mini-4k-instruct-q4.gguf \
+  --skip-cloud --rag-base http://localhost:8001 --quiet
+
+# Full RAG sweep
+python src/throughput/runner.py \
+  --rag-base http://localhost:8001 \
+  --rag-testset data/testset/ucl-cs_single_hop_testset_gpt-4.1_20250906_111904.json \
+  --repetitions 3 --requests 20 --concurrency 1,2,4,8,16 --skip-cloud
+```
+
 ## Configuration
 
 ### Environment Variables
