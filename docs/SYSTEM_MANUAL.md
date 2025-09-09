@@ -101,19 +101,23 @@ python src/throughput/plot_simple.py \
   -s results/runs/TIMESTAMP_PLATFORM/throughput/system-info.json -f png
 ```
 
-### Throughput Runner
-- Default mode: RAG (calls `/query` on RAG API)
-- Provider labels: `ollama` and `cloud`, with separate `mode` column in CSV
+Throughput Runner (RAG default)
+- Default `--mode` is `rag`
+- Default RAG API base: `http://localhost:8001`
+- Produces `benchmark-results.csv` with columns including `mode`, `provider`, `rps`, `latency_p95_s`
 - CLI examples:
 ```bash
-# Minimal (RAG on 8001)
+# Smoke test
 python src/throughput/runner.py \
   --requests 2 --repetitions 1 --concurrency 1 \
+  --models hf.co/microsoft/Phi-3-mini-4k-instruct-gguf:Phi-3-mini-4k-instruct-q4.gguf \
   --skip-cloud --rag-base http://localhost:8001 --quiet
 
-# Direct LLM mode
-python src/throughput/runner.py --mode llm \
-  --requests 20 --repetitions 3 --concurrency 1,2,4
+# Full sweep
+python src/throughput/runner.py \
+  --rag-base http://localhost:8001 \
+  --rag-testset data/testset/ucl-cs_single_hop_testset_gpt-4.1_20250906_111904.json \
+  --repetitions 3 --requests 20 --concurrency 1,2,4,8,16 --skip-cloud
 ```
 
 *This manual is automatically updated by agents when technical changes occur.*

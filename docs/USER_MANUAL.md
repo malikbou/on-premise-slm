@@ -85,21 +85,20 @@ Generated figures:
 - provider_latency_p95_vs_concurrency.png
 - provider_tail_ratio_vs_concurrency.png
 
-### Throughput Runner (RAG default)
+### Run Throughput Benchmark (RAG default)
 ```bash
-# Minimal smoke test (RAG API on 8001)
+# Minimal smoke test (local SLM via RAG API bge @ 8001)
 python src/throughput/runner.py \
   --requests 2 --repetitions 1 --concurrency 1 \
   --models hf.co/microsoft/Phi-3-mini-4k-instruct-gguf:Phi-3-mini-4k-instruct-q4.gguf \
   --skip-cloud --rag-base http://localhost:8001 --quiet
 
-# Full run
+# Full RAG sweep
 python src/throughput/runner.py \
   --rag-base http://localhost:8001 \
   --rag-testset data/testset/ucl-cs_single_hop_testset_gpt-4.1_20250906_111904.json \
-  --repetitions 3 --requests 20 --concurrency 1,2,4,8,16
+  --repetitions 3 --requests 20 --concurrency 1,2,4,8,16 --skip-cloud
 ```
-Outputs: `results/runs/<TIMESTAMP_PLATFORM>/throughput/` (CSV + system-info + charts)
 
 ## Configuration
 
