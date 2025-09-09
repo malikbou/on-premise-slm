@@ -46,9 +46,10 @@ def _set_dense_yticks(ax) -> None:
 def _hardware_context_line(sysinfo: Dict[str, object]) -> str:
     platform = sysinfo.get("platform", "?")
     gpu = sysinfo.get("gpu", sysinfo.get("cpu", "unknown"))
-    ram = sysinfo.get("ram_gb", "?")
+    ram = sysinfo.get("ram_gb")
+    ram_str = f"{ram}GB" if isinstance(ram, (int, float)) else "unknown RAM"
     vram = sysinfo.get("vram_gb")
-    hw = f"{platform} | {gpu} | RAM {ram}GB"
+    hw = f"{platform} | {gpu} | RAM {ram_str}"
     if vram is not None:
         hw += f" | VRAM {vram}GB"
     return hw
@@ -206,7 +207,7 @@ def main(csv_path: Path, fmt: str = "png", sysinfo_path: Path | None = None, out
         if title_suffix:
             ax.set_title(f"{label} vs concurrency\n{title_suffix}")
         fig.tight_layout()
-        out = outdir / name
+        out = outdir / ("models_" + name)
         fig.savefig(out, dpi=DPI if fmt == "png" else None)
         plt.close(fig)
         print(f"✓ wrote {out}")
@@ -218,10 +219,26 @@ def main(csv_path: Path, fmt: str = "png", sysinfo_path: Path | None = None, out
         if title_suffix:
             ax.set_title(f"{label} vs concurrency (provider mean)\n{title_suffix}")
         fig.tight_layout()
-        out = outdir / ("provider_mean_" + name)
+        out = outdir / ("provider_" + name)
         fig.savefig(out, dpi=DPI if fmt == "png" else None)
         plt.close(fig)
         print(f"✓ wrote {out}")
+
+    # Provider error rate vs concurrency (optional)
+    if {"errors", "requests"}.issubset(df.columns):
+        try:
+            df["error_rate"] = df.apply(lambda r: (float(r["errors"]) / float(r["requests"])) if r.get("requests", 0) else 0.0, axis=1)
+            fig, ax = plt.subplots(figsize=figsize)
+            _plot_provider_compare(ax, df, "error_rate", "Error rate")
+            if title_suffix:
+                ax.set_title(f"Error rate vs concurrency (provider)\n{title_suffix}")
+            fig.tight_layout()
+            out = outdir / f"provider_error_rate_vs_concurrency.{fmt}"
+            fig.savefig(out, dpi=DPI if fmt == "png" else None)
+            plt.close(fig)
+            print(f"✓ wrote {out}")
+        except Exception as e:
+            print(f"⚠ Failed to compute error rate: {e}")
 
 
 if __name__ == "__main__":
