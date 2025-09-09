@@ -32,7 +32,7 @@ Thumbs.db
 .env.local
 
 # Results (keep structure, ignore content)
-results/runs/*
+# results/runs/*
 !results/runs/README.md
 results/comparisons/*
 !results/comparisons/README.md
