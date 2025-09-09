@@ -61,6 +61,9 @@ def _shorten_model_label(model: str) -> str:
         base, tag = last.split(":", 1)
     else:
         base, tag = last, None
+    # Cloud alias mapping
+    if model == "azure-gpt5":
+        return "Azure GPT-5"
     # remove noisy suffixes
     for tok in ["-Instruct-GGUF", "-instruct-gguf", "-Instruct", "-instruct", "-GGUF", "-gguf"]:
         base = base.replace(tok, "")
@@ -68,22 +71,45 @@ def _shorten_model_label(model: str) -> str:
     while "--" in base:
         base = base.replace("--", "-")
     base = base.strip("- ")
-    return f"{base} ({tag})" if tag else base
+    # shorten tag like Q4_K_M -> Q4, or keep small tokens
+    tag_short = None
+    if tag:
+        if "Q4" in tag:
+            tag_short = "Q4"
+        elif "Q8" in tag:
+            tag_short = "Q8"
+        else:
+            tag_short = None
+    return f"{base} ({tag_short})" if tag_short else base
 
 
 def _plot_multi(ax, df: pd.DataFrame, y: str, ylabel: str) -> None:
     # Each (provider, model) series
+    lines_meta = []
     for (provider, model), grp in df.groupby(["provider", "model" ]):
         g = grp.sort_values("concurrency")
         label = f"{provider}: {_shorten_model_label(model)}"
-        ax.plot(g["concurrency"], g[y], marker=MARKER, linestyle=LINESTYLE, label=label)
+        (line,) = ax.plot(g["concurrency"], g[y], marker=MARKER, linestyle=LINESTYLE)
+        # last point for labeling
+        last_x = g["concurrency"].iloc[-1]
+        last_y = g[y].iloc[-1]
+        lines_meta.append((line, label, last_x, last_y))
 
     ax.set_xscale("log", base=2)
     ax.set_xlabel("Concurrent requests")
     ax.set_ylabel(ylabel)
     ax.set_title(f"{ylabel} vs concurrency")
     ax.grid(True, which="both", ls=":")
-    ax.legend(title="Series", fontsize=8, loc="center left", bbox_to_anchor=(1.02, 0.5), frameon=False)
+    # Inline labels at the right edge instead of legend
+    try:
+        x_min = float(df["concurrency"].min())
+        x_max = float(df["concurrency"].max())
+        ax.set_xlim(left=x_min, right=x_max * 1.25)
+    except Exception:
+        pass
+    for line, label, last_x, last_y in lines_meta:
+        color = line.get_color()
+        ax.text(last_x * 1.08, last_y, label, fontsize=8, va="center", ha="left", color=color)
 
     _plain_numbers(ax)
     _set_all_xticks(ax, df["concurrency"].unique())
@@ -102,7 +128,8 @@ def _plot_provider_compare(ax, df: pd.DataFrame, y: str, ylabel: str) -> None:
     ax.set_ylabel(ylabel)
     ax.set_title(f"{ylabel} vs concurrency (provider mean)")
     ax.grid(True, which="both", ls=":")
-    ax.legend(title="Provider", loc="center left", bbox_to_anchor=(1.02, 0.5), frameon=False)
+    # Compact legend inside the plot (few providers)
+    ax.legend(title="Provider", fontsize=8, loc="upper left", frameon=True, framealpha=0.85)
 
     _plain_numbers(ax)
     _set_all_xticks(ax, df["concurrency"].unique())
