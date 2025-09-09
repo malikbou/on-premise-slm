@@ -82,11 +82,23 @@ MEMORY_MANAGEMENT=auto  # auto, aggressive, relaxed, minimal
 - Memory-optimized testset loading
 
 ### Results Visualization
+RAG Quality Figures
 - Input: `results/benchmarking/TIMESTAMP/summary.json`
 - Output: `results/benchmarking/TIMESTAMP/figures/` (Figures A–E + CSV/MD/HTML)
 - CLI:
 ```bash
 python src/benchmarking/plot_rag_results.py results/benchmarking/TIMESTAMP/summary.json -f png
+```
+
+Throughput Figures (Simple Plotter)
+- Input: `results/runs/TIMESTAMP_PLATFORM/throughput/benchmark-results.csv`
+- Optional: `results/runs/TIMESTAMP_PLATFORM/throughput/system-info.json`
+- Output: `results/runs/TIMESTAMP_PLATFORM/throughput/charts/`
+- CLI:
+```bash
+python src/throughput/plot_simple.py \
+  results/runs/TIMESTAMP_PLATFORM/throughput/benchmark-results.csv \
+  -s results/runs/TIMESTAMP_PLATFORM/throughput/system-info.json -f png
 ```
 
 *This manual is automatically updated by agents when technical changes occur.*
