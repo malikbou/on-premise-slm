@@ -156,11 +156,16 @@ async def chat_completion(
     headers = build_headers(api_key)
     payload: Dict[str, Any] = {
         "model": model,
-        "max_tokens": max_tokens,
-        "temperature": temperature,
         "messages": [{"role": "user", "content": prompt}],
         "stream": False,
     }
+    # Azure via LiteLLM: use max_completion_tokens and force temperature=1 (only default supported)
+    if provider == "cloud" and ("azure" in model.lower()):
+        payload["max_completion_tokens"] = max_tokens
+        payload["temperature"] = 1
+    else:
+        payload["max_tokens"] = max_tokens
+        payload["temperature"] = temperature
     # Ollama-specific hint to unload after requests
     if provider == "ollama":
         payload["keep_alive"] = 0
