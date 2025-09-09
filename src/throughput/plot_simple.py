@@ -106,6 +106,10 @@ def plot_models_line(df: pd.DataFrame, y: str, ylabel: str, title: str, subtitle
         ax.plot(g["concurrency"], g[y], marker="o", linestyle="-", label=label)
 
     ax.set_xscale("log", base=2)
+    # Explicit numeric ticks (e.g., 1, 2, 4, 8, ...)
+    unique_conc = sorted(df["concurrency"].dropna().unique())
+    ax.set_xticks(unique_conc)
+    ax.set_xticklabels([str(int(x)) for x in unique_conc])
     ax.set_xlabel("Concurrent requests")
     ax.set_ylabel(ylabel)
     ax.grid(True, which="both", ls=":", alpha=0.6)
@@ -138,6 +142,10 @@ def plot_provider_mean_line(df: pd.DataFrame, y: str, ylabel: str, title: str, s
         ax.plot(gg["concurrency"], gg[y], marker="o", linestyle="-", label=provider)
 
     ax.set_xscale("log", base=2)
+    # Explicit numeric ticks (e.g., 1, 2, 4, 8, ...)
+    unique_conc = sorted(df["concurrency"].dropna().unique())
+    ax.set_xticks(unique_conc)
+    ax.set_xticklabels([str(int(x)) for x in unique_conc])
     ax.set_xlabel("Concurrent requests")
     ax.set_ylabel(ylabel)
     ax.grid(True, which="both", ls=":", alpha=0.6)
