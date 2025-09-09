@@ -89,12 +89,12 @@ def _format_hardware_string(hw: Dict[str, object]) -> str:
     pc = hw.get("performance_cores")
     ec = hw.get("efficiency_cores")
     if tc and pc and ec:
-        parts.append(f"{tc} CPU cores ({pc}P+{ec}E)")
+        parts.append(f"{tc} CPU Cores ({pc}P+{ec}E)")
     elif tc:
-        parts.append(f"{tc} CPU cores")
+        parts.append(f"{tc} CPU Cores")
     # GPU cores (Apple Silicon)
     if hw.get("gpu_cores"):
-        parts.append(f"{hw.get('gpu_cores')} GPU cores")
+        parts.append(f"{hw.get('gpu_cores')} GPU Cores")
     return ", ".join(parts) if parts else "Unknown hardware"
 
 
@@ -251,8 +251,7 @@ def main(csv_path: Path, fmt: str = "png", sysinfo_path: Path | None = None, out
         _plot_multi(ax, df, col, label)
         if title_suffix:
             hw_line = _format_hardware_string(sysinfo)
-            fig.suptitle(f"{label} vs concurrency", fontsize=16, fontweight="bold")
-            plt.title(hw_line, fontsize=10)
+            fig.suptitle(f"{label} vs concurrency\n{hw_line}", fontsize=16, fontweight="bold")
         out = outdir / ("models_" + name)
         fig.savefig(out, dpi=DPI if fmt == "png" else None)
         plt.close(fig)
@@ -264,8 +263,7 @@ def main(csv_path: Path, fmt: str = "png", sysinfo_path: Path | None = None, out
         _plot_provider_compare(ax, df, col, label)
         if title_suffix:
             hw_line = _format_hardware_string(sysinfo)
-            fig.suptitle(f"{label} vs concurrency (provider mean)", fontsize=16, fontweight="bold")
-            plt.title(hw_line, fontsize=10)
+            fig.suptitle(f"{label} vs concurrency (provider mean)\n{hw_line}", fontsize=16, fontweight="bold")
         out = outdir / ("provider_" + name)
         fig.savefig(out, dpi=DPI if fmt == "png" else None)
         plt.close(fig)
@@ -279,8 +277,7 @@ def main(csv_path: Path, fmt: str = "png", sysinfo_path: Path | None = None, out
             _plot_provider_compare(ax, df, "error_rate", "Error rate")
             if title_suffix:
                 hw_line = _format_hardware_string(sysinfo)
-                fig.suptitle(f"Error rate vs concurrency (provider)", fontsize=16, fontweight="bold")
-                plt.title(hw_line, fontsize=10)
+                fig.suptitle(f"Error rate vs concurrency (provider)\n{hw_line}", fontsize=16, fontweight="bold")
             out = outdir / f"provider_error_rate_vs_concurrency.{fmt}"
             fig.savefig(out, dpi=DPI if fmt == "png" else None)
             plt.close(fig)
