@@ -54,7 +54,7 @@ services:
   # Run throughput runner inside the Docker network; start via profile only
   throughput-runner:
     build: .
-    command: ["python", "src/throughput/runner.py", "--mode", "rag", "--platform-preset", "vm", "--repetitions", "1", "--requests", "20", "--concurrency", "1,2,4,8,16", "--skip-cloud"]
+    command: ["python", "src/throughput/runner.py", "--mode", "rag", "--platform-preset", "vm", "--rag-base", "http://rag-api-bge:8000", "--rag-testset", "/app/data/testset/ucl-cs_single_hop_testset_gpt-4.1_20250906_111904.json", "--repetitions", "1", "--requests", "20", "--concurrency", "1,2,4,8,16", "--skip-cloud"]
     depends_on:
       - litellm
       - rag-api-bge
