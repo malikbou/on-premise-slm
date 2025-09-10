@@ -8,6 +8,6 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="${1:-$(cd "$SCRIPT_DIR/.." && pwd)}"
 
 cd "$PROJECT_DIR"
-docker compose --profile benchmark up benchmarker
+docker compose -f docker-compose.yml -f docker-compose.vm.yml --profile benchmark up benchmarker
 
 echo "[run-benchmarks] Done. See results under results/benchmarking/"
