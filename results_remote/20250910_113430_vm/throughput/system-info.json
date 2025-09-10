@@ -1,0 +1,18 @@
+{
+  "os": "Linux-6.8.0-59-generic-x86_64-with-glibc2.41",
+  "python": "3.11.13",
+  "cpu": "x86_64",
+  "processor": "",
+  "machine": "x86_64",
+  "ram_gb": 99.0,
+  "cpu_count": 19,
+  "cpu_count_logical": 19,
+  "commit_sha": "728b6ea",
+  "lib_versions": {
+    "httpx": "0.28.1",
+    "numpy": "2.2.6",
+    "pandas": "2.3.2"
+  },
+  "platform": "vm",
+  "region": null
+}
