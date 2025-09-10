@@ -149,7 +149,6 @@ def main():
         embeddings = OllamaEmbeddings(
             model=embedding_model,
             base_url=OLLAMA_BASE_URL,
-            keep_alive=0,
         )
         print("Creating FAISS vector store from document chunks...")
         vectorstore = FAISS.from_documents(documents=splits, embedding=embeddings)
