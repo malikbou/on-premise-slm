@@ -44,11 +44,17 @@ services:
   # Do-not-autostart benchmarking; enable via profile
   benchmarker:
     profiles: ["benchmark"]
+    command: ["python", "-u", "src/benchmarking/benchmark.py", "--preset", "vm"]
+    depends_on:
+      - litellm
+      - rag-api-bge
+      - rag-api-qwen3
+      - rag-api-e5
 
   # Run throughput runner inside the Docker network; start via profile only
   throughput-runner:
     build: .
-    command: ["python", "src/throughput/runner.py", "--mode", "rag", "--platform-preset", "vm", "--repetitions", "3", "--requests", "20", "--concurrency", "1,2,4,8,16", "--skip-cloud"]
+    command: ["python", "src/throughput/runner.py", "--mode", "rag", "--platform-preset", "vm", "--repetitions", "1", "--requests", "20", "--concurrency", "1,2,4,8,16", "--skip-cloud"]
     depends_on:
       - litellm
       - rag-api-bge
