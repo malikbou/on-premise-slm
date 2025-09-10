@@ -59,7 +59,7 @@ async def lifespan(app: FastAPI):
     if not os.path.exists(index_dir):
         raise RuntimeError(f"FAISS index not found. Run the index builder first.")
 
-    embeddings = OllamaEmbeddings(model=EMBEDDING_MODEL_NAME, base_url=OLLAMA_BASE_URL, keep_alive=0)
+    embeddings = OllamaEmbeddings(model=EMBEDDING_MODEL_NAME, base_url=OLLAMA_BASE_URL)
 
     vectorstore = FAISS.load_local(
         index_dir,
@@ -104,7 +104,6 @@ async def query_rag_pipeline(request: QueryRequest) -> QueryResponse:
             base_url=OLLAMA_BASE_URL,
             temperature=0,
             timeout=600,
-            keep_alive=0,
         )
     else:
         # Cloud via LiteLLM (OpenAI-compatible)

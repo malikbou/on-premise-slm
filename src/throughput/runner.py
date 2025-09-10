@@ -226,9 +226,7 @@ async def chat_completion(
     else:
         payload["max_tokens"] = max_tokens
         payload["temperature"] = temperature
-    # Ollama-specific hint to unload after requests
-    if provider == "ollama":
-        payload["keep_alive"] = 0
+    # Do not force unload; let service default behavior decide
 
     attempt = 0
     while True:
