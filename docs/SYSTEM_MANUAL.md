@@ -68,6 +68,7 @@ MEMORY_MANAGEMENT=auto  # auto, aggressive, relaxed, minimal
 - CUDA optimization with 12GB VRAM management
 - Aggressive memory cleanup between models
 - Full-scale benchmarking capabilities
+- Compose profiles for on-demand runs: `benchmarker` and `throughput-runner`
 
 ## Technical Implementation Details
 
@@ -117,6 +118,19 @@ python src/throughput/runner.py \
 python src/throughput/runner.py \
   --rag-base http://localhost:8001 \
   --rag-testset data/testset/ucl-cs_single_hop_testset_gpt-4.1_20250906_111904.json \
+  --repetitions 3 --requests 20 --concurrency 1,2,4,8,16 --skip-cloud
+```
+
+VM (Docker network) examples:
+```bash
+# Compose profile inside Docker network
+docker compose --profile throughput run --rm throughput-runner
+
+# From host targeting Docker DNS
+python src/throughput/runner.py \
+  --platform-preset vm \
+  --rag-base http://rag-api-bge:8000 \
+  --rag-testset /app/data/testset/ucl-cs_single_hop_testset_gpt-4.1_20250906_111904.json \
   --repetitions 3 --requests 20 --concurrency 1,2,4,8,16 --skip-cloud
 ```
 
