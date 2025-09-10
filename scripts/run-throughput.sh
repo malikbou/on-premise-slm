@@ -5,14 +5,10 @@ set -euo pipefail
 # Usage: scripts/run-throughput.sh [optional runner args]
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_DIR="${1:-$(cd "$SCRIPT_DIR/.." && pwd)}"
+PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 cd "$PROJECT_DIR"
 # Include both compose files so the VM-only service is available
-if [ "$#" -gt 0 ]; then
-  docker compose -f docker-compose.yml -f docker-compose.vm.yml --profile throughput run --rm throughput-runner "$@"
-else
-  docker compose -f docker-compose.yml -f docker-compose.vm.yml --profile throughput run --rm throughput-runner
-fi
+docker compose -f docker-compose.yml -f docker-compose.vm.yml --profile throughput run --rm throughput-runner
 
 echo "[run-throughput] Done. See results under results/runs/<STAMP>_vm/throughput/"
