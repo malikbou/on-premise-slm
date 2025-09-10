@@ -82,7 +82,7 @@ Notes:
 
 ## Tips
 
-- Memory management: Ollama requests include `keep_alive=0`; models are explicitly stopped after runs.
+- Memory management: Models are stopped once per model sweep; no per-request keep-alive hints are sent.
 - Start with small `--requests` and one model to validate end-to-end, then scale up.
 - Use `--skip-cloud` for local-only runs; enable cloud later with `--litellm` and `--cloud-model`.
 
