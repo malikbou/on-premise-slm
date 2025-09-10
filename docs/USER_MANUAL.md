@@ -41,8 +41,12 @@ curl -s http://localhost:4000/v1/models | jq .
 curl -s http://localhost:8001/info | jq .
 
 # On-demand benchmarking and throughput
-docker compose --profile benchmark up benchmarker
-docker compose --profile throughput run --rm throughput-runner
+./scripts/run-benchmarks.sh
+./scripts/run-throughput.sh
+
+# Fetch results back to your laptop (from local machine)
+# Example: scripts/fetch-results.sh root@<vm_ip> /root/on-premise-slm ./results_remote <ssh_port>
+./scripts/fetch-results.sh root@<vm_ip> /root/on-premise-slm ./results_remote 22
 ```
 
 ## Usage Workflows
