@@ -21,7 +21,7 @@ ENV/
 .cursorrules
 
 # Competition scripts (development only)
-scripts/
+scripts_competition/
 
 # OS
 .DS_Store

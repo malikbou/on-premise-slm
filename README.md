@@ -46,10 +46,19 @@ python load-testing/openai_llm_benchmark.py --requests 100 --concurrency 2
 
 ### Vast.ai GPU VM Deployment (Production)
 ```bash
-# Full deployment for thesis benchmarking
-docker-compose -f docker-compose.vm.yml up -d
-python src/benchmarking/benchmark.py  # Full 100-question evaluation
-python load-testing/openai_llm_benchmark.py --requests 1000 --concurrency 16
+# Core services (GPU VM)
+docker compose -f docker-compose.yml -f docker-compose.vm.yml up -d ollama litellm rag-api-bge rag-api-qwen3 rag-api-e5
+
+# Preload embeddings + SLMs (optional but recommended)
+docker exec ollama bash -lc "/app/scripts/preload-ollama-models.sh" || ./scripts/preload-ollama-models.sh
+
+# Build FAISS indexes for all embeddings
+docker compose up index-builder
+
+# Verify core services
+curl -s http://localhost:11434/api/version | jq .
+curl -s http://localhost:4000/v1/models | jq .
+curl -s http://localhost:8001/info | jq .
 ```
 
 **Characteristics:**
@@ -155,8 +164,8 @@ Notes:
 #### Vast.ai GPU VM (Docker network)
 ```bash
 # Bring up Ollama (GPU) + LiteLLM + embedding RAG APIs
-docker-compose -f docker-compose.yml -f docker-compose.vm.yml up -d \
-  ollama litellm rag-api-bge rag-api-nomic rag-api-e5
+docker compose -f docker-compose.yml -f docker-compose.vm.yml up -d \
+  ollama litellm rag-api-bge rag-api-qwen3 rag-api-e5
 
 # (First time on this VM) build indexes for all embeddings (automated)
 docker-compose up multi-index-builder
@@ -171,7 +180,12 @@ docker-compose up multi-index-builder
 
 Run the throughput runner (vm):
 ```bash
+# Option A: inside Docker network via compose profile (recommended)
+docker compose --profile throughput run --rm throughput-runner
+
+# Option B: from host, target Docker DNS
 python src/throughput/runner.py \
+  --platform-preset vm \
   --rag-base http://rag-api-bge:8000 \
   --rag-testset /app/data/testset/ucl-cs_single_hop_testset_gpt-4.1_20250906_111904.json \
   --repetitions 3 --requests 20 --concurrency 1,2,4,8,16 --skip-cloud
@@ -183,15 +197,18 @@ Notes:
 
 ### GPU VM Production Workflow
 ```bash
-# 1. Deploy full stack
-docker-compose -f docker-compose.vm.yml up -d
+# 1. Deploy core services (no auto-bench)
+docker compose -f docker-compose.yml -f docker-compose.vm.yml up -d ollama litellm rag-api-bge rag-api-qwen3 rag-api-e5
 
-# 2. Run complete evaluation
-python src/benchmarking/benchmark.py
+# 2. (Optional) Preload models and build indexes
+docker exec ollama bash -lc "/app/scripts/preload-ollama-models.sh" || ./scripts/preload-ollama-models.sh
+docker compose up index-builder
 
-# 3. Throughput testing
-cd load-testing
-python openai_llm_benchmark.py --requests 1000 --concurrency 16
+# 3. Run RAGAS benchmarking on demand
+docker compose --profile benchmark up benchmarker
+
+# 4. Run throughput testing on demand
+docker compose --profile throughput run --rm throughput-runner
 ```
 
 ## Throughput Plots (RAG End-to-End)

@@ -21,6 +21,46 @@ services:
     volumes:
       - ollama_data:/root/.ollama
     container_name: ollama
+    restart: unless-stopped
+
+  # Override RAG API services to use containerized Ollama on the VM
+  rag-api-bge:
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+
+  rag-api-qwen3:
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+
+  rag-api-e5:
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+
+  # Ensure Open WebUI points to containerized Ollama on VM
+  open-webui:
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+
+  # Do-not-autostart benchmarking; enable via profile
+  benchmarker:
+    profiles: ["benchmark"]
+
+  # Run throughput runner inside the Docker network; start via profile only
+  throughput-runner:
+    build: .
+    command: ["python", "src/throughput/runner.py", "--mode", "rag", "--platform-preset", "vm", "--repetitions", "3", "--requests", "20", "--concurrency", "1,2,4,8,16", "--skip-cloud"]
+    depends_on:
+      - litellm
+      - rag-api-bge
+      - rag-api-qwen3
+      - rag-api-e5
+    volumes:
+      - ./src:/app/src
+      - ./data:/app/data:ro
+      - ./results:/app/results
+    env_file:
+      - .env
+    profiles: ["throughput"]
 
 volumes:
   ollama_data:

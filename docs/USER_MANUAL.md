@@ -28,8 +28,21 @@ docker-compose up -d
 git clone <repo-url>
 cd on-premise-slm
 
-# Start with VM configuration
-docker-compose -f docker-compose.vm.yml up -d
+# Start core services (GPU)
+docker compose -f docker-compose.yml -f docker-compose.vm.yml up -d ollama litellm rag-api-bge rag-api-qwen3 rag-api-e5
+
+# (Optional) Preload models and build indexes
+docker exec ollama bash -lc "/app/scripts/preload-ollama-models.sh" || ./scripts/preload-ollama-models.sh
+docker compose up index-builder
+
+# Curl checks
+curl -s http://localhost:11434/api/version | jq .
+curl -s http://localhost:4000/v1/models | jq .
+curl -s http://localhost:8001/info | jq .
+
+# On-demand benchmarking and throughput
+docker compose --profile benchmark up benchmarker
+docker compose --profile throughput run --rm throughput-runner
 ```
 
 ## Usage Workflows
@@ -98,6 +111,11 @@ python src/throughput/runner.py \
   --rag-base http://localhost:8001 \
   --rag-testset data/testset/ucl-cs_single_hop_testset_gpt-4.1_20250906_111904.json \
   --repetitions 3 --requests 20 --concurrency 1,2,4,8,16 --skip-cloud
+```
+
+### SSH tunnels (optional)
+```bash
+ssh -L 11434:localhost:11434 -L 4000:localhost:4000 -L 8001:localhost:8001 -L 3000:localhost:3000 <user>@<vm_ip>
 ```
 
 ## Configuration
