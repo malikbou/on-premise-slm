@@ -38,6 +38,7 @@ results/comparisons/*
 !results/comparisons/README.md
 results/archive/*
 !results/archive/README.md
+results/manifests
 
 # Docker
 .dockerignore
