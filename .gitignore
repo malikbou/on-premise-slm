@@ -21,7 +21,7 @@ ENV/
 .cursorrules
 
 # Competition scripts (development only)
-scripts/
+scripts_competition/
 
 # OS
 .DS_Store
@@ -38,6 +38,7 @@ results/comparisons/*
 !results/comparisons/README.md
 results/archive/*
 !results/archive/README.md
+results/manifests
 
 # Docker
 .dockerignore
