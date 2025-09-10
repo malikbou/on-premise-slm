@@ -125,7 +125,7 @@ python src/throughput/runner.py \
 VM (Docker network) examples:
 ```bash
 # Compose profile inside Docker network
-docker compose --profile throughput run --rm throughput-runner
+bash ./scripts/run-throughput.sh
 
 # From host targeting Docker DNS
 python src/throughput/runner.py \
