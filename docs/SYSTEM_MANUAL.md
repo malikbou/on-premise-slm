@@ -69,6 +69,7 @@ MEMORY_MANAGEMENT=auto  # auto, aggressive, relaxed, minimal
 - Aggressive memory cleanup between models
 - Full-scale benchmarking capabilities
 - Compose profiles for on-demand runs: `benchmarker` and `throughput-runner`
+- Helper scripts: `scripts/run-benchmarks.sh`, `scripts/run-throughput.sh`, `scripts/fetch-results.sh`
 
 ## Technical Implementation Details
 
