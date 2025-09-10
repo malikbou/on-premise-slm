@@ -205,10 +205,14 @@ docker exec ollama bash -lc "/app/scripts/preload-ollama-models.sh" || ./scripts
 docker compose up index-builder
 
 # 3. Run RAGAS benchmarking on demand
-docker compose --profile benchmark up benchmarker
+./scripts/run-benchmarks.sh
 
 # 4. Run throughput testing on demand
-docker compose --profile throughput run --rm throughput-runner
+./scripts/run-throughput.sh
+
+# 5. Fetch results back to your laptop
+# Example: scripts/fetch-results.sh root@<vm_ip> /root/on-premise-slm ./results_remote <ssh_port>
+./scripts/fetch-results.sh root@<vm_ip> /root/on-premise-slm ./results_remote 22
 ```
 
 ## Throughput Plots (RAG End-to-End)
