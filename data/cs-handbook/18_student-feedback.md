@@ -1,6 +1,6 @@
-## 18. Student feedback
+## Student feedback
 
-### 18.1 The role of student feedback
+### The role of student feedback
 
 The importance of feedback and how UCL uses the results.
 
@@ -19,7 +19,7 @@ Other opportunities for students to feed back on their experience include active
 - [You Shape UCL | UCL](https://www.ucl.ac.uk/you-shape-ucl/)
 - [Survey News and Results | UCL](https://www.ucl.ac.uk/teaching-learning/student-feedback/survey-news-and-results)
 
-### 18.2 Student surveys
+### Student surveys
 
 Student surveys and how UCL uses the results, including information about the NSS, PTES and New to UCL survey.
 
@@ -30,7 +30,7 @@ Every piece of feedback is read, and the results of each survey are shared with 
 - [National Student Survey | Office for Students](https://www.officeforstudents.org.uk/for-students/national-student-survey-nss/)
 - [Postgraduate Taught Experience Survey | Advance HE](https://www.advance-he.ac.uk/surveys/postgraduate-taught-experience-survey-ptes)
 
-### 18.3 Module dialogue
+### Module dialogue
 
 Information on module feedback, including when they occur and why they are important.
 
@@ -38,7 +38,7 @@ Throughout all modules students will be asked to answer short pulse survey quest
 
 These pulse surveys are important because it helps teaching staff 'check-in' with students, making sure that they can understand and access key aspects such as the content of the module, assessment information and learning resources.  This provides an opportunity for students to reflect on their learning and also give constructive feedback by engaging in a dialogue with staff about the results.  Helpful comments and ideas from students mean that changes and improvements can be made to the module before it ends, as well as shaping the module for future students.
 
-### 18.4 UCL Changemakers
+### UCL Changemakers
 
 Information on the UCL ChangeMakers scheme and how students can get involved.
 
@@ -50,7 +50,7 @@ Information on the UCL ChangeMakers scheme and how students can get involved.
 
 Projects are open to all students: undergraduate, postgraduate taught and postgraduate research (MRes).
 
-### 18.5 Student Quality Reviewers
+### Student Quality Reviewers
 
 Information on what Student Quality Reviewers are and how students can get involved.
 

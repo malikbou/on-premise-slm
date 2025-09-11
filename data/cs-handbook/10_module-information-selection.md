@@ -1,8 +1,8 @@
-## 10. Module information & selection
+## Module information & selection
 
 Advice on choosing options and electives, general information on choosing modules, and key contacts for module selection.
 
-### 10.1 Modules
+### Modules
 
 Modules are the individual units of study which lead to the award of credit (usually 15 or 30 credits for taught modules, 30 credits for undergraduate dissertations/ final projects, 60 credits for postgraduate taught dissertations, and 105 credits for postgraduate research dissertations.) Each degree programme has a programme diet that defines the set of modules that must be taken (referred to compulsory or core), and, in some cases, that may optionally be taken (referred to as optional or elective.)
 
@@ -10,7 +10,7 @@ Compulsory modules are essential to a programme's core curriculum; optional modu
 
 Some programmes or years of study do not include optional or elective modules, with all modules being compulsory. Where programmes do include optional or elective choices, these are usually organised into groups which have rules set to define how many credits must or may be taken, whether any selections must be taken in combination or are mutually exclusive, and whether modules have pre-requisite conditions or entry tests.
 
-### 10.2 Module availability
+### Module availability
 
 #### Modules for Computer Science students
 
@@ -27,9 +27,9 @@ Affiliate students (e.g. those on a Study Abroad, Erasmus, or Exchange programm
 - [Computer Science | Study Abroad at UCL](https://www.ucl.ac.uk/prospectus/study-abroad-at-ucl/subjects/computer-science)
 - [Module registration for affiliates | UCL Students](https://www.ucl.ac.uk/students/student-status/changes-your-studies/module-selection/affiliate-module-registration)
 
-### 10.3 Module selection
+### Module selection
 
-#### 10.3.1 Choosing modules for 2024-25
+#### Choosing modules for 2024-25
 
 Students needing to select optional or elective modules, will be able to do so from before the start of the academic year. New students can register for modules once they have completed [pre-enrolment](https://www.ucl.ac.uk/students/enrolment-new-students/pre-enrolment). Continuing students can register for modules once they have completed [re-enrolment](https://www.ucl.ac.uk/students/enrolment-continuing-students/re-enrolment).
 
@@ -51,7 +51,7 @@ Exact deadlines for making changes to module selections will be published each y
 
 Once the module selection process has been completed, students will be asked to check and confirm their final module selections, after any changes they have requested, are complete and correct. This is an important step that helps us ensure the students academic record is aligned with their studies, that we enter the student for the correct assessments, and that the level and volume of credit selected is appropriate for their programme of study (and its award requirements.)
 
-#### 10.3.2 Choosing modules for 2025-26 (continuing students)
+#### Choosing modules for 2025-26 (continuing students)
 
 Continuing undergraduate students and postgraduate students on programmes of more than 1 year's duration will have an opportunity to make an initial selection of modules for 2025/26 at the end of the spring term, with places being confirmed in the summer.
 
@@ -59,7 +59,7 @@ Continuing undergraduate students and postgraduate students on programmes of mor
 - [Section 2: Module Selection | UCL Academic Manual](https://www.ucl.ac.uk/academic-manual/chapters/chapter-3-registration-framework-taught-programmes/section-2-module-selection)
 - [Continuing Student Module Registration | UCL Students](https://www.ucl.ac.uk/students/student-status/changes-your-studies/module-selection/continuing-student-module-registration)
 
-#### 10.3.3 Availability and allocation of places
+#### Availability and allocation of places
 
 Each module/ module delivery has a fixed upper limit on the number of places available (known as the 'module cap'), based on the department's teaching capacity and other resource constraints.
 
@@ -72,7 +72,7 @@ Within those tiers, places will by default be allocated first to Computer Scienc
 
 All module selections are ultimately subject to approval by the Module Leader and Programme Director.
 
-#### 10.3.4 Overlapping content & re-registering on the same module
+#### Overlapping content & re-registering on the same module
 
 Students must not select as optional or elective any module they have already taken, either in their current programme or during any prior studies. For example, if a module is available as an option in multiple terms or years of a programme, it can only be taken and passed once.
 
@@ -81,7 +81,7 @@ Students who have previously passed a module that is compulsory during a subsequ
 - [Section 2: Module Selection | UCL Academic Manual](https://www.ucl.ac.uk/academic-manual/chapters/chapter-3-registration-framework-taught-programmes/section-2-module-selection)
 - [Section 2: Module Selection - Overlapping Content | UCL Academic Manual](https://www.ucl.ac.uk/academic-manual/chapters/chapter-3-registration-framework-taught-programmes/section-2-module-selection#2.8)
 
-### 10.4 Module information
+### Module information
 
 Information about module syllabuses (i.e. their content, learning outcomes, and assessments) and timetabling of synchronous activity.
 
@@ -107,7 +107,7 @@ Programme timetables have been designed such that synchronous sessions for comp
 
 Students selecting optional or elective modules should carefully consider the timetable that eventuates from their module selections in terms of workload and clustering, i.e. the balance of credits across the two teaching terms and the pattern of synchronous events in each week.
 
-### 10.5 Key contacts for module selection
+### Key contacts for module selection
 
 Contacts for approval of module selection and for any issues that arise.
 

@@ -1,8 +1,8 @@
-## 24. Keeping in touch
+## Keeping in touch
 
 Details of how UCL and the department will communicate with students through their studies.
 
-### 24.1 Central and Faculty communication channels
+### Central and Faculty communication channels
 
 We will communicate with students primarily through the following channels:
 
@@ -14,9 +14,9 @@ We will communicate with students primarily through the following channels:
 | Instagram         | UCL's official Instagram channel, featuring news, events, competitions and images from across the UCL community.                                                                                                                   |
 | X                 | Sharing highlights of life at UCL from across UCL's diverse community.                                                                                                                                                           |
 
-### 24.2 Computer Science communications
+### Computer Science communications
 
-#### 24.2.1 Email, Moodle, and Teams
+#### Email, Moodle, and Teams
 
 Students will receive the vast majority of important correspondence via their UCL email account and through their modules' Moodle pages (in particular via the forums, where teaching staff and assistants will post updates and information about the module.) The CS Teaching and Learning Team will always contact students via their UCL email account.
 
@@ -34,7 +34,7 @@ Connected delivery will make use of a range of applications, such as Microsoft T
 
 Access to email and other UCL services depends on having a working UCL account. Current UCL policy requires passwords to be changed regularly and students need to pay attention to this. The ISD Helpdesk can provide support for account related issues.
 
-#### 24.2.2 Social media
+#### Social media
 
 Computer Science is active on the following social media channels:
 - [Computer Science X](https://twitter.com/uclcs) – the department's official X channel.

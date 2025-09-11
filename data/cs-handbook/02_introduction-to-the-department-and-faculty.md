@@ -1,8 +1,8 @@
-## 2. Introduction to the department and faculty
+## Introduction to the department and faculty
 
 An introduction to the department and its parent faculty, their relationship, and key contacts within both.
 
-### 2.1 Department of Computer Science and its history
+### Department of Computer Science and its history
 
 Computer Science was established at UCL in the early 1970s when the Department of Statistics was expanded to form a joint Department of Statistics and Computer Science. The initial nucleus of computer scientists came from the University of London Institute of Computer Science, which was renowned for its established MSc programme and for its research.
 
@@ -12,7 +12,7 @@ In the 2014 Research Excellence Framework evaluation UCL was ranked in first pla
 
 Our teaching programmes are designed to engage students and give them the skills to address the world's challenges. We have pioneered new teaching methods for our undergraduates, and involve our postgraduates with our cutting-edge, highly rated academic research. The graduates we educate progress to a wide range of roles within engineering and technology sectors and beyond.
 
-### 2.2 Faculty of Engineering Sciences and its relationship with the department
+### Faculty of Engineering Sciences and its relationship with the department
 
 The Department of Computer Science works closely with the Faculty of Engineering Sciences and its teaching departments to ensure that opportunities to create novel and exciting synergies in both research and teaching are fully exploited. For example, the department participates in the Integrated Engineering Programme (IEP), which provides undergraduate students with opportunities to engage in a broad range of interdisciplinary activity. Similarly, joint research initiatives link Computer Science with a broad range of other research groups in the Faculty, and this feeds directly into the design of the department's taught degree programmes.
 
@@ -22,7 +22,7 @@ Many essential technologies originated from studies and work at UCL, including t
 
 Though diverse, all the Faculty's departments, institutes and centres specialise in combining the analysis and rigour of science with a spark of innovation and practicality, to change the world.
 
-### 2.3 Key staff in the department and faculty
+### Key staff in the department and faculty
 
 This section sets out key role-holders within the department and faculty, i.e. those roles with over-arching responsibilities.
 
@@ -80,7 +80,7 @@ This section sets out key role-holders within the department and faculty, i.e. t
 | Secretary to the Departmental Student Partnership Committee (PGT)   | [Fiona Hashani](https://search2.ucl.ac.uk/s/search.html?query=Fiona+Hashani&collection=website-meta&profile=_directory)                                                                                                                                                                                     |
 | Secretary to the Departmental Student Partnership Committee (UG)    | [Nicholas Smith](https://search2.ucl.ac.uk/s/search.html?query=Nicholas+Smith&collection=website-meta&profile=_directory)                                                                                                                                                                                    |
 
-### 2.4 Key staff relating to programmes and modules
+### Key staff relating to programmes and modules
 
 Each programme and module has its own specific team that is responsible for its organisation and delivery. Programme teams are led by their Programme Director and facilitated by a team of Programme Administrators. The contact details of the Teaching and Learning Team, who are responsible for administration across students' experience with UCL, are set out on the Computer Science Teaching and Learning Contacts page.
 
@@ -121,7 +121,7 @@ Module teams are led by the Module Leader and facilitated by their Module Admini
 
 A description of the roles and responsibilities of programme and module team members is given in Section 3 - Academic teaching teams.
 
-### 2.5 Protocol for contacting staff
+### Protocol for contacting staff
 
 Students needing to contact a member of staff directly, should do so via their UCL email address unless they have specifically stated otherwise. Students should not contact staff via one to one direct messaging via teams, zoom, or similar platforms. Staff will not reply to or act on direct messages.
 

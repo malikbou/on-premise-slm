@@ -1,10 +1,10 @@
-## 13. Assessment and feedback
+## Assessment and feedback
 
 Information on examination and assessment, including details of the information students will receive, how work is set and marked, and when they will receive notification of their marks.
 
-### 13.1 Assessment
+### Assessment
 
-#### 13.1.1 Overview of assessment
+#### Overview of assessment
 
 All taught degree programmes are formed of modules, individual credit-bearing units of study that each have a defined syllabus (academic content), a set of intended learning outcomes (statements of what a student will be able to do on successful completion of the module), and a set of assessments that collectively develop students’ knowledge and understanding of the syllabus and measures their attainment against the intended learning outcomes.
 
@@ -14,7 +14,7 @@ Assessments can be either formative or summative. A formative assessment is one
 
 A student is awarded credit for a module where their performance in its summative assessments meets the requirements to pass the module.
 
-#### 13.1.2 Assessment structure
+#### Assessment structure
 
 Each module has one or more summative components of assessment, each of which has a method (its type: coursework, examination, etc.), a title that differentiates and describes it (e.g., Coursework 1, Coursework 2, Individual report, Online remote examination), and a numeric weight that represents its contribution to the module outcome (i.e., how much the mark or grade for that component counts towards the overall mark or grade for the module.) This set of summative assessments is known as the module's 'assessment pattern'.
 
@@ -32,7 +32,7 @@ Students who need to undertake a reassessment in the late summer assessment peri
 
 - [Chapter 4, Section 3: Module Assessment | UCL Academic Manual](https://www.ucl.ac.uk/academic-manual/chapters/chapter-4-assessment-framework-taught-programmes/section-3-module-assessment)
 
-#### 13.1.3 Assessment tasks and their deadlines
+#### Assessment tasks and their deadlines
 
 Information on how students will learn about the requirements of the assessment tasks they will take, what is required of them.
 
@@ -75,7 +75,7 @@ Students are encouraged to contact the responsible examiner with any queries rel
 - [Chapter 4, Section 2: Assessment Information | UCL Academic Manual](https://www.ucl.ac.uk/academic-manual/chapters/chapter-4-assessment-framework-taught-programmes/section-2-assessment-information)
 - [Chapter 4, Section 4: Marking & Moderation | UCL Academic Manual](https://www.ucl.ac.uk/academic-manual/chapters/chapter-4-assessment-framework-taught-programmes/section-4-marking-and-moderation)
 
-#### 13.1.4 Marking scales
+#### Marking scales
 
 Computer Science operates a Numeric Marking Scale on its taught programmes of study, which means that each module is awarded a numerical mark (on a scale of 0.00 - 100.00) based on students' performance in that module's summative components of assessment.
 
@@ -85,9 +85,9 @@ Some components may be designated as 'pass/ fail', which means that these do not
 
 - [Chapter 4, Section 3.7: Marking Scale | UCL Academic Manual](https://www.ucl.ac.uk/academic-manual/chapters/chapter-4-assessment-framework-taught-programmes/section-3-module-assessment#3.7)
 
-### 13.2 Feedback
+### Feedback
 
-#### 13.2.1 Feedback and provisional marks
+#### Feedback and provisional marks
 
 Regular feedback is an essential part of every student’s learning. Students should expect to receive feedback throughout their studies in relation to their performance in both formative and summative assessments, including in relation to their draft final project/ dissertation.
 
@@ -115,7 +115,7 @@ UCL permits departments to release provisional marks for assessments prior to th
 
 - [Section 5: Assessment Feedback | UCL Academic Manual](https://www.ucl.ac.uk/academic-manual/chapters/chapter-4-assessment-framework-taught-programmes/section-5-assessment-feedback)
 
-### 13.3 Examinations
+### Examinations
 
 Information on written examinations and a link to the UCL Examination Guide for Candidates on the Examinations and Awards website.
 
@@ -151,7 +151,7 @@ UCL students taking examinations at other colleges, as part of the University of
 
 The department's policy is to include a maximum of three past papers in the library service. Papers from the late summer exam period or that include multiple choice questions will not be published. Papers for a particular year are not guaranteed to be made available. Examination papers (and solutions, where they exist) are not to be provided under information access requests.
 
-### 13.4 Coursework
+### Coursework
 
 Information on coursework submissions, clear information about where and how to submit work, including details of any electronic submission methods and the technical support available.
 
@@ -179,7 +179,7 @@ Technical support for submission via Moodle is provided by the [Information Serv
 
 Support for Computer Science specific applications and platforms is available from the [Computer Science Technical Support Group](https://www.ucl.ac.uk/computer-science/internal/tsg) or the examiner who set the assessment; usually the examiner will specify in the assessment instructions any task-specific guidance relating to technical support, where that applies.
 
-### 13.5 Penalties for late submission for coursework and dissertations
+### Penalties for late submission for coursework and dissertations
 
 Coursework, portfolios, and projects/ dissertations, are examples of submitted assessments, where work must be submitted for assessment by a given deadline date and time.
 
@@ -217,7 +217,7 @@ Late penalties may not be applied immediately, particularly for work that is sub
 - [Chapter 4, Section 3.12: Coursework Deadlines & Late Submission | UCL Academic Manual](https://www.ucl.ac.uk/academic-manual/chapters/chapter-4-assessment-framework-taught-programmes/section-3-module-assessment#3.12)
 - [Chapter 2, Section 2: Short-term Illness and other Extenuating Circumstances | UCL Academic Manual](https://www.ucl.ac.uk/academic-manual/chapters/chapter-2-student-support-framework/section-2-short-term-illness-and-other-extenuating-circumstances)
 
-### 13.6 Penalties for exceeding word count limits
+### Penalties for exceeding word count limits
 
 Information about word count limits and penalties.
 
@@ -231,7 +231,7 @@ Word count penalties may not be applied immediately, particularly for work that 
 
 - [Chapter 4, Section 3.13: Module Assessment | UCL Academic Manual](https://www.ucl.ac.uk/academic-manual/chapters/chapter-4-assessment-framework-taught-programmes/section-3-module-assessment#3.13)
 
-### 13.7 Absence from assessments
+### Absence from assessments
 
 Information about absence from scheduled assessments and the consequences of this.
 
@@ -245,7 +245,7 @@ If a student experiences something which prevents them from meeting a deadline t
 
 - [Chapter 2, Section 2: Short-term Illness and other Extenuating Circumstances | UCL Academic Manual](https://www.ucl.ac.uk/academic-manual/chapters/chapter-2-student-support-framework/section-2-short-term-illness-and-other-extenuating-circumstances)
 
-### 13.8 Condonement and reassessment (deferrals, resits, repeats)
+### Condonement and reassessment (deferrals, resits, repeats)
 
 Information on the consequences of failure, include reassessment and deferred assessment, capping of module marks, and restrictions on second attempts.
 
@@ -294,7 +294,7 @@ If a student successfully passes a module having deferred components only at the
 - [Illness and unexpected disruptions to your exam or assessment | UCL Students](https://www.ucl.ac.uk/students/exams-and-assessments/extenuating-circumstances)
 - [Chapter 4, Section 8: Deferred Assessment | UCL Academic Manual](https://www.ucl.ac.uk/academic-manual/chapters/chapter-4-assessment-framework-taught-programmes/section-8-deferred-assessment)
 
-### 13.9 Academic integrity
+### Academic integrity
 
 Information about UCL’s examination irregularities and plagiarism procedures.
 
@@ -348,7 +348,7 @@ Where academic misconduct is found to have occurred, the department will underta
 - [Chapter 6, Section 9: Student Academic Misconduct Procedure | UCL Academic Manual](https://www.ucl.ac.uk/academic-manual/chapters/chapter-6-student-casework-framework/section-9-student-academic-misconduct-procedure)
 - [Chapter 4: Student Regulations for Exams and Assessments 2022-23 | UCL Academic Manual](https://www.ucl.ac.uk/academic-manual/chapters/chapter-4-assessment-framework-taught-programmes/student-regulations-exams-and-assessments)
 
-### 13.10 Research ethics
+### Research ethics
 
 Information about research ethics, approvals process, code of conduct, etc. on the programme (where applicable.)
 
@@ -358,7 +358,7 @@ All Computer Science students who undertake research, for example through their 
 
 - [UCL Research Ethics | UCL](https://www.ucl.ac.uk/research/integrity/ucl-research-ethics)
 
-### 13.11 Marking, second-marking, and moderation
+### Marking, second-marking, and moderation
 
 Information about marking, second-Marking and moderation, and the release of provisional marks.
 
@@ -370,7 +370,7 @@ For Computer Science modules, one summative component of assessment will be subj
 
 If a module is assessed by an examination, the scripts will be subjected to full seen check-marking. If the module is assessed by coursework-only, an appropriate component will be subjected to sampled seen check-marking or double-marking (usually the highest weighted component.) For project/ dissertation modules, the project report will be subjected to full blind double-marking, which will be anonymous where possible. In the event that first and second markers cannot agree, a third marker will be appointed.
 
-### 13.12 External examining
+### External examining
 
 Information about external examining at UCL.
 

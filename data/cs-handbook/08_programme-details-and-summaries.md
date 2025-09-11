@@ -1,16 +1,16 @@
-## 8. Programme details and summaries
+## Programme details and summaries
 
 Details of programmes' key contacts, structures, durations, modules, and qualification conferred.
 
-### 8.1 Programme key contacts
+### Programme key contacts
 
 Programme key contacts are summarised in [Section 2 - Key staff relating to programmes and modules](
 
-### 8.2 Programme summaries (structure, duration, credits, qualifications, etc.)
+### Programme summaries (structure, duration, credits, qualifications, etc.)
 
 The programme summary is a multi-purpose document which is intended as the single source of information pertaining to a UCL programme. The programme summary specifies a programme's learning outcomes, structure, details of any Integrated Study Abroad Year or Additional Placement Year variants, details of any non-condonable modules or components, Progression and Award rules, the Final Award and any Interim or Alternative Awards available, and the corresponding Classification Schemes. The programme summaries are live documents that may be updated through the course of the academic year.
 
-#### 8.2.1 Overview of programme rules
+#### Overview of programme rules
 
 The information below summarises the progression and award requirements that are in place on the department's programmes. Students who are in any doubt whether the rules apply to them should proactively contact their Programme Administrator.
 
@@ -40,7 +40,7 @@ A maximum of 30 credits may be condoned in total for BSc, and 45 in total for ME
 
 - Students will be under the standard [UCL Masters Degree Award Requirements](https://www.ucl.ac.uk/academic-manual/chapters/chapter-4-assessment-framework-taught-programmes/section-6-progression-and-award).
 
-#### 8.2.2 Programme diet documents
+#### Programme diet documents
 
 The Programme Diets for each programme and year of entry are maintained below; these are live documents that will be updated as necessary, for example where there are changes of staff, where amendments are made to modules or other aspects of the programme's design for future years of study, or to correct errors. The programme diets for the current academic year, referred to in the programme summary, are published via the [Computer Science study pages](https://www.ucl.ac.uk/computer-science/study).
 
@@ -49,9 +49,9 @@ The Programme Diets for each programme and year of entry are maintained below; t
 ##### Postgraduate Taught programmes
 ...
 
-### 8.3 Programme features and variations
+### Programme features and variations
 
-#### 8.3.1 Integrated Engineering Programme
+#### Integrated Engineering Programme
 
 Information on the Integrated Engineering Programme for participating undergraduate programmes.
 
@@ -76,7 +76,7 @@ The IEP Minor is a set of three linked modules in an engineering or other compli
 - [How we teach | UCL Engineering](https://www.ucl.ac.uk/engineering/study/undergraduate/integrated-engineering-programme-iep/how-we-teach)
 - [IEP Central (24/25) | Moodle](https://moodle.ucl.ac.uk/course/view.php?id=25381)
 
-#### 8.3.2 Integrated Study Abroad Year
+#### Integrated Study Abroad Year
 
 Information on Integrated Study Abroad Year options for eligible MEng programmes, the structure of programmes with a Study Abroad Year, the academic requirements for taking a Year Abroad, and how to apply.
 
@@ -99,7 +99,7 @@ Students in Year 2 of MEng Computer Science and MEng Mathematical Computation ma
 
 Students should review the [UCL Go abroad website](https://www.ucl.ac.uk/go-abroad/) to learn more about the ethos of the programme and whether it may be right for them. Those who may be interested in applying a Study Abroad Year should then seek advice from the Study Abroad Tutor.
 
-#### 8.3.3 Additional Placement Year
+#### Additional Placement Year
 
 Information about taking an Additional Placement Year for eligible BSc and MEng programmes, the structure of programmes with a Year in Industry, the academic requirements for taking a Year in Industry, and how to apply.
 
@@ -121,17 +121,17 @@ Students who are approved to take an Additional Placement Year will transfer to 
 
 Students should review the [UCL Research-based education website](https://www.ucl.ac.uk/teaching-learning/research-based-education) to learn more about placements in industry and whether it may be right for them. Students who may be interested in applying for an Additional Placement Year should then seek advice from their Academic Year Coordinator and Year in Industry Tutor.
 
-#### 8.3.4 Academic and Industrial Final Year Projects
+#### Academic and Industrial Final Year Projects
 
 Information about taking an academic or industry project for the final Dissertational/ Project module.
 
 Students will take a Final Dissertation/ Project, which may be an academic project or one with an industry partner, organised via the [UCL Industry Exchange Network](https://www.ucl.ac.uk/computer-science/ixn-industry-exchange-network). Each student will be allocated to a project and given an academic supervisor who will guide them.
 
-### 8.4 Professional accreditation and certification
+### Professional accreditation and certification
 
 Many UCL Qualifications are recognised or accredited by Professional, Statutory or Regulatory Bodies (PSRBs), which are legally-recognised bodies that accredit, recognise, or endorse graduates from specific UCL programmes as qualified to act within a recognised profession or which leads to initial registration or supports enhanced registration with that body. Where programmes are professionally accredited or certified, students may be required to achieve specific conditions, which may be in addition to the standard UCL requirements, in order to be eligible for registration with the accrediting body.
 
-### 8.5 Module details
+### Module details
 
 Programmes are composed of modules, which are individual units of study which lead to the award of credit. The Programme Diet specifies which modules are included in the programme.  Information about modules, their syllabuses, learning outcomes, and assessment methods is available via the [UCL Module Catalogue](https://www.ucl.ac.uk/module-catalogue).
 

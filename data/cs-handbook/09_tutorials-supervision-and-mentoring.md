@@ -1,12 +1,12 @@
-## 9. Tutorials, supervision, and mentoring
+## Tutorials, supervision, and mentoring
 
 Information on what students can expect in terms of academic and Personal Tutoring (Central and Local.)
 
-### 9.1 Personal and academic tutoring
+### Personal and academic tutoring
 
 UCL is committed to providing all students with the academic guidance and personal support that they need to flourish as members of our active learning and research community.
 
-#### 9.1.1. Personal tutoring
+#### Personal tutoring
 
 ##### Support via Personal Tutoring
 
@@ -20,7 +20,7 @@ Tutors will not be available every week, since all staff are required to take le
 
 - [Personal tutors | UCL Students](https://www.ucl.ac.uk/students/academic-support/personal-tutors)
 
-### 9.2 Transition mentoring
+### Transition mentoring
 
 Information on the UCL Transition Mentors programme for first year undergraduate students.
 
@@ -30,7 +30,7 @@ First-year undergraduate students meet their Transition Mentor during the first 
 
 - [Transition Mentors | UCL Students](https://www.ucl.ac.uk/students/academic-support/transition-mentors)
 
-### 9.3 Programming tutoring
+### Programming tutoring
 
 Information on Computer Science's Programming Tutoring Scheme for new undergraduate students.
 

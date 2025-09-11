@@ -1,8 +1,8 @@
-## 6. Our expectations of students
+## Our expectations of students
 
 Information on UCL's expectations of students, including student conduct and engagement with their programme of study.
 
-### 6.1 UCL Code of Conduct
+### UCL Code of Conduct
 
 UCL enjoys a reputation as a world-class university. It was founded on the basis of equal opportunity, being the first English university to admit students irrespective of their faith and cultural background and the first to admit women. UCL expects its members to refrain from interfering with the proper functioning or activities of UCL, or of those who work or study at UCL. Students should ensure they read and familiarise themselves with UCL's Student Code of Conduct and other related policies and should be aware that any inappropriate behaviour may lead to actions under UCL's Student Disciplinary Procedures.
 

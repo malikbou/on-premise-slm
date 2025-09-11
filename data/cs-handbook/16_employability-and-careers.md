@@ -1,6 +1,6 @@
-## 16. Employability and careers
+## Employability and careers
 
-### 16.1 Computer Science careers
+### Computer Science careers
 
 Information on careers resources within the department.
 
@@ -8,7 +8,7 @@ Computer Science students have access to a careers tutor, who can provide guidan
 
 - **Computer Science Careers Tutor**: [Tigmanshu Bhatnagar](https://search2.ucl.ac.uk/s/search.html?query=Tigmanshu+Bhatnagar&collection=website-meta&profile=_directory&tab=directory)
 
-### 16.2 UCL careers
+### UCL careers
 
 Information on UCL’s careers services for current students and recent graduates.
 
@@ -18,7 +18,7 @@ UCL Careers also supports employability activities within departments such as wo
 
 UCL students are helped with applications and sourcing opportunities with web resources and advice. They can book appointments and search for internship and graduate job vacancies via [myUCLCareers](https://ucl.targetconnect.net/).
 
-### 16.3 Optional internships and placements
+### Optional internships and placements
 
 Information on optional internships that are not part of the programme.
 
@@ -38,7 +38,7 @@ Students who wish to take an internship that is formally part of the programme m
 
 Student projects may have an industrial focus, developed in collaboration with an approved industry partner via the department's [Industry Exchange Network (IXN)](https://www.ucl.ac.uk/computer-science/ixn-industry-exchange-network). Some projects may involve full-time on-site engagement with the partner, whilst others involve working remotely and only visiting the industry partner for necessary supervisory meetings.
 
-### 16.4 Entrepreneurship at UCL
+### Entrepreneurship at UCL
 
 Information on entrepreneurship and enterprise at UCL.
 

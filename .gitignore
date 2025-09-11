@@ -73,3 +73,7 @@ testset/generated/*
 
 # Legacy Code
 src/legacy
+
+# ragas testset examples
+data/ragas-airline-dataset/
+src/testset/ragas-example.ipynb

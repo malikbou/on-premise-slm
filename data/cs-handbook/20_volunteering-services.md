@@ -1,8 +1,8 @@
-## 20. Volunteering Services
+## Volunteering Services
 
 Information about the Students' Union UCL Volunteering Services and how to become involved.
 
-### 20.1 About Volunteering Services, who they are and how a student can find out more or become involved
+### About Volunteering Services, who they are and how a student can find out more or become involved
 
 The [Volunteering Service at Students' Union UCL](https://studentsunionucl.org/volunteering) exists to connect UCL students with London's Voluntary and Community Sector, primarily through volunteering.  It's one of the largest volunteering teams in UK Higher Education, meaning that UCL students have access to opportunities that their peers in other universities often do not.
 

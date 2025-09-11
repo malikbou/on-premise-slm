@@ -1,6 +1,6 @@
-## 17. Student representation and voice
+## Student representation and voice
 
-### 17.1 Students' Union UCL
+### Students' Union UCL
 
 Information on UCL Students' Union, how to run for election and how to find a student representative.
 
@@ -10,7 +10,7 @@ The Students' Union is the representative body of all UCL students.  It's run by
 
 - [Make a change | Students' Union UCL](https://studentsunionucl.org/make-a-change)
 
-### 17.2 Student clubs & societies
+### Student clubs & societies
 
 Information on student societies.
 
@@ -23,7 +23,7 @@ The society most relevant to Computer Science is the [Technology Society (TechS
 - [Clubs and societies | Students' Union UCL](https://studentsunionucl.org/clubs-societies)
 - [What's on? | Students' Union UCL](https://studentsunionucl.org/whats-on)
 
-### 17.3 Academic Representatives (Course Reps, Lead Departmental Reps, & Faculty Reps)
+### Academic Representatives (Course Reps, Lead Departmental Reps, & Faculty Reps)
 
 Students' Union UCL is there to make sure students have the best possible time while they are studying at UCL.  One of the ways they do that is by working with departments and faculties to ensure that every student is represented and has a voice in the way that the university works, which is achieved through their academic representative scheme.
 
@@ -50,7 +50,7 @@ Academic Representatives are appointed during early October.  If a student takes
 - [Find your representative | Students' Union UCL](https://studentsunionucl.org/make-a-change/representation/find-your-representative)
 - [Chapter 9, Section 6: Student Academic Representation | UCL Academic Manual](https://www.ucl.ac.uk/academic-manual/chapters/chapter-9-student-support-and-wellbeing-framework/section-6-student-representation)
 
-### 17.4 Departmental Student Partnership Committee
+### Departmental Student Partnership Committee
 
 Information on the role of the Departmental Student Partnership Committee.
 
@@ -60,11 +60,11 @@ Every department at UCL has a Student Partnership Committee (SPC) that meets at 
 - [Chapter 9, Section 6.4: Staff Student Consultative Committees | UCL Academic Manual](https://www.ucl.ac.uk/academic-manual/chapters/chapter-9-student-support-and-wellbeing-framework/section-6-student-representation#6.4)
 - [Chapter 9, Section 7: Student Representation on UCL Academic Standing Committees and Sub-Committees | UCL Academic Manual](https://www.ucl.ac.uk/academic-manual/chapters/chapter-9-student-support-and-wellbeing-framework/section-7-student-representation-ucl-academic-standing)
 
-### 17.5 Student voice - other ways to feed back
+### Student voice - other ways to feed back
 
 Other ways (specific to the department/ programme) that students can give feedback, including local processes and key contacts.
 
-#### 17.5.1 Staff office hours
+#### Staff office hours
 
 Each Programme Director and Module Leader will hold a regular office hour during term time (for modules this will be during the term in which the module is delivered.) These sessions are intended as informal drop-ins where students can raise any issues of concerns, ideas for improvement, or problems they may be experiencing.  Students are welcome to attend these sessions without notification or appointment; most sessions operate a lobby-based queue system.
 
@@ -72,17 +72,17 @@ Office hours will either be listed in the timetable or advertised to students by
 
 - [Office Hours & Drop-in Sessions | CS Student Handbook](
 
-#### 17.5.2 Surveys and questionnaires
+#### Surveys and questionnaires
 
 Students will be invited to provide feedback on their individual modules via Module Evaluative Questionnaires (MEQs) at the end of each term.  These questionnaires ask about a students' learning experience, the resources and materials they have been provided with, the teaching they have received, and their views on what could be improved.  More information on student feedback surveys is given in [Section 18 Student feedback and You Shape UCL | CS Student Handbook](
 
-#### 17.5.3 Student forum
+#### Student forum
 
 The department have implemented a student only forum, hosted on Moodle, where students can discuss issues, without oversight by Academic or Administrative Staff.  Any issues that cannot, or could not, be resolved through direct contact with either a module leader, or programme director, will then be summarised by one of the Academic Representatives, and shared within an Academic forum for resolution.  Once an outcome is confirmed, the Academic Representatives will relay this back to the student only forum.  If further discussion on a given matter is required, a new thread will be created within the Academic forum.
 
 - [Computer Science Student Hub | Moodle](https://moodle.ucl.ac.uk/course/view.php?id=25380)
 
-### 17.6 Students' Union Advice Service
+### Students' Union Advice Service
 
 Information on the UCL Students' Union Advice Service.
 
@@ -95,7 +95,7 @@ The [Students' Union Advice Service](https://studentsunionucl.org/advice-service
 
 The service is free, independent, impartial and confidential.  No information shared with the service is shared with the students department or any other university staff unless the student requests it or gives their permission.   Students can complete the [online contact form](https://studentsunionucl.org/forms/advice-service-contact-form) for advice and support.
 
-### 17.7 Student complaints
+### Student complaints
 
 Information on informal and formal student complaints.
 
@@ -105,7 +105,7 @@ Before raising a complaint, Computer Science encourages students to ensure they 
 
 Whilst students do not need to strictly follow the route of escalation indicated below, many issues, and the need to escalate, can be avoided by speaking to the right people in the first instance.
 
-#### 17.7.1 Informal resolution
+#### Informal resolution
 
 Many complaints can be resolved at an informal or local level without needing to submit a formal complaint.  Students can speak to their Personal Tutor, Programme Leader, Departmental or Faculty Tutor, Course Representative, or Research Student Representative if they have any concerns about their programme.  They can also speak to the Students' Union's Advice Service.  UCL strongly encourages this kind of resolution and does expect students to have attempted some form of informal resolution before making a formal complaint.
 
@@ -125,7 +125,7 @@ Contact details are available as follows:
 
 Though we appreciate that it can sometimes feel difficult to raise concerns (particularly about other people), we strongly encourage any students who are experiencing difficulties, unwanted conduct, or other issues, to raise them to an appropriate person as soon as they can.  The department's leadership is committed to treating students' concerns seriously and taking any action as expeditiously as possible.
 
-#### 17.7.2 Formal complaints
+#### Formal complaints
 
 If an issue cannot be resolved at a local level, students may feel they need to submit a formal complaint using UCL's Student Complaints Procedure.  UCL aims to ensure that all complaints are treated fairly, impartially, effectively and in a timely manner, without fear of victimisation.  The Complaints Procedure applies across all Schools, Faculties, Academic Departments and Professional Service Divisions.  Students' attention should be drawn to the timescales set out in the Procedure.
 

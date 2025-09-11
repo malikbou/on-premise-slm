@@ -1,16 +1,16 @@
-## 14. Learning resources and key facilities
+## Learning resources and key facilities
 
 Information on university-wide learning resources, including library services, computer and software resources, and digital learning technologies.
 
-### 14.1 UCL Library and learning resources
+### UCL Library and learning resources
 
-#### 14.1.1 UCL Library Services
+#### UCL Library Services
 
 UCL Library Services provides support to students online and in person via our libraries. UCL has 14 libraries covering a wide range of specialist subjects with expert staff that students can ask for help. [UCL Library Services](https://www.ucl.ac.uk/library/) provides access to a huge range of digital and print resources. The [UCL Library Services page](https://www.ucl.ac.uk/library/) has information for students about using the library, services available, electronic resources and training and support. [Library Subject Guides](https://library-guides.ucl.ac.uk/) provide targeted information on resources and support available, and online reading lists, which are also linked to Moodle modules, will provide students with access to core readings for their modules.
 
 - [Reading Lists Service | UCL](https://www.ucl.ac.uk/library/teaching-support/readinglistsucl)
 
-#### 14.1.2 UCL Information Services Division (ISD)
+#### UCL Information Services Division (ISD)
 
 The UCL Information Services Division (ISD), the primary provider of IT services to UCL, offers guidance on all of ISD’s key services, including email and calendar services, user IDs and passwords, print, copy and scanning, wifi and networks on their web pages. ‘How to’ guides and individual help and support is available from [IT Services](https://www.ucl.ac.uk/isd/help-support).
 
@@ -49,11 +49,11 @@ There are many other tools in use across the university, and students can expect
 
 - [Learning & Teaching Tools | UCL Information Services Division](https://www.ucl.ac.uk/isd/services/e-learning/learning-teaching-tools)
 
-#### 14.1.3 UCL Centre for Languages and International Education
+#### UCL Centre for Languages and International Education
 
 The [UCL Centre for Languages & International Education (CLIE)](https://www.ucl.ac.uk/languages-international-education/) provides modern foreign language, British Sign Language and English for Academic Purposes (EAP) modules for UCL students. CLIE also heads the [UCL Academic Communication Centre (ACC)](https://www.ucl.ac.uk/academic-communication-centre/). The ACC offers discipline-specific academic communication support to both native and non-native English speakers currently studying an undergraduate or postgraduate degree at UCL. Evening courses are offered in nine foreign languages across a range of levels to support UCL students, staff and London’s wider academic and professional community. Students can access language-learning resources online through the [CLIE Self-Access Centre](http://www.ucl.ac.uk/clie/self-access/catalogue), including films and documentaries and books for self-study.
 
-#### 14.1.4 Sustainability at UCL
+#### Sustainability at UCL
 
 UCL launched its Sustainability Strategy in 2019 – one of the most ambitious across the UK higher education sector. It includes many headline commitments – to be a net zero carbon institution by 2030; to be single use plastic free; and that every student has the opportunity to engage with sustainability during their time at UCL. The [Sustainable UCL](https://www.ucl.ac.uk/sustainable/) team offers students many different opportunities to learn about sustainability as part of their studies or extracurricular activities.
 
@@ -61,7 +61,7 @@ In particular, students can engage with sustainability in their free-time by joi
 
 - [Student Sustainability Opportunities | UCL](https://www.ucl.ac.uk/sustainable/get-involved/student-sustainability-opportunities)
 
-### 14.2 Departmental, Faculty, and other library and learning resources
+### Departmental, Faculty, and other library and learning resources
 
 Information on departmental and faculty library resources, IT provision/ support, social spaces etc.
 
@@ -73,7 +73,7 @@ External to UCL, the [British Library](https://www.bl.uk/subjects/science) hosts
 
 - [Subject Support Guides - Computer Science | UCL Library Services](https://library-guides.ucl.ac.uk/computer-science)
 
-### 14.3 Moodle (virtual learning environment)
+### Moodle (virtual learning environment)
 
 Information on how to access Moodle and support contacts.
 
@@ -91,7 +91,7 @@ Students will be automatically granted access to the Moodle pages of modules for
 
 - [Moodle Resource Centre | UCL Wiki](https://wiki.ucl.ac.uk/display/MoodleResourceCentre)
 
-### 14.4 Portico
+### Portico
 
 Information on Portico – what it is, why it is important and who to contact for support.
 
@@ -111,7 +111,7 @@ It is essential that students keep their contact details up to date on Portico t
 - [What is Portico | UCL Student and Registry Services](https://www.ucl.ac.uk/srs/support-portico/what-portico)
 - [Portico Support | UCL Student and Registry Services](https://www.ucl.ac.uk/srs/support-portico)
 
-### 14.5 Research Student Log (MRes only)
+### Research Student Log (MRes only)
 
 Information on the Research Student Log, which applies for MRes students.
 

@@ -1,8 +1,8 @@
-## 1. Introduction and welcome
+## Introduction and welcome
 
 Welcome messages from UCL's President and Provost and the Computer Science Head of Department, information about the scope and purpose of the Student Handbook, and general advice about changes to information through the year.
 
-### 1.1 Provost's welcome
+### Provost's welcome
 
 Dear students,
 
@@ -22,7 +22,7 @@ Dr Michael Spence
 
 UCL President and Provost
 
-### 1.2 Head of Department's welcome
+### Head of Department's welcome
 
 Welcome to UCL's Department of Computer Science.
 
@@ -38,7 +38,7 @@ I am excited to meet you and look forward to working with you all over the comin
 
 Prof. Daniel Alexander Head of Department
 
-### 1.3 Teaching and Learning Team welcome
+### Teaching and Learning Team welcome
 
 A warm welcome to our new students and welcome back to our returning students.
 
@@ -58,7 +58,7 @@ Lewis Griffin & Jo Stiles
 
 Departmental Tutor, Teaching & Learning Manager
 
-### 1.4 About the Student Handbook
+### About the Student Handbook
 
 The Computer Science Student Handbook is intended to provide you with key information regarding the Department of Computer Science and its taught degree programmes. It includes details of academic requirements, notification and explanation of codes, regulations, policies and procedures, as well as the other aspects of University life - sources of help and support, student representation, social opportunities, and facilities and resources available. Additional programme-specific information is detailed in the Programme Summary, which relates specifically to your year of entry.
 

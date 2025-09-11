@@ -1,8 +1,8 @@
-## 7. UCL's Student Support Framework
+## UCL's Student Support Framework
 
 Details of how UCL and the department will support students through their studies.
 
-### 7.1 About the UCL Student Support Framework
+### About the UCL Student Support Framework
 
 UCL is committed to providing the support students need in order to make the most out of their studies. The Student Support Framework draws together our main academic support processes under one banner to help students understand the options open to them.
 
@@ -10,7 +10,7 @@ UCL is committed to providing the support students need in order to make the mos
 
 The Framework includes the following components:
 
-#### 7.1.1 Part 1: How to Use this Framework
+#### Part 1: How to Use this Framework
 
 Helps students find their way around the different support options open to them. It includes:
 - Where to find help and advice
@@ -19,7 +19,7 @@ Helps students find their way around the different support options open to them.
 - Information on providing supporting evidence
 - Links to other support options that are available to students.
 
-#### 7.1.2 Part 2: Types of Support explains how each of the following processes works:
+#### Part 2: Types of Support explains how each of the following processes works:
 
 | Support process                                                    | Use this if                                                                                                                                                   | What this covers                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -39,7 +39,7 @@ The Student Support Framework is just one of the ways in which UCL helps student
 | [UCL Student Support and Wellbeing](https://www.ucl.ac.uk/students/student-support-and-wellbeing) | [FAQs and Enquiries](https://www.ucl.ac.uk/students/askucl) | [Students' Union UCL Advice Service](https://studentsunionucl.org/advice-service) |
 | UCL's team of expert wellbeing, disability and mental health staff provide a safe, confidential and non-judgemental space in which you can discuss any issues that may be affecting your ability to study. | askUCL is our self-help centre and student enquiry system. It includes a wide range of Frequently Asked Questions. If you can't find what you're looking for, you can log an enquiry. | The Students' Union UCL provides a free, confidential and independent advice service with a trained and experienced team. |
 
-### 7.2 Key contacts in the department for assistance with any of the above
+### Key contacts in the department for assistance with any of the above
 
 In the first instance, students should contact their programme administrator for advice on accessing any of the support processes laid out in the Student Support Framework.
 

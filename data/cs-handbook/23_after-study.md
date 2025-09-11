@@ -1,8 +1,8 @@
-## 23. After study
+## After study
 
 Information on confirmation of student status, transcripts and certificates, Higher Education Achievement Reports, academic references, and on UCL Alumni activities.
 
-### 23.1 Summary of options for confirmation of student status and award
+### Summary of options for confirmation of student status and award
 
 Students and graduates may request evidence of their student status and academic record from UCL, including official statements, transcripts of results, and academic references. The [certificates and results pages](https://www.ucl.ac.uk/students/student-status/transcripts-and-certificates) set out detailed guidance on the types of documentation available, how to request these, and any restrictions that apply. The table below is intended to summarise that information; best efforts have been made to ensure it is correct.
 
@@ -30,7 +30,7 @@ Typically, the Board of Examiners meets once in the summer to confirm marks for 
 
 Where a student's full set of module results is not available at a meeting of the programme Board of Examiners, for example because of an ongoing extension, deferral, or unresolved investigation under the academic misconduct regulations, then confirmation of results and conferral of any award may be delayed, subject to the availability of the Board of Examiners to review the delayed results. The department will endeavour to minimise any such delays and to make any recommendations for award as expeditiously as possible.
 
-### 23.3 Confirmation of student status (statement of student status)
+### Confirmation of student status (statement of student status)
 
 A statement of student status is an official letter that can used as proof of enrolment at UCL. The statement confirms a student's current enrolment status, mode of attendance (full, part-time), programme of study, programme start date and expected programme end date. The statement can be used, for example, by eligible full-time students to apply for council tax exemption and by international students to apply to open a UK bank account.
 
@@ -40,11 +40,11 @@ Students can print their own statement via Portico or can request one via [askU
 - [Students and council tax | UCL Students](https://www.ucl.ac.uk/students/money/managing-your-money/council-tax)
 - [Money and finances | UCL Students](https://www.ucl.ac.uk/students/money)
 
-### 23.4 Confirmation of results and awards (transcripts, degree certificates, and statements of award)
+### Confirmation of results and awards (transcripts, degree certificates, and statements of award)
 
 Information on requesting or accessing transcripts, degree certificates, and statements of award.
 
-#### 23.4.1 Transcripts of results
+#### Transcripts of results
 
 A [transcript](https://www.ucl.ac.uk/students/student-status/transcripts-and-certificates/transcripts) is an official document that details a student's module marks, grades, and any awards.
 
@@ -62,7 +62,7 @@ Students will be automatically issued with their academic transcript on completi
 
 UCL Student Records can produce additional transcripts for students on taught programmes (including affiliate students) via the [UCL Transcript Service](https://www.ucl.ac.uk/students/student-status/transcripts-and-certificates/transcripts).
 
-#### 23.4.2 Degree certificates
+#### Degree certificates
 
 A [degree certificate](https://www.ucl.ac.uk/students/student-status/transcripts-and-certificates/degree-certificates) is the official certificate of an award of a qualification, including any classification, that has been conferred by UCL.
 
@@ -70,13 +70,13 @@ Graduating students, which includes all students who are conferred a UCL qualifi
 
 - [Chapter 4, Section 12: Award of Degrees | UCL Academic Manual](https://www.ucl.ac.uk/academic-manual/chapters/chapter-4-assessment-framework-taught-programmes/section-12-award-degrees)
 
-#### 23.4.3 Statements of award
+#### Statements of award
 
 A statement of award is an official letter that can used as proof of an award conferred by UCL. The statement confirms a student's enrolment status, mode of attendance (full, part-time), programme of study, programme start date, programme end date, award conferred, and any classification conferred.
 
 Students can print their own statement via Portico or can request one via [askUCL](https://www.ucl.ac.uk/students/askucl) (log an enquiry and choose statement of award.)
 
-### 23.5 Confirmation of academic and non-academic record (Higher Education Achievement Report)
+### Confirmation of academic and non-academic record (Higher Education Achievement Report)
 
 Information about the undergraduate Higher Education Achievement Report (HEAR.)
 
@@ -86,7 +86,7 @@ New students will be invited to register for the HEAR service during their first
 
 Each summer, students' reports will then be made available to them online via Gradintel. Students can then share their HEARs, free of charge, as a secure electronic token with third parties via their Gradintel account.
 
-### 23.6 Academic references
+### Academic references
 
 Information on requesting academic references in support of applications for job or further study.
 
@@ -96,7 +96,7 @@ Where a student requires a reference, they should contact the referee as far in 
 
 Students should be aware that (1) references will usually only be possible once results have been confirmed by the responsible Board of Examiners; and (2) reference requests may take several weeks to respond to, particularly at busy times of year.
 
-### 23.7 Graduation ceremonies
+### Graduation ceremonies
 
 Information on attending UCL's graduation ceremonies.
 
@@ -110,7 +110,7 @@ In order to be eligible to attend a graduation ceremony in a given year, a stude
 
 Once invited to a ceremony, students will be given a deadline by which to confirm their attendance, which will require a ticket for themselves any invited guests. (Note that conferral of an award and issuance of a degree certificate and final transcript is automatic and irrespective of whether or when a student attends a graduation ceremony.)
 
-### 23.8 UCL Alumni community
+### UCL Alumni community
 
 Information on UCL and Computer Science alumni activities.
 

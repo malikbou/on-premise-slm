@@ -1,8 +1,8 @@
-## 12. Progression, award, and classification
+## Progression, award, and classification
 
 Information on how a student progresses through the programme, including what a student needs to complete and pass to be awarded a degree; what are the consequences of unsatisfactory progress.
 
-### 12.1 Progression and award requirements
+### Progression and award requirements
 
 Information on how a student progresses through the programme; what does a student need to complete and pass to be awarded a degree.
 
@@ -30,7 +30,7 @@ These thresholds apply to students first registered in 2024/25 and thereafter on
 - [Chapter 4, Section 6: Progression & Award | UCL Academic Manual](https://www.ucl.ac.uk/academic-manual/chapters/chapter-4-assessment-framework-taught-programmes/section-6-progression-and-award)
 - [Portico | UCL](https://evision.ucl.ac.uk/urd/sits.urd/run/siw_lgn)
 
-### 12.2 Classification requirements
+### Classification requirements
 
 Information on how marks will be combined to reach an award classification.
 

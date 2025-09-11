@@ -1,8 +1,8 @@
-## 5. Hours of study
+## Hours of study
 
 Information on UCL's expectations with respect to the number of hours students should spend engaged in study, requirements for attendance and engagement, and concerning authorisation of absence from assessment (Central and Local.)
 
-### 5.1 Teaching and learning
+### Teaching and learning
 
 Information on the expected hours of study required (Central and Local.)
 
@@ -16,17 +16,17 @@ There is usually no synchronous teaching activity for undergraduate modules (Lev
 
 - [Teaching on Wednesday Afternoons | UCL Academic Manual](https://www.ucl.ac.uk/academic-manual/chapters/chapter-3-registration-framework-taught-programmes/section-3-attendance-and-absence#3.6)
 
-### 5.2 Personal study
+### Personal study
 
 Information on personal study time (Local.)
 
 Activities such as completing coursework, reading, research, and revision are assumed to be part of personal study time, which is not part of synchronous timetabled activity. Students are responsible for organising and planning their personal study and for ensuring they give themselves sufficient time to meet their assessment deadlines. If a student experiences difficulty with workload planning or achieving their assessment deadlines, we strongly encourage them to proactively seek advice from their Personal Tutor.
 
-### 5.3 Attendance and engagement
+### Attendance and engagement
 
 Information on attendance requirements, how student's attendance and engagement is monitored, and penalties for poor attendance (Centrally Provided.)
 
-#### 5.3.1 Attendance requirements
+#### Attendance requirements
 
 UCL expects students to attend all the scheduled learning events which appear on their timetable as this gives students the best chance of academic success. This includes all events set out in the programme handbook or those provided to students during a module, including personal tutorials.
 
@@ -42,7 +42,7 @@ Students encountering issues with attendance are advised to contact the respecti
 - [UCL Student Attendance Policy | UCL Academic Manual](https://www.ucl.ac.uk/academic-manual/chapters/chapter-3-registration-framework-taught-programmes/annex-32-student-attendance-policy)
 - [Attendance at UCL | UCL Students](https://www.ucl.ac.uk/students/student-status/attendance-ucl)
 
-#### 5.3.2 Student Visa students: Absence from teaching and learning activities
+#### Student Visa students: Absence from teaching and learning activities
 
 In line with UCL's obligations under UK immigration laws, UCL is required to report to UK Visas and Immigration (UKVI) when a student has not been engaging with their studies. RegisterUCL is used by departments and the central Student Immigration Compliance team to report on student attendance. This is not only to meet the UKVI requirements, but also to identify any problems as early as possible to ensure action is taken to advise or assist the student.
 
@@ -50,7 +50,7 @@ In line with UCL's obligations under UK immigration laws, UCL is required to rep
 - [Student visa responsibilities | UCL Students](https://www.ucl.ac.uk/students/immigration-and-visas/student-visa-responsibilities)
 - [Chapter 3, Section 3: Attendance and Absence | UCL Academic Manual](https://www.ucl.ac.uk/academic-manual/chapters/chapter-3-registration-framework-taught-programmes/section-3-attendance-and-absence)
 
-#### 5.3.3 All students: absence from assessment
+#### All students: absence from assessment
 
 If a student experiences extenuating circumstances that prevents them from attending a scheduled assessment activity or submitting work by the relevant deadline, then they should submit an application under the [Short-term Illness and Extenuating Circumstances procedure](https://www.ucl.ac.uk/academic-manual/chapters/chapter-2-student-support-framework/section-2-short-term-illness-and-other-extenuating-circumstances).
 

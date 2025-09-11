@@ -1,10 +1,10 @@
-## 4. Key dates and communication
+## Key dates and communication
 
 An overview of term dates, examination and assessment periods, and core activities, as well as how students can expect to receive communications.
 
-### 4.1 Term dates
+### Term dates
 
-#### 4.1.1 UCL Term Dates: 2024/25
+#### UCL Term Dates: 2024/25
 
 | Period | Dates |
 | ----------------------- | --------------------------- |
@@ -27,11 +27,11 @@ Further information:
 - [Term dates 2024-25](https://www.ucl.ac.uk/students/dates-and-events/term-dates/term-dates-2024-25)
 - [Academic Year Calendar 2024-25](https://www.ucl.ac.uk/staff/sites/staff/files/ucl_calendar_2024-25.pdf)
 
-### 4.2 Assessment and examination periods
+### Assessment and examination periods
 
 Students will undertake assessments throughout their registration, typically including a variety of courseworks, reports, tests, examinations, and a final project/ dissertation.
 
-#### 4.2.1 Departmental assessments
+#### Departmental assessments
 
 The department makes every effort to manage dates of assessment carefully, and with consideration to students' assessment loads, and any changes to assessment deadlines will be make with the same considerations. The table below shows when assessments will typically take place for Computer Science modules. The week numbers refer to the UCL Academic Year Calendar (i.e., teaching on most programmes starts in Week 06.)
 
@@ -47,13 +47,13 @@ The department makes every effort to manage dates of assessment carefully, and w
 
 Assessment deadlines may be set during Reading Weeks, but may not be set during closure periods, on weekends, or UK bank holidays.
 
-#### 4.2.2 Central UCL assessment periods
+#### Central UCL assessment periods
 
 The examination period and information about timetables will be published via the [Exams and Assessments Students' pages](https://www.ucl.ac.uk/students/exams-and-assessments) once the dates have been formally set.
 
-### 4.3 Department and faculty-level events and key dates
+### Department and faculty-level events and key dates
 
-#### 4.3.1 Changes to registration status
+#### Changes to registration status
 
 Dates for Study Abroad Year requests and applications are provisional.
 
