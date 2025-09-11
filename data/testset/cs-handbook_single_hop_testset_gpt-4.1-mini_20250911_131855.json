@@ -1,0 +1,82 @@
+[
+  {
+    "user_input": "wht is the 1. Introduction and welcom about in the student handbook?",
+    "reference_contexts": [
+      "## 1. Introduction and welcome\n\nWelcome messages from UCL's President and Provost and the Computer Science Head of Department, information about the scope and purpose of the Student Handbook, and general advice about changes to information through the year."
+    ],
+    "reference": "The 1. Introduction and welcome section includes welcome messages from UCL's President and Provost and the Computer Science Head of Department, information about the scope and purpose of the Student Handbook, and general advice about changes to information through the year.",
+    "synthesizer_name": "single_hop_specific_query_synthesizer"
+  },
+  {
+    "user_input": "What does the 1.1 Provost's welcome say about the educational approach and student experience at UCL?",
+    "reference_contexts": [
+      "### 1.1 Provost's welcome\n\nDear students,\n\nA warm welcome to those of you who are new and congratulations on making UCL your university of choice. To those of you returning, welcome back.\n\nYour UCL education will take you deep into your chosen field and give you its broader context in our rich multidisciplinary academic culture. It will help you develop skills and networks to prepare you for your future.\n\nWe want you to learn how to think, not what to think, through UCL's research-based approach to education. Our students are our partners and contributors, working alongside world-leading academic staff to pursue excellence, break boundaries and make an impact on global challenges."
+    ],
+    "reference": "The 1.1 Provost's welcome emphasizes that UCL offers a rich multidisciplinary academic culture where students are encouraged to develop skills and networks for their future. It highlights a research-based approach to education focused on teaching students how to think, not what to think. Students are regarded as partners and contributors, working alongside world-leading academic staff to pursue excellence, break boundaries, and address global challenges.",
+    "synthesizer_name": "single_hop_specific_query_synthesizer"
+  },
+  {
+    "user_input": "What does the 1.2 Head of Department's welcome say about the goals for students in UCL's Department of Computer Science?",
+    "reference_contexts": [
+      "### 1.2 Head of Department's welcome\n\nWelcome to UCL's Department of Computer Science.\n\nOur discipline is set to produce the biggest technological advances of this century. It will have profound influence on life on Earth.  It is all of you that will lead these advances. Our aim is to equip you to achieve that with skill, rigour, integrity, and a clear and complete understanding of how your work influences the world.\n\nIt starts with the basics: understanding new concepts; solving problems; debugging code; writing reports. These are the skills that enable the sublime: revolutions in AI, healthcare, finance, media, the way we learn, work, and govern the country."
+    ],
+    "reference": "The 1.2 Head of Department's welcome at UCL's Department of Computer Science emphasizes that the discipline aims to produce the biggest technological advances of this century, profoundly influencing life on Earth. It highlights that students will lead these advances and that the department's goal is to equip them with skill, rigour, integrity, and a clear understanding of how their work impacts the world. The welcome also stresses starting with fundamental skills such as understanding new concepts, solving problems, debugging code, and writing reports, which enable major innovations in areas like AI, healthcare, finance, media, education, work, and governance.",
+    "synthesizer_name": "single_hop_specific_query_synthesizer"
+  },
+  {
+    "user_input": "what is 1.3 Teaching and Learning Team welcome about?",
+    "reference_contexts": [
+      "### 1.3 Teaching and Learning Team welcome\n\nA warm welcome to our new students and welcome back to our returning students.\n\nWe are very excited to have you with us this year and we're looking forward to supporting you through your time with us. We hope this handbook will serve as a useful companion on your academic journey: it sets out key contacts in the department, and the wide array of academic, pastoral, and welfare support options available to you as a UCL student. It also includes the broad framework of rules and regulations that govern our degrees."
+    ],
+    "reference": "1.3 Teaching and Learning Team welcome is a warm greeting to new and returning students, expressing excitement to support them during their time at UCL. It introduces the handbook as a useful companion that provides key contacts and details about academic, pastoral, and welfare support, as well as the rules and regulations governing degrees.",
+    "synthesizer_name": "single_hop_specific_query_synthesizer"
+  },
+  {
+    "user_input": "What information does 1.4 About the Student Handbook cover?",
+    "reference_contexts": [
+      "### 1.4 About the Student Handbook\n\nThe Computer Science Student Handbook is intended to provide you with key information regarding the Department of Computer Science and its taught degree programmes. It includes details of academic requirements, notification and explanation of codes, regulations, policies and procedures, as well as the other aspects of University life - sources of help and support, student representation, social opportunities, and facilities and resources available. Additional programme-specific information is detailed in the Programme Summary, which relates specifically to your year of entry."
+    ],
+    "reference": "Section 1.4 About the Student Handbook explains that the Computer Science Student Handbook provides key information about the Department of Computer Science and its taught degree programmes. It includes academic requirements, codes, regulations, policies, procedures, and other aspects of University life such as help and support, student representation, social opportunities, and available facilities and resources. It also notes that additional programme-specific details are found in the Programme Summary related to your year of entry.",
+    "synthesizer_name": "single_hop_specific_query_synthesizer"
+  },
+  {
+    "user_input": "What information is provided in the Introduction and welcome section of the Student Handbook?",
+    "reference_contexts": [
+      "## 1. Introduction and welcome\n\nWelcome messages from UCL's President and Provost and the Computer Science Head of Department, information about the scope and purpose of the Student Handbook, and general advice about changes to information through the year."
+    ],
+    "reference": "The Introduction and welcome section includes welcome messages from UCL's President and Provost and the Computer Science Head of Department, information about the scope and purpose of the Student Handbook, and general advice about changes to information throughout the year.",
+    "synthesizer_name": "single_hop_specific_query_synthesizer"
+  },
+  {
+    "user_input": "What is Provost's welcome say for new and returning students at UCL?",
+    "reference_contexts": [
+      "### 1.1 Provost's welcome\n\nDear students,\n\nA warm welcome to those of you who are new and congratulations on making UCL your university of choice. To those of you returning, welcome back.\n\nYour UCL education will take you deep into your chosen field and give you its broader context in our rich multidisciplinary academic culture. It will help you develop skills and networks to prepare you for your future.\n\nWe want you to learn how to think, not what to think, through UCL's research-based approach to education. Our students are our partners and contributors, working alongside world-leading academic staff to pursue excellence, break boundaries and make an impact on global challenges."
+    ],
+    "reference": "Provost's welcome gives a warm welcome to new students and congratulations for choosing UCL. It also welcomes back returning students. It says UCL education will take you deep into your field and give broader context in multidisciplinary culture. It helps develop skills and networks for your future. It wants you to learn how to think, not what to think, through research-based education. Students are partners working with world-leading staff to pursue excellence and make impact on global challenges.",
+    "synthesizer_name": "single_hop_specific_query_synthesizer"
+  },
+  {
+    "user_input": "Could you explain how the 2022-2027 strategic plan for education at UCL might impact my experience as a disabled student?",
+    "reference_contexts": [
+      "I warmly encourage you to shape your journey at UCL. Take our university-wide surveys and work in partnership with academics to make your programme of study even better.  Each programme also has opportunities for you to volunteer as an academic representative to work closely with your department to improve the student experience.\n\nThis is an exciting time to make your voice heard, with UCL East, the biggest development in UCL's history, welcoming its second cohort of students and work continuing on implementing our 2022-2027 strategic plan for education. Preparations are also in train on marking UCL's bicentennial in 2026, with our student partners involved in planning an inspiring programme of events to celebrate this landmark anniversary."
+    ],
+    "reference": "The 2022-2027 strategic plan for education at UCL is currently being implemented alongside major developments such as UCL East, which is welcoming its second cohort of students. This period is described as an exciting time to make your voice heard, with opportunities to participate in university-wide surveys and work in partnership with academics to improve your programme of study. Additionally, students can volunteer as academic representatives to collaborate closely with their departments to enhance the student experience. These initiatives suggest a focus on student involvement and continuous improvement during the strategic plan's implementation.",
+    "synthesizer_name": "single_hop_specific_query_synthesizer"
+  },
+  {
+    "user_input": "As a struggling postgraduate student, how does UCL describe my role as a valuable member of its community, and what encouragement is offered to enhance my experience during my studies?",
+    "reference_contexts": [
+      "UCL is a community of great minds. You are a valuable member of that community. I hope you will take every opportunity to shape your time with us, so that your experience is the best possible.\n\nDr Michael Spence\n\nUCL President and Provost"
+    ],
+    "reference": "UCL describes you as a valuable member of its community of great minds. The message encourages you to take every opportunity to shape your time at UCL so that your experience is the best possible.",
+    "synthesizer_name": "single_hop_specific_query_synthesizer"
+  },
+  {
+    "user_input": "what r technoligical advances in computer scince?",
+    "reference_contexts": [
+      "### 1.2 Head of Department's welcome\n\nWelcome to UCL's Department of Computer Science.\n\nOur discipline is set to produce the biggest technological advances of this century. It will have profound influence on life on Earth.  It is all of you that will lead these advances. Our aim is to equip you to achieve that with skill, rigour, integrity, and a clear and complete understanding of how your work influences the world.\n\nIt starts with the basics: understanding new concepts; solving problems; debugging code; writing reports. These are the skills that enable the sublime: revolutions in AI, healthcare, finance, media, the way we learn, work, and govern the country."
+    ],
+    "reference": "The Department of Computer Science at UCL aims to produce the biggest technological advances of this century, which will have a profound influence on life on Earth. These advances start with mastering basics like understanding new concepts, solving problems, debugging code, and writing reports, enabling revolutions in AI, healthcare, finance, media, education, work, and governance.",
+    "synthesizer_name": "single_hop_specific_query_synthesizer"
+  }
+]
