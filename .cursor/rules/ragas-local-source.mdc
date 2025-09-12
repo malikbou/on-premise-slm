@@ -5,7 +5,6 @@ globs:
   - .venv/**/site-packages/ragas/**
   - src/testset/**
   - src/benchmarking/**
-  - src/throughput/**
 alwaysApply: false
 ---
 
@@ -17,7 +16,7 @@ alwaysApply: false
   - `python scripts/vendor_ragas.py`
 - Exclude large artifacts from the mirror (e.g., `__pycache__`, tests, assets) to keep context lean.
 - Typical touchpoints in this repo: question/testset generation, metrics computation, evaluation flows.
-- Mapping tip: from calls in `src/testset`/`src/benchmarking`/`src/throughput`, open corresponding definitions in local ragas to verify parameters and return types.
+- Mapping tip: from calls in `src/testset`/`src/benchmarking`, open corresponding definitions in local ragas to verify parameters and return types.
 
 - When working on testset generation, verify these locally to avoid common pitfalls:
   - QueryStyle values: use `QueryStyle.PERFECT_GRAMMAR` to enforce "formal" (no literal "formal").
