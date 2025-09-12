@@ -1,0 +1,101 @@
+network-preset
+
+Unify local vs VM endpoint resolution and index path derivation across the repo.
+
+Problem
+- Inconsistencies between localhost and host.docker.internal cause connection errors depending on where code runs (host vs container vs VM).
+- Embedding index paths (INDEX_DIR) are sometimes hardcoded and drift from the slugged path derived from the embedding name.
+- Endpoint/preset logic is duplicated across scripts.
+
+Goals
+- Single source of truth for:
+  - PRESET detection: local vs vm
+  - OLLAMA_BASE_URL and LITELLM_API_BASE resolution
+  - Embedding API map for the three RAG endpoints
+  - Embedding slug and FAISS index directory derivation
+- Remove duplicated endpoint/slug logic from scripts.
+- Eliminate localhost vs host.docker.internal confusion.
+
+Constraints
+- Keep code in `src/`; follow existing style and small, focused functions.
+- Avoid touching unrelated code; do not reformat.
+- Preserve current behavior where possible; only unify resolution and defaults.
+
+Implementation Plan (for the agent)
+1) Create helper module
+   - File: `src/common/net.py`
+   - Add these functions (small, self-contained):
+     - `is_in_docker() -> bool`
+     - `detect_preset() -> str`  # returns "local" or "vm" based on env PRESET or container detection
+     - `resolve_ollama_base_url(preset: str) -> str`  # env wins; else vm→host.docker.internal:11434, local→localhost:11434
+     - `resolve_litellm_base_url(preset: str) -> str`  # env wins; else vm→litellm:4000, local→localhost:4000
+     - `default_embedding_api_map(preset: str) -> dict[str, str]`  #
+       - local: bge→http://localhost:8001, qwen3→http://localhost:8002, e5→http://localhost:8003
+       - vm:    bge→http://rag-api-bge:8000, qwen3→http://rag-api-qwen3:8000, e5→http://rag-api-e5:8000
+     - `parse_kv_map(s: str|None) -> dict[str, str]`
+     - `embedding_slug(name: str) -> str`  # filesystem-safe slug
+     - `derive_index_dir(embedding_model: str, explicit: str|None, is_multi: bool) -> str`  # prefers explicit when single; else `.rag_cache/<slug>/faiss_index`
+
+2) Wire into index builder
+   - Files: `src/build_index.py` and/or `src/build_index_new.py`
+   - Replace custom preset/URL code with calls to:
+     - `preset = args.preset or detect_preset()`
+     - `OLLAMA_BASE_URL = resolve_ollama_base_url(preset)`
+     - For each embedding: `target_index_dir = derive_index_dir(embedding_model, INDEX_DIR, is_multi=True)`
+   - Keep header-aware splitting and env-configurable chunk sizes.
+
+3) Wire into RAG API
+   - File: `src/main.py`
+   - On startup:
+     - `preset = detect_preset()`
+     - `OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", resolve_ollama_base_url(preset))`
+     - `index_dir = INDEX_DIR or derive_index_dir(EMBEDDING_MODEL_NAME, None, is_multi=False)`
+
+4) Wire into benchmark runner
+   - File: `src/benchmarking/benchmark.py`
+   - Replace per-file defaults with:
+     - `preset = args.preset or detect_preset()`
+     - `litellm_base = resolve_litellm_base_url(preset)`
+     - `api_map = parse_kv_map(args.embedding_api_map) or default_embedding_api_map(preset)`
+   - Keep `--testset` as a single file path. Optional: bump request timeout from 120 → 180s.
+
+5) Docker Compose alignment
+   - File: `docker-compose.yml` (base, for local dev with host Ollama)
+     - For `rag-api-bge`, `rag-api-qwen3`, `rag-api-e5`:
+       - Remove `INDEX_DIR=...` (let app derive from embedding slug)
+       - Keep `EMBEDDING_MODEL=...`
+       - Set `OLLAMA_BASE_URL=http://host.docker.internal:11434`
+       - Optionally set `PRESET=vm` as a hint
+       - Keep `extra_hosts: ["host.docker.internal:host-gateway"]` for name resolution
+     - Remove the unused `rag-api` service if it’s redundant.
+     - `index-builder` should run `src/build_index_new.py` with `--preset vm` (builder runs in container, embeds via host Ollama).
+     - `benchmarker` should pass `--preset vm` and rely on Docker DNS for RAG endpoints.
+   - File: `docker-compose.vm.yml` (overlay for VM with containerized Ollama)
+     - Add service `ollama` and expose 11434 with GPU.
+     - Override `rag-api-*` `OLLAMA_BASE_URL` to `http://ollama:11434`.
+     - Keep `benchmarker` `--preset vm`.
+
+Usage Guidance
+- Host (Mac): scripts run directly with `preset=local` → `http://localhost:11434` (for Ollama); RAG APIs reachable at `http://localhost:8001/2/3`.
+- Containers on Mac: services call host Ollama via `http://host.docker.internal:11434`; inter-service calls use Docker DNS (e.g., `http://rag-api-bge:8000`).
+- VM overlay: if running Ollama in Docker, use `http://ollama:11434` for services; otherwise use the host alias.
+
+Acceptance Criteria
+- No NameResolutionError when running scripts on host or in containers.
+- RAG APIs load the correct FAISS indexes for all embeddings without manual `INDEX_DIR`.
+- `benchmark.py --preset local` works on host; `--preset vm` works in compose/VM.
+- Endpoint/slug logic exists only in `src/common/net.py`.
+
+Testing Checklist
+- Build indexes for 3 embeddings on host and in container; verify `.rag_cache/<slug>/faiss_index` created.
+- Start 3 RAG API services; `GET /info` shows correct `embedding_model` and `index_dir`.
+- Run `benchmark.py` generate+evaluate on host (local) and in compose (vm); verify answers and scores files in `results/benchmarking/<stamp>/`.
+
+Docs Sync (follow @docs-sync)
+- Update `README.md` Quickstart with PRESET explanation and examples.
+- Update `docs/SYSTEM_MANUAL.md` networking model (host vs container vs VM), env vars, and compose notes.
+- Update `docs/USER_MANUAL.md` with flags and typical commands per environment.
+
+Notes
+- This rule describes what to implement; do not make code changes inside the rule file.
+- Keep changes narrow and incremental; match existing formatting and error handling.
