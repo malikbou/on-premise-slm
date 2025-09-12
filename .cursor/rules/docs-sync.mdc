@@ -1,0 +1,34 @@
+---
+description: Auto-propose updates to USER_MANUAL, SYSTEM_MANUAL, and README when behavior changes
+globs:
+  - src/**
+  - scripts/**
+  - config.yaml
+  - README.md
+  - docs/USER_MANUAL.md
+  - docs/SYSTEM_MANUAL.md
+alwaysApply: false
+---
+
+- When diffs in `src/**` or `scripts/**` affect behavior, propose precise edits to:
+  - `docs/USER_MANUAL.md`: user flows, flags/CLI changes, UI/API examples, screenshots placeholders.
+  - `docs/SYSTEM_MANUAL.md`: architecture, build/run commands, env vars, services, config keys/paths.
+  - `README.md`: quickstart, features summary, entrypoints, minimal examples.
+
+- Triggers indicating behavior change (non-exhaustive):
+  - CLI parsers or command signatures updated (argparse/Typer click options, defaults).
+  - API endpoints/routes, request/response schemas, HTTP methods.
+  - Config schema keys/types/defaults in `config.yaml` or code.
+  - File output locations/names in `data/**`, `results/**`, `results_remote/**`.
+  - Notebooks to scripts extraction that changes usage steps.
+  - Breaking UX flows, auth, or environment/pre-reqs.
+
+- Proposed edit format:
+  - Summarize the change in 1-2 lines.
+  - Provide a minimal diff for each target file with exact sections to update.
+  - Keep unrelated content untouched; match existing style and indentation.
+  - Link to changed files/functions in context.
+
+- Do NOT auto-apply. Always present diffs for review/approval.
+
+- After acceptance, if a new dataset/result path is introduced, suggest adding a row to `docs/THESIS/EXPERIMENTS.md` (if present).

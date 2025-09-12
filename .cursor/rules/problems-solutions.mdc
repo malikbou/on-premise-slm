@@ -1,0 +1,23 @@
+---
+description: Manual rule to append a problem/solution entry to THESIS log
+globs:
+  - docs/THESIS/PROBLEMS_SOLUTIONS.md
+alwaysApply: false
+---
+
+- When invoked via @problems-solutions, append an entry to `docs/THESIS/PROBLEMS_SOLUTIONS.md` using this template:
+
+```
+## <Date YYYY-MM-DD> — <Short title>
+
+- **Area**: <component/file/path>
+- **Symptom**: <what broke / unexpected behavior>
+- **Root cause**: <short root cause>
+- **Fix**: <what changed>
+- **Evidence**: <links to commits/PR/results>
+- **Follow-ups**: <tests/docs/monitoring/tasks>
+```
+
+- Place newest entries at the top of the file (reverse chronological).
+- Preserve existing sections and indentation; do not reformat unrelated content.
+- If links refer to local paths, make them relative to repo root.
