@@ -5,17 +5,35 @@ globs:
 alwaysApply: false
 ---
 
-- When invoked via @problems-solutions, append an entry to `docs/THESIS/PROBLEMS_SOLUTIONS.md` using this template:
+- When invoked via @problems-solutions, append an entry to `docs/THESIS/PROBLEMS_SOLUTIONS.md` using this narrative-friendly template:
 
 ```
-## <Date YYYY-MM-DD> — <Short title>
+## <YYYY-MM-DD> — <Short, descriptive title>
 
-- **Area**: <component/file/path>
-- **Symptom**: <what broke / unexpected behavior>
-- **Root cause**: <short root cause>
-- **Fix**: <what changed>
-- **Evidence**: <links to commits/PR/results>
-- **Follow-ups**: <tests/docs/monitoring/tasks>
+- Area: <component/file/path>
+- Context
+  <What you were trying to accomplish and why it matters.>
+
+- Symptoms
+  <What you observed; include error messages and examples.>
+
+- Root cause
+  <What was actually wrong; call out version/behavior mismatches.>
+
+- Resolution
+  <What you changed (code/config), and why it addressed the root cause.>
+
+- Validation
+  <How you verified the fix: checks, sample outputs, metrics.>
+
+- Lessons learned
+  <Actionable takeaways and guidance for future work.>
+
+- Evidence
+  <Links to commits/PRs, runs, datasets, screenshots, or local paths.>
+
+- Follow-ups
+  <Next steps: perf, docs, tests, risks to monitor.>
 ```
 
 - Place newest entries at the top of the file (reverse chronological).
