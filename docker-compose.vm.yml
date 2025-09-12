@@ -27,6 +27,13 @@ services:
       - NVIDIA_VISIBLE_DEVICES=all
 
   # Override RAG API services to use containerized Ollama on the VM
+    # Ensure litellm pulls/uses the correct architecture on this VM
+  litellm:
+    platform: linux/amd64
+    image: python:3.11-slim
+    entrypoint: ["sh", "-lc", "pip install --no-cache-dir 'litellm[proxy]' && exec litellm --config /app/config.yaml --port 4000"]
+    command: []
+
   rag-api-bge:
     environment:
       - OLLAMA_BASE_URL=http://ollama:11434
