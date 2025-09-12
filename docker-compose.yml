@@ -93,7 +93,7 @@ services:
     env_file:
       - .env
     environment:
-      - INDEX_DIR=/app/.rag_cache/qwen3/faiss_index
+      - INDEX_DIR=/app/.rag_cache/hf_co_qwen_qwen3_embedding_0_6b_gguf_q8_0/faiss_index
       - EMBEDDING_MODEL=hf.co/Qwen/Qwen3-Embedding-0.6B-GGUF:Q8_0
       - OLLAMA_BASE_URL=http://host.docker.internal:11434
     healthcheck:
