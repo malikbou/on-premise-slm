@@ -1,0 +1,22 @@
+---
+description: Prefer reading local ragas source in vendor/ragas over external docs
+globs:
+  - vendor/ragas/**
+  - src/testset/**
+  - src/benchmarking/**
+  - src/throughput/**
+alwaysApply: false
+---
+
+- When working with ragas, rely on `vendor/ragas/**` to understand APIs and behavior.
+- Read function/class definitions and docstrings directly; avoid assuming online docs are accurate.
+- If a method is unclear, first search usages within `vendor/ragas` before external search.
+- Summarize relevant code sections inline when proposing changes.
+- Continue importing the installed `ragas` package in project code; the vendor copy is for Agent context and code reading.
+- Keep the vendor mirror fresh after upgrading ragas by running:
+  - `python scripts/vendor_ragas.py`
+- Exclude large artifacts from the mirror (e.g., `__pycache__`, tests, assets) to keep context lean.
+- Typical touchpoints in this repo: question/testset generation, metrics computation, evaluation flows.
+- Mapping tip: from calls in `src/testset`/`src/benchmarking`/`src/throughput`, open corresponding definitions in `vendor/ragas` to verify parameters and return types.
+
+@scripts/vendor_ragas.py

@@ -1,0 +1,13 @@
+---
+description: Notebook guidance for generating evaluation testsets
+globs:
+  - src/testset/**/*.ipynb
+  - src/testset/*.ipynb
+alwaysApply: false
+---
+
+- Keep notebooks reproducible: prefer adding cells over rewriting existing ones; preserve IDs.
+- Parameterize secrets and model names via env/config; never hardcode secrets.
+- Save generated JSON to `data/testset/` with timestamped filenames.
+- Prefer local ragas source (see ragas rule) when clarifying behavior.
+- If extracting logic to a script, place it under `src/testset/` with a clear entrypoint and arguments.

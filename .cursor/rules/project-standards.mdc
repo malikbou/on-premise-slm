@@ -1,0 +1,20 @@
+---
+description: On-Premise SLM project standards and agent behavior
+globs:
+alwaysApply: true
+---
+
+- Use Python 3.11+ and keep code in `src/` and scripts in `scripts/`.
+- Prefer clear, descriptive names; avoid abbreviations. Keep functions small with early returns.
+- Add succinct docstrings for complex logic; avoid comments for trivial code.
+- Do not reformat unrelated code; match existing style and indentation.
+- Handle errors meaningfully; avoid catching without handling.
+- When editing notebooks in `src/testset/`, preserve cell order and IDs when possible.
+- Save generated datasets to `data/testset/` using timestamped filenames.
+- Run lightweight checks after edits; fix trivial linter issues immediately.
+- For evaluation logic, consider impacts on `results/` and `results_remote/` structures.
+
+References for quick context:
+@src/main.py
+@src/build_index.py
+@src/common
