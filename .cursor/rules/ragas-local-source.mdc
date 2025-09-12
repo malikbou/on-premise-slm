@@ -2,21 +2,31 @@
 description: Prefer reading local ragas source in vendor/ragas over external docs
 globs:
   - vendor/ragas/**
+  - .venv/**/site-packages/ragas/**
   - src/testset/**
   - src/benchmarking/**
   - src/throughput/**
 alwaysApply: false
 ---
 
-- When working with ragas, rely on `vendor/ragas/**` to understand APIs and behavior.
-- Read function/class definitions and docstrings directly; avoid assuming online docs are accurate.
-- If a method is unclear, first search usages within `vendor/ragas` before external search.
-- Summarize relevant code sections inline when proposing changes.
+- Prefer `vendor/ragas/**` to understand APIs and behavior; if not present, inspect the installed package in `.venv/**/site-packages/ragas/**`.
+- Read local function/class definitions and docstrings first; do not assume online docs match the installed version.
+- If a method is unclear, first search usages within local `ragas` before external search. Summarize key code paths inline when proposing changes.
 - Continue importing the installed `ragas` package in project code; the vendor copy is for Agent context and code reading.
 - Keep the vendor mirror fresh after upgrading ragas by running:
   - `python scripts/vendor_ragas.py`
 - Exclude large artifacts from the mirror (e.g., `__pycache__`, tests, assets) to keep context lean.
 - Typical touchpoints in this repo: question/testset generation, metrics computation, evaluation flows.
-- Mapping tip: from calls in `src/testset`/`src/benchmarking`/`src/throughput`, open corresponding definitions in `vendor/ragas` to verify parameters and return types.
+- Mapping tip: from calls in `src/testset`/`src/benchmarking`/`src/throughput`, open corresponding definitions in local ragas to verify parameters and return types.
+
+- When working on testset generation, verify these locally to avoid common pitfalls:
+  - QueryStyle values: use `QueryStyle.PERFECT_GRAMMAR` to enforce "formal" (no literal "formal").
+  - Single-hop availability: some versions only include single-hop specific (no single-hop abstract).
+  - OverlapScoreBuilder naming:
+    - Relationship type: `"{property_name}_overlap"` (e.g., `keyphrases_overlap`).
+    - Score property: `"{property_name}_overlap_score"` (e.g., `keyphrases_overlap_score`).
+    - `overlapped_items` contains pairs/tuples of overlapping strings.
+  - Multi-hop specific: flatten `overlapped_items` to strings for persona prompts; keep pairs as combinations for scenarios to avoid Pydantic errors.
+  - Multi-hop abstract: if node `themes` are absent, set `abstract_property_name="keyphrases"`, reduce `depth_limit`, and cap clusters.
 
 @scripts/vendor_ragas.py

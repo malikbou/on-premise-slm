@@ -11,3 +11,32 @@ alwaysApply: false
 - Save generated JSON to `data/testset/` with timestamped filenames.
 - Prefer local ragas source (see ragas rule) when clarifying behavior.
 - If extracting logic to a script, place it under `src/testset/` with a clear entrypoint and arguments.
+
+- Pre-flight checks before `generate()` (use the same KG on the generator):
+  - `generator.knowledge_graph = kg`
+  - `len(kg.relationships) > 0`
+  - `len(kg.find_two_nodes_single_rel(lambda rel: rel.type == "keyphrases_overlap")) > 0`
+  - `len(kg.find_indirect_clusters(lambda rel: bool(rel.get_property("keyphrases_overlap_score")), depth_limit=2)) > 0`
+
+- Relationship builders (keyphrase multi-hop):
+  - Build edges with `OverlapScoreBuilder(property_name="keyphrases", new_property_name="overlap_score", distance_threshold≈0.85–0.9, threshold≈0.02–0.05)`.
+  - Configure synthesizers with:
+    - Specific: `relation_type="keyphrases_overlap"`, `relation_overlap_property="overlapped_items"`.
+    - Abstract: `relation_property="keyphrases_overlap_score"`.
+
+- Style/length control:
+  - “Formal” = `QueryStyle.PERFECT_GRAMMAR`.
+  - Fix length via `QueryLength.SHORT|MEDIUM|LONG`.
+  - Override `prepare_combinations` in synthesizers to set `styles=[...]` and `lengths=[...]`.
+
+- Multi-hop specific tuple handling:
+  - `overlapped_items` are tuples; flatten to strings for persona matching (`ThemesPersonasInput(themes=[...])`), retain pairs for combinations to preserve multi-hop.
+
+- Multi-hop abstract performance:
+  - Use `abstract_property_name="keyphrases"` if `themes` are absent on nodes.
+  - Keep `depth_limit=2` and cap clusters (e.g., `max_clusters=10–20`) to bound LLM calls.
+  - Tighten overlap thresholds to reduce cluster count when needed.
+
+- Personas:
+  - Only `Persona(name, role_description)` is valid.
+  - If providing a list, pass `num_personas=len(personas)` to avoid truncation to 3.

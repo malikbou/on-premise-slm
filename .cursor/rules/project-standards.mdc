@@ -14,6 +14,14 @@ alwaysApply: true
 - Run lightweight checks after edits; fix trivial linter issues immediately.
 - For evaluation logic, consider impacts on `results/` and `results_remote/` structures.
 
+- Ragas testset generation standards:
+  - Use LLM temperature 1.0 for generation consistency.
+  - Keep property/relationship naming consistent across transforms and synthesizers (`keyphrases`, `keyphrases_overlap`, `keyphrases_overlap_score`).
+  - Enforce style/length via `QueryStyle.PERFECT_GRAMMAR` and `QueryLength` in synthesizers’ `prepare_combinations`.
+  - Generate via `TestsetGenerator.generate(testset_size, query_distribution, num_personas=len(personas))`; ensure `generator.knowledge_graph is kg`.
+  - For multi-hop specific, flatten `overlapped_items` for persona prompts; retain pairs for combinations.
+  - Control runtime by capping abstract clusters and using `depth_limit=2`; increase overlap thresholds to reduce graph density when needed.
+
 References for quick context:
 @src/main.py
 @src/build_index.py
