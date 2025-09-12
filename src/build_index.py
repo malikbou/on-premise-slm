@@ -1,28 +1,27 @@
 import os
 import re
 import argparse
-from typing import List
+from typing import List, Optional
 import requests
 from dotenv import load_dotenv
 
 from langchain_community.document_loaders import DirectoryLoader, UnstructuredMarkdownLoader
 from langchain_community.vectorstores import FAISS
-from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter, MarkdownHeaderTextSplitter
 from langchain_ollama import OllamaEmbeddings
+
 
 # Load environment variables from a .env file
 load_dotenv()
 
 # --- Configuration ---
 # Allow overriding the handbook markdown path for A/B testing
-HANDBOOK_MD_PATH = os.getenv("HANDBOOK_MD_PATH")
-DATA_DIR = "data/"
+DATA_DIR = "data/cs-handbook"
 INDEX_DIR = os.getenv("INDEX_DIR")  # If building multiple, this is ignored
-EMBEDDING_MODEL_NAME = os.getenv("EMBEDDING_MODEL", "nomic-embed-text")
 EMBEDDING_MODELS_ENV = os.getenv("EMBEDDING_MODELS")
-OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://ollama:11434")
-CHUNK_SIZE = 1000
-CHUNK_OVERLAP = 100
+OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL")
+CHUNK_SIZE = int(os.getenv("CHUNK_SIZE", "1800"))
+CHUNK_OVERLAP = int(os.getenv("CHUNK_OVERLAP", "200"))
 
 # Default list used when building multiple without explicit env/args
 DEFAULT_EMBEDDING_MODELS: List[str] = [
@@ -42,67 +41,118 @@ def _parse_models_csv(csv_value: str) -> List[str]:
 
 
 def _load_documents():
-    """Load documents based on HANDBOOK_MD_PATH or all markdown under data/."""
+    """Load documents based on HANDBOOK_MD_PATH or markdown under data/."""
+    from pathlib import Path
     from langchain_community.document_loaders import DirectoryLoader, UnstructuredMarkdownLoader
 
-    print(f"Loading documents from '{DATA_DIR}' directory..." if not HANDBOOK_MD_PATH else f"Loading single markdown file: {HANDBOOK_MD_PATH}")
-    if HANDBOOK_MD_PATH:
-        try:
-            loader = DirectoryLoader(
-                os.path.dirname(HANDBOOK_MD_PATH) or ".",
-                glob=os.path.basename(HANDBOOK_MD_PATH),
-                loader_cls=UnstructuredMarkdownLoader,
-                show_progress=False,
-                use_multithreading=False,
-            )
-            docs = loader.load()
-            print(f"Loaded {len(docs)} document(s) from HANDBOOK_MD_PATH.")
-            return docs
-        except Exception as e:
-            print(f"Failed to load HANDBOOK_MD_PATH='{HANDBOOK_MD_PATH}': {e}")
-            return []
+    loader = DirectoryLoader(
+        DATA_DIR,
+        glob="**/*.md",
+        loader_cls=UnstructuredMarkdownLoader,
+        show_progress=True,
+        use_multithreading=True,
+    )
+
+    docs = loader.load()
+    if not docs:
+        print("No documents found. Exiting.")
     else:
-        loader = DirectoryLoader(
-            DATA_DIR,
-            glob="**/*.md",
-            loader_cls=UnstructuredMarkdownLoader,
-            show_progress=True,
-            use_multithreading=True,
-        )
-        docs = loader.load()
-        if not docs:
-            print("No documents found. Exiting.")
-        else:
-            print(f"Loaded {len(docs)} documents.")
-        return docs
+        print(f"Loaded {len(docs)} document(s).")
+    return docs
+
+def _split_documents_header_aware(docs):
+    headers_to_split_on = [("#", "h1"), ("##", "h2"), ("###", "h3")]
+    md_splitter = MarkdownHeaderTextSplitter(headers_to_split_on=headers_to_split_on, strip_headers=False)
+
+    header_docs = []
+    for d in docs:
+        try:
+            parts = md_splitter.split_text(d.page_content)
+        except Exception:
+            parts = [d]
+        for s in parts:
+            # Merge metadata and derive a concise section label
+            md = dict(getattr(d, "metadata", {}))
+            md.update(getattr(s, "metadata", {}))
+            section = " > ".join([v for v in [md.get("h1"), md.get("h2"), md.get("h3")] if v])
+            if section:
+                md["section"] = section
+            if "source" not in md and "source" in getattr(d, "metadata", {}):
+                md["source"] = d.metadata["source"]
+            s.metadata = md
+            header_docs.append(s)
+
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=CHUNK_SIZE,
+        chunk_overlap=CHUNK_OVERLAP,
+    )
+    return text_splitter.split_documents(header_docs)
+
+
+def _is_running_in_docker() -> bool:
+    """Lightweight detection if running inside a container."""
+    if os.path.exists("/.dockerenv"):
+        return True
+    cgroup_path = "/proc/1/cgroup"
+    try:
+        if os.path.exists(cgroup_path):
+            with open(cgroup_path, "r", encoding="utf-8") as f:
+                content = f.read()
+                return "docker" in content or "kubepods" in content
+    except Exception:
+        pass
+    return False
+
+
+def resolve_ollama_base_url(preset: Optional[str]) -> str:
+    """Resolve Ollama base URL based on explicit env, preset, or environment."""
+    # 1) If explicitly set via env, keep it (most explicit wins)
+    if OLLAMA_BASE_URL:
+        return OLLAMA_BASE_URL
+
+    # 2) Preset override
+    if preset == "local":
+        return "http://localhost:11434"
+    if preset == "vm":
+        # Containers reach host Ollama via this DNS alias
+        return "http://host.docker.internal:11434"
+
+    # 3) Auto-detect: host => localhost, container => host.docker.internal
+    return "http://host.docker.internal:11434" if _is_running_in_docker() else "http://localhost:11434"
 
 def main():
     """
-    Build FAISS indexes for one or multiple embedding models.
-    Default: build for multiple embeddings (EMBEDDING_MODELS env or built-in list).
-    Single build: pass --embedding or set EMBEDDING_MODEL.
+    Build FAISS indexes for a list of embedding models only.
+    Order of precedence for selecting models:
+      1) --models (comma-separated)
+      2) EMBEDDING_MODELS env var (comma-separated)
+      3) DEFAULT_EMBEDDING_MODELS constant
     """
-    parser = argparse.ArgumentParser(description="Build FAISS index(es) for one or more embedding models.")
-    parser.add_argument("--embedding", help="Single embedding model to build (overrides multi)")
-    parser.add_argument("--models", help="Comma-separated embedding models to build (overrides env)")
+    parser = argparse.ArgumentParser(description="Build FAISS index(es) for a list of embedding models.")
+    parser.add_argument("--models", help="Comma-separated embedding models to build (overrides env/default)")
+    parser.add_argument("--preset", choices=["local", "vm"], help="Environment preset to resolve endpoints")
     args = parser.parse_args()
 
     print("--- Starting FAISS Index Build ---")
 
+    # Resolve endpoints
+    global OLLAMA_BASE_URL
+    OLLAMA_BASE_URL = resolve_ollama_base_url(args.preset)
+    print(f"Using OLLAMA_BASE_URL: {OLLAMA_BASE_URL}")
+
     # Decide which embeddings to build
     embeddings_to_build: List[str]
-    if args.embedding:
-        embeddings_to_build = [args.embedding]
-    elif args.models:
+    if args.models:
         embeddings_to_build = _parse_models_csv(args.models)
-    elif EMBEDDING_MODEL_NAME and not EMBEDDING_MODELS_ENV:
-        # Respect single-model env only when EMBEDDING_MODELS not provided
-        embeddings_to_build = [EMBEDDING_MODEL_NAME]
     else:
         if EMBEDDING_MODELS_ENV:
             embeddings_to_build = _parse_models_csv(EMBEDDING_MODELS_ENV)
         else:
             embeddings_to_build = DEFAULT_EMBEDDING_MODELS
+
+    if not embeddings_to_build:
+        print("No embedding models specified. Set --models or EMBEDDING_MODELS.")
+        return
 
     is_multi = len(embeddings_to_build) > 1
     if is_multi and INDEX_DIR:
@@ -112,19 +162,12 @@ def main():
     docs = _load_documents()
     if not docs:
         return
-
     # --- 2. Split Documents into Chunks once ---
-    print("Splitting documents into chunks...")
-    text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=CHUNK_SIZE,
-        chunk_overlap=CHUNK_OVERLAP,
-    )
-    splits = text_splitter.split_documents(docs)
+    print("Splitting documents into chunks (header-aware)...")
+    splits = _split_documents_header_aware(docs)
     print(f"Created {len(splits)} document chunks.")
 
     # --- 3. Build per embedding ---
-    from langchain_ollama import OllamaEmbeddings
-    from langchain_community.vectorstores import FAISS
 
     success_count = 0
     for embedding_model in embeddings_to_build:
