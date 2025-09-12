@@ -314,7 +314,7 @@ def create_parser() -> argparse.ArgumentParser:
     p.add_argument("--mode", choices=["llm", "rag"], default=_env("MODE", "rag"), help="Benchmark mode: direct LLM API or RAG /query")
     p.add_argument("--ollama-base", default=_env("OLLAMA_BASE_URL", "http://localhost:11434"))
     p.add_argument("--litellm", default=_env("LITELLM_API_BASE", "http://localhost:4000"))
-    p.add_argument("--cloud-model", default=_env("CLOUD_MODEL", "azure-gpt5"))
+    p.add_argument("--cloud-model", default=_env("CLOUD_MODEL", "azure-gpt5,gemini-2.5-pro,claude-opus-4-1-20250805"))
     p.add_argument(
         "--models",
         default=",".join(FIXED_SLM_MODELS),
