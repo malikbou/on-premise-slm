@@ -16,4 +16,7 @@ curl -s http://localhost:11434/api/version | jq . || true
 curl -s http://localhost:4000/v1/models | jq . || true
 curl -s http://localhost:8001/info | jq . || true
 
+echo "[vm-quickstart] Running smoke checks..."
+"$PROJECT_DIR/scripts/vm-smoke.sh" "$PROJECT_DIR" || true
+
 echo "[vm-quickstart] Done."
