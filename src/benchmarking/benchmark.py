@@ -145,7 +145,9 @@ def create_parser() -> argparse.ArgumentParser:
         "ollama/hf.co/bartowski/Llama-3.2-3B-Instruct-GGUF:Q4_K_M",
         "ollama/hf.co/tiiuae/Falcon3-3B-Instruct-GGUF:Q4_K_M",
         "ollama/hf.co/Qwen/Qwen2.5-3B-Instruct-GGUF:Q4_K_M",
-        "azure-gpt5"
+        "azure-gpt5",
+        "gemini-2.5-pro",
+        "claude-opus-4-1-20250805"
     ])
 
     parser.add_argument(

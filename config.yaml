@@ -47,15 +47,41 @@ model_list:
       api_version: os.environ/AZURE_OPENAI_API_VERSION
       api_key: os.environ/AZURE_OPENAI_API_KEY
 
-  # Anthropic models (e.g., claude-3-5-sonnet-20240620)
-  # - model_name: "claude-*"
-  #   litellm_params:
-  #     model: "anthropic/*"
+  # Gemini
+  - model_name: "gemini-*"
+    litellm_params:
+      model: "gemini/*"
+      api_key: os.environ/GEMINI_API_KEY
 
-  # Google Gemini models (e.g., gemini-1.5-pro)
-  # - model_name: "gemini-*"
+  # Common alias
+  - model_name: "gemini-2.5-pro"
+    litellm_params:
+      model: "gemini/gemini-2.5-pro"
+      api_key: os.environ/GEMINI_API_KEY
+
+  # Anthropic (Opus)
+  - model_name: "claude-*"
+    litellm_params:
+      model: "anthropic/*"
+      api_key: os.environ/ANTHROPIC_API_KEY
+
+  # Common alias
+  - model_name: "claude-opus-4-1-20250805"
+    litellm_params:
+      model: "anthropic/claude-opus-4-1-20250805"
+      api_key: os.environ/ANTHROPIC_API_KEY
+
+  # xAI (Grok)
+  # - model_name: "grok-*"
   #   litellm_params:
-  #     model: "gemini/*"
+  #     model: "xai/*"
+  #     api_key: os.environ/XAI_API_KEY
+
+  # # Common alias (rename to the exact xAI model you want)
+  # - model_name: "grok-4"
+  #   litellm_params:
+  #     model: "xai/grok-4"
+  #     api_key: os.environ/XAI_API_KEY
 
   # Fallback to OpenAI provider for any unknown model pattern
   - model_name: "*"
