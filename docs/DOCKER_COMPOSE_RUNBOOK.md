@@ -76,6 +76,38 @@ curl -s localhost:8003/info | jq .
 python src/benchmarking/benchmark.py --preset local --num-questions 10 --ollama-base "http://localhost:11434"
 ```
 
+7) If all else fails, rebuild again from scratch
+```bash
+# 0) Stop repo stacks (ignore errors)
+docker compose -f docker-compose.yml -f docker-compose.vm.yml down -v --remove-orphans || true
+docker compose -f docker-compose.yml down -v --remove-orphans || true
+
+# 1) Quit Docker Desktop
+osascript -e 'quit app "Docker"' || true
+pkill -f com.docker || true
+sleep 2
+open -a Docker
+# Wait until Docker is running
+while ! docker system info >/dev/null 2>&1; do sleep 2; done
+
+# 2) Global cleanup (containers, images, volumes, networks, build cache)
+docker ps -aq | xargs -n1 docker rm -f 2>/dev/null || true
+docker images -q | xargs -n1 docker rmi -f 2>/dev/null || true
+docker volume ls -q | xargs -n1 docker volume rm 2>/dev/null || true
+docker network ls -q | grep -Ev '^(bridge|host|none)$' | xargs -n1 docker network rm 2>/dev/null || true
+docker builder prune -af
+docker system prune -af --volumes
+
+# 3) Optional: reset buildx builders and contexts (leave default)
+docker buildx ls | awk 'NR>1 {print $1}' | grep -v '^default$' | xargs -n1 docker buildx rm 2>/dev/null || true
+docker context ls --format '{{.Name}}' | grep -v '^default$' | xargs -n1 docker context rm 2>/dev/null || true
+
+# 4) Verify empty state
+docker ps -a
+docker images
+docker volume ls
+docker network ls
+```
 ---
 
 ### VM — Containerized Ollama (NVIDIA GPU)
