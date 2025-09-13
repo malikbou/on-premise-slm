@@ -173,6 +173,10 @@ Full Benchmark:
 ```bash
 docker compose -f /root/on-premise-slm/docker-compose.yml -f /root/on-premise-slm/docker-compose.vm.yml run --rm throughput-runner python -u src/throughput/runner.py --mode llm --platform-preset vm --ollama-base http://ollama:11434 --litellm http://litellm:4000 --cloud-models "azure-gpt5,gemini-2.5-pro,claude-opus-4-1-20250805" --requests 2048 --repetitions 2 --concurrency 1,2,4,8,16,32,64,128,256,512,1024
 ```
+
+```bash
+docker compose -f /root/on-premise-slm/docker-compose.yml -f /root/on-premise-slm/docker-compose.vm.yml run --rm throughput-runner python -u src/throughput/runner.py --mode llm --platform-preset vm --ollama-base http://ollama:11434 --litellm http://litellm:4000 --cloud-models "azure-gpt5,gemini-2.5-pro,claude-opus-4-1-20250805" --requests 160 --repetitions 3 --concurrency 1,2,4,8,16
+```
 ---
 
 ### .env vs service `environment:` precedence
