@@ -160,6 +160,14 @@ docker compose -f docker-compose.yml -f docker-compose.vm.yml \
   run --rm benchmarker --preset vm
 ```
 
+```bash
+docker compose -f /root/on-premise-slm/docker-compose.yml -f /root/on-premise-slm/docker-compose.vm.yml run --rm benchmarker python -u src/benchmarking/benchmark.py --preset vm --mode generate --num-questions 3
+```
+
+
+```bash
+docker compose -f /root/on-premise-slm/docker-compose.yml -f /root/on-premise-slm/docker-compose.vm.yml run --rm throughput-runner python -u src/throughput/runner.py --mode llm --platform-preset vm --ollama-base http://ollama:11434 --litellm http://litellm:4000 --cloud-model azure-gpt5 --requests 3 --repetitions 1 --concurrency 1,4 --capture-responses
+```
 ---
 
 ### .env vs service `environment:` precedence
