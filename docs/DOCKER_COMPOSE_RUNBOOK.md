@@ -166,7 +166,7 @@ docker compose -f /root/on-premise-slm/docker-compose.yml -f /root/on-premise-sl
 
 
 ```bash
-docker compose -f /root/on-premise-slm/docker-compose.yml -f /root/on-premise-slm/docker-compose.vm.yml run --rm throughput-runner python -u src/throughput/runner.py --mode llm --platform-preset vm --ollama-base http://ollama:11434 --litellm http://litellm:4000 --cloud-model azure-gpt5 --requests 3 --repetitions 1 --concurrency 1,4 --capture-responses
+docker compose -f /root/on-premise-slm/docker-compose.yml -f /root/on-premise-slm/docker-compose.vm.yml run --rm throughput-runner python -u src/throughput/runner.py --mode llm --platform-preset vm --ollama-base http://ollama:11434 --litellm http://litellm:4000 --cloud-models "azure-gpt5,gemini-2.5-pro,claude-opus-4-1-20250805" --requests 1 --repetitions 1 --concurrency 1
 ```
 ---
 
