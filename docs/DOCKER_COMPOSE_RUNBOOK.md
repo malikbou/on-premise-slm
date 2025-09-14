@@ -177,6 +177,14 @@ docker compose -f /root/on-premise-slm/docker-compose.yml -f /root/on-premise-sl
 ```bash
 docker compose -f /root/on-premise-slm/docker-compose.yml -f /root/on-premise-slm/docker-compose.vm.yml run --rm throughput-runner python -u src/throughput/runner.py --mode llm --platform-preset vm --ollama-base http://ollama:11434 --litellm http://litellm:4000 --cloud-models "azure-gpt5,gemini-2.5-pro,claude-opus-4-1-20250805" --requests 160 --repetitions 3 --concurrency 1,2,4,8,16
 ```
+
+Evaluate this crap
+```bash
+docker compose run --rm benchmarker python src/benchmarking/benchmark.py \
+  --mode evaluate --preset vm \
+  --judge-provider litellm --judge-model azure-gpt4-1-mini \
+  --run-stamp 20250913_170609
+```
 ---
 
 ### .env vs service `environment:` precedence
