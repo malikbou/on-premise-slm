@@ -47,6 +47,14 @@ model_list:
       api_version: os.environ/AZURE_OPENAI_API_VERSION
       api_key: os.environ/AZURE_OPENAI_API_KEY
 
+  # Azure OpenAI - friendly alias for GPT-4.1-mini judge
+  - model_name: "azure-gpt4-1-mini"
+    litellm_params:
+      model: "azure/gpt-4.1-mini"   # deployment name for 4.1-mini
+      api_base: os.environ/AZURE_OPENAI_API_BASE_4_1
+      api_version: os.environ/AZURE_OPENAI_API_VERSION_4_1
+      api_key: os.environ/AZURE_OPENAI_API_KEY_4_1
+
   # Gemini
   - model_name: "gemini-*"
     litellm_params:
