@@ -1,0 +1,11 @@
+{
+  "avg_input_tokens": 1493.8431519699811,
+  "avg_output_tokens": 166.94896810506566,
+  "avg_total_tokens": 1660.7921200750468,
+  "median_input_tokens": 1525.0,
+  "median_output_tokens": 158.0,
+  "median_total_tokens": 1685.0,
+  "p90_input_tokens": 1711.0,
+  "p90_output_tokens": 267.0,
+  "p90_total_tokens": 1891.6
+}
