@@ -52,8 +52,8 @@ docker compose -f docker-compose.yml -f docker-compose.vm.yml up -d ollama litel
 # Preload embeddings + SLMs (optional but recommended)
 docker exec ollama bash -lc "/app/scripts/preload-ollama-models.sh" || ./scripts/preload-ollama-models.sh
 
-# Build FAISS indexes for all embeddings
-docker compose up index-builder
+# Build FAISS indexes for all embeddings (inside Docker network)
+docker compose -f docker-compose.yml -f docker-compose.vm.yml run --rm -e OLLAMA_BASE_URL=http://ollama:11434 index-builder --preset vm
 
 # Verify core services
 curl -s http://localhost:11434/api/version | jq .
@@ -180,15 +180,18 @@ docker-compose up multi-index-builder
 
 Run the throughput runner (vm):
 ```bash
-# Option A: inside Docker network via compose profile (recommended)
-docker compose --profile throughput run --rm throughput-runner
+# Inside compose network (LLM mode examples)
+docker compose -f docker-compose.yml -f docker-compose.vm.yml run --rm throughput-runner \
+  python -u src/throughput/runner.py --mode llm --platform-preset vm \
+  --ollama-base http://ollama:11434 --litellm http://litellm:4000 \
+  --cloud-models "azure-gpt5,gemini-2.5-pro,claude-opus-4-1-20250805" \
+  --requests 1 --repetitions 1 --concurrency 1
 
-# Option B: from host, target Docker DNS
-python src/throughput/runner.py \
-  --platform-preset vm \
-  --rag-base http://rag-api-bge:8000 \
-  --rag-testset /app/data/testset/ucl-cs_single_hop_testset_gpt-4.1_20250906_111904.json \
-  --repetitions 3 --requests 20 --concurrency 1,2,4,8,16 --skip-cloud
+docker compose -f docker-compose.yml -f docker-compose.vm.yml run --rm throughput-runner \
+  python -u src/throughput/runner.py --mode llm --platform-preset vm \
+  --ollama-base http://ollama:11434 --litellm http://litellm:4000 \
+  --cloud-models "azure-gpt5,gemini-2.5-pro,claude-opus-4-1-20250805" \
+  --requests 160 --repetitions 3 --concurrency 1,2,4,8,16
 ```
 
 Notes:

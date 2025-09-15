@@ -157,7 +157,7 @@ curl -s localhost:8003/info | jq .
 
 ```bash
 docker compose -f docker-compose.yml -f docker-compose.vm.yml \
-  run --rm benchmarker --preset vm
+  run --rm benchmarker python -u src/benchmarking/benchmark.py --preset vm --mode generate --num-questions 3
 ```
 
 ```bash
@@ -178,7 +178,7 @@ docker compose -f /root/on-premise-slm/docker-compose.yml -f /root/on-premise-sl
 docker compose -f /root/on-premise-slm/docker-compose.yml -f /root/on-premise-slm/docker-compose.vm.yml run --rm throughput-runner python -u src/throughput/runner.py --mode llm --platform-preset vm --ollama-base http://ollama:11434 --litellm http://litellm:4000 --cloud-models "azure-gpt5,gemini-2.5-pro,claude-opus-4-1-20250805" --requests 160 --repetitions 3 --concurrency 1,2,4,8,16
 ```
 
-Evaluate this crap
+Evaluate (RAGAS on generated answers)
 ```bash
 docker compose run --rm benchmarker python src/benchmarking/benchmark.py \
   --mode evaluate --preset vm \
