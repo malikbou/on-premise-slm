@@ -46,12 +46,14 @@ import os
 import subprocess
 import sys
 import time
+import traceback
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 import requests
 from langchain_openai import ChatOpenAI
+from langchain_openai import AzureChatOpenAI
 from langchain_ollama import OllamaEmbeddings
 from langchain_openai import OpenAIEmbeddings
 from ragas import evaluate, EvaluationDataset
@@ -62,6 +64,46 @@ from ragas.metrics import (
     faithfulness,
 )
 from datasets import Dataset
+from dotenv import load_dotenv
+
+def _debug_litellm_connectivity(litellm_base: str, model: str) -> None:
+    """Lightweight connectivity checks against LiteLLM gateway."""
+    try:
+        models_url = f"{litellm_base}/v1/models"
+        print(f"[debug] GET {models_url}")
+        r = requests.get(models_url, timeout=4)
+        print(f"[debug] /models status={r.status_code}")
+        if r.ok:
+            try:
+                data = r.json()
+                ids = [m.get('id') for m in data.get('data', [])][:8]
+                print(f"[debug] /models ids(sample)={ids}")
+            except Exception as e:
+                print(f"[debug] /models json parse failed: {e}")
+        else:
+            print(f"[debug] /models body={r.text[:200]}")
+    except Exception as e:
+        print(f"[debug] GET /models failed: {e}")
+
+    try:
+        cc_url = f"{litellm_base}/v1/chat/completions"
+        payload = {
+            "model": model,
+            "messages": [{"role": "user", "content": "ping"}],
+            "temperature": 0,
+            "max_tokens": 4,
+        }
+        print(f"[debug] POST {cc_url} model={model}")
+        r = requests.post(
+            cc_url,
+            headers={"Authorization": "Bearer dummy", "Content-Type": "application/json"},
+            json=payload,
+            timeout=6,
+        )
+        print(f"[debug] /chat status={r.status_code}")
+        print(f"[debug] /chat body={r.text[:220]}")
+    except Exception as e:
+        print(f"[debug] POST /chat failed: {e}")
 
 def get_env_with_fallback(key: str, default: Optional[str] = None) -> Optional[str]:
     """Get environment variable with fallback to default."""
@@ -99,6 +141,8 @@ def get_default_embedding_api_map(preset: str) -> Dict[str, str]:
 
 def create_parser() -> argparse.ArgumentParser:
     """Create argument parser with all required flags."""
+    # Load .env so defaults pick up your local settings like in the notebook
+    load_dotenv()
     parser = argparse.ArgumentParser(
         description="Simple RAG benchmarking script",
         formatter_class=argparse.RawDescriptionHelpFormatter
@@ -167,6 +211,42 @@ def create_parser() -> argparse.ArgumentParser:
         "--litellm",
         default=get_env_with_fallback("LITELLM_API_BASE", "http://localhost:4000"),
         help="LiteLLM API base URL for judge"
+    )
+
+    parser.add_argument(
+        "--judge-model",
+        default=get_env_with_fallback("JUDGE_MODEL", "azure-gpt4-1-mini"),
+        help="Judge LLM model name (LiteLLM alias, e.g., 'azure-gpt4-1-mini')"
+    )
+
+    # Judge provider selection
+    parser.add_argument(
+        "--judge-provider",
+        choices=["litellm", "azure"],
+        default=get_env_with_fallback("JUDGE_PROVIDER", "litellm"),
+        help="Use LiteLLM proxy or direct Azure SDK for judge"
+    )
+
+    # Azure-specific judge configuration (used when --judge-provider azure)
+    parser.add_argument(
+        "--azure-endpoint",
+        default=get_env_with_fallback("AZURE_OPENAI_API_BASE", ""),
+        help="Azure OpenAI endpoint (e.g., https://<resource>.cognitiveservices.azure.com)"
+    )
+    parser.add_argument(
+        "--azure-api-version",
+        default=get_env_with_fallback("AZURE_OPENAI_API_VERSION", "2024-12-01-preview"),
+        help="Azure OpenAI API version"
+    )
+    parser.add_argument(
+        "--azure-deployment",
+        default=get_env_with_fallback("AZURE_OPENAI_DEPLOYMENT", "gpt-4.1-mini"),
+        help="Azure deployment name for the judge model (e.g., gpt-4.1-mini)"
+    )
+    parser.add_argument(
+        "--azure-api-key",
+        default=get_env_with_fallback("AZURE_OPENAI_API_KEY_4_1", ""),
+        help="Azure API key for the judge"
     )
 
     # Output configuration
@@ -420,17 +500,59 @@ def evaluate_answers(args: argparse.Namespace) -> None:
     print(f"Found {len(answer_files)} answer files to evaluate")
 
     # Setup RAGAS components
-    judge_llm = ChatOpenAI(
-        # model="azure-gpt5",
-        model="gpt-4o-mini",
-        api_key="dummy",  # LiteLLM handles this
-        base_url=f"{args.litellm}/v1"
-    )
+    print(f"Judge provider: {args.judge_provider}")
+    if args.judge_provider == "azure":
+        print(f"Azure endpoint: {args.azure_endpoint}")
+        print(f"Azure version: {args.azure_api_version}")
+        print(f"Azure deployment: {args.azure_deployment}")
+    else:
+        print(f"LiteLLM base: {args.litellm}/v1")
+        print(f"LiteLLM model: {args.judge_model}")
+    if args.judge_provider == "azure":
+        # Direct Azure judge (bypass LiteLLM)
+        judge_llm = AzureChatOpenAI(
+            azure_deployment=args.azure_deployment,
+            api_version=args.azure_api_version,
+            azure_endpoint=args.azure_endpoint,
+            api_key=args.azure_api_key,
+            temperature=0.0,
+        )
 
-    ragas_embeddings = OpenAIEmbeddings(
-        openai_api_key="dummy",  # LiteLLM handles this
-        openai_api_base=f"{args.litellm}/v1"
-    )
+        # Use OpenAI embeddings directly (requires OPENAI_API_KEY)
+        ragas_embeddings = OpenAIEmbeddings()
+
+        # Preflight Azure: minimal chat call
+        try:
+            _ = judge_llm.invoke([{"role": "user", "content": "ping"}])
+            print("Azure judge preflight: OK")
+        except Exception as e:
+            print(f"Azure judge preflight failed: {e}")
+            traceback.print_exc()
+            return
+    else:
+        # Judge via LiteLLM proxy
+        judge_llm = ChatOpenAI(
+            model=args.judge_model,
+            api_key="dummy",  # LiteLLM handles this
+            base_url=f"{args.litellm}/v1",
+            temperature=0.0,
+        )
+
+        ragas_embeddings = OpenAIEmbeddings(
+            openai_api_key="dummy",  # LiteLLM handles this
+            openai_api_base=f"{args.litellm}/v1"
+        )
+
+        # Preflight LiteLLM: minimal chat call
+        try:
+            _ = judge_llm.invoke([{"role": "user", "content": "ping"}])
+            print("LiteLLM judge preflight: OK")
+        except Exception as e:
+            print(f"LiteLLM judge preflight failed: {e}")
+            traceback.print_exc()
+            # Deep connectivity diagnostics
+            _debug_litellm_connectivity(args.litellm, args.judge_model)
+            return
 
     metrics = [faithfulness, answer_relevancy, context_precision, context_recall]
     summary_data = {}

@@ -25,6 +25,7 @@ services:
     restart: unless-stopped
     environment:
       - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
 
   # Override RAG API services to use containerized Ollama on the VM
     # Ensure litellm pulls/uses the correct architecture on this VM
@@ -43,6 +44,11 @@ services:
       - OLLAMA_BASE_URL=http://ollama:11434
 
   rag-api-e5:
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+
+  # Override index-builder to use containerized Ollama
+  index-builder:
     environment:
       - OLLAMA_BASE_URL=http://ollama:11434
 

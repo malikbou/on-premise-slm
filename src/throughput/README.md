@@ -91,3 +91,27 @@ Notes:
 - 0 successes: verify `--rag-base` matches a healthy API (`/health`, `/info`) and that the FAISS index exists.
 - From host vs container: RAG APIs expose 8001/8002/8003; inside containers use service DNS (e.g., `rag-api-bge:8000`).
 - Ollama connectivity (host): RAG APIs in Docker use `http://host.docker.internal:11434` to reach host Ollama.
+
+## VM examples (LLM mode inside compose)
+```bash
+# Quick test
+docker compose -f docker-compose.yml -f docker-compose.vm.yml run --rm throughput-runner \
+  python -u src/throughput/runner.py --mode llm --platform-preset vm \
+  --ollama-base http://ollama:11434 --litellm http://litellm:4000 \
+  --cloud-models "azure-gpt5,gemini-2.5-pro,claude-opus-4-1-20250805" \
+  --requests 1 --repetitions 1 --concurrency 1
+
+# Full benchmark
+docker compose -f docker-compose.yml -f docker-compose.vm.yml run --rm throughput-runner \
+  python -u src/throughput/runner.py --mode llm --platform-preset vm \
+  --ollama-base http://ollama:11434 --litellm http://litellm:4000 \
+  --cloud-models "azure-gpt5,gemini-2.5-pro,claude-opus-4-1-20250805" \
+  --requests 2048 --repetitions 2 --concurrency 1,2,4,8,16,32,64,128,256,512,1024
+
+# Medium run
+docker compose -f docker-compose.yml -f docker-compose.vm.yml run --rm throughput-runner \
+  python -u src/throughput/runner.py --mode llm --platform-preset vm \
+  --ollama-base http://ollama:11434 --litellm http://litellm:4000 \
+  --cloud-models "azure-gpt5,gemini-2.5-pro,claude-opus-4-1-20250805" \
+  --requests 160 --repetitions 3 --concurrency 1,2,4,8,16
+```

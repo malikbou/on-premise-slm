@@ -41,14 +41,17 @@ Generates: Figure A (grouped bars), Figure B (ranking), Figure C (radar), Figure
 
 ### 1. Build FAISS Indexes (One-time setup)
 ```bash
-# Build indexes for all embedding models automatically
-docker-compose up multi-index-builder
+# Local (Mac): containers call host Ollama
+docker compose run --rm -e OLLAMA_BASE_URL=http://host.docker.internal:11434 index-builder --preset local
+
+# VM (Docker network): containers call the ollama service
+docker compose -f docker-compose.yml -f docker-compose.vm.yml run --rm -e OLLAMA_BASE_URL=http://ollama:11434 index-builder --preset vm
 ```
 
 ### 2. Start Required Services
 ```bash
 # Start embedding-specific RAG APIs and LiteLLM
-docker-compose up -d litellm rag-api-bge rag-api-qwen3 rag-api-e5
+docker compose up -d litellm rag-api-bge rag-api-qwen3 rag-api-e5
 
 # Verify services are running
 curl -s http://localhost:8001/info | jq .  # bge-m3
@@ -67,6 +70,10 @@ ollama serve
 ### Generate Answers Only
 ```bash
 python src/benchmarking/benchmark.py --preset local --mode generate
+
+# VM (inside compose network)
+docker compose -f docker-compose.yml -f docker-compose.vm.yml run --rm benchmarker \
+  python -u src/benchmarking/benchmark.py --preset vm --mode generate --num-questions 3
 ```
 
 **What this does:**
@@ -79,6 +86,12 @@ python src/benchmarking/benchmark.py --preset local --mode generate
 ### Evaluate Existing Answers
 ```bash
 python src/benchmarking/benchmark.py --preset local --mode evaluate --run-stamp TIMESTAMP
+
+# VM (inside compose network)
+docker compose run --rm benchmarker python src/benchmarking/benchmark.py \
+  --mode evaluate --preset vm \
+  --judge-provider litellm --judge-model azure-gpt4-1-mini \
+  --run-stamp 20250913_170609
 ```
 
 **Example:**
@@ -222,7 +235,7 @@ python src/benchmarking/benchmark.py --preset local  # NOT --preset vm
 ### Empty Retrieved Contexts
 ```bash
 # Rebuild indexes if contexts are empty
-docker-compose up multi-index-builder
+docker compose run --rm -e OLLAMA_BASE_URL=http://host.docker.internal:11434 index-builder --preset local
 
 # Restart RAG APIs to load fresh indexes
 docker-compose restart rag-api-bge rag-api-qwen3 rag-api-e5

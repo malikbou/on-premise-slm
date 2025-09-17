@@ -31,9 +31,9 @@ cd on-premise-slm
 # Start core services (GPU)
 docker compose -f docker-compose.yml -f docker-compose.vm.yml up -d ollama litellm rag-api-bge rag-api-qwen3 rag-api-e5
 
-# (Optional) Preload models and build indexes
+# (Optional) Preload models and then build indexes
 docker exec ollama bash -lc "/app/scripts/preload-ollama-models.sh" || ./scripts/preload-ollama-models.sh
-docker compose up index-builder
+docker compose -f docker-compose.yml -f docker-compose.vm.yml run --rm -e OLLAMA_BASE_URL=http://ollama:11434 index-builder --preset vm
 
 # Curl checks
 curl -s http://localhost:11434/api/version | jq .
@@ -57,11 +57,14 @@ bash ./scripts/fetch-results.sh root@<vm_ip> /root/on-premise-slm ./results_remo
 
 ### RAG Evaluation
 ```bash
-# Build vector index
-python src/build_index.py
+# Build vector indexes (host/local) or via compose (VM)
+# Local (Mac):
+docker compose run --rm -e OLLAMA_BASE_URL=http://host.docker.internal:11434 index-builder --preset local
+# VM:
+docker compose -f docker-compose.yml -f docker-compose.vm.yml run --rm -e OLLAMA_BASE_URL=http://ollama:11434 index-builder --preset vm
 
 # Run RAGAS benchmarking
-python src/benchmarking/benchmark.py
+python src/benchmarking/benchmark.py --preset local  # or --preset vm when running inside compose
 
 # Throughput testing
 cd load-testing

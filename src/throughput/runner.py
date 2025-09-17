@@ -39,6 +39,17 @@ def parse_concurrency_list(csv: str) -> List[int]:
         return [1, 2, 4, 8, 16]
 
 
+def parse_model_list(csv: str) -> List[str]:
+    """Parse a comma-separated list of model identifiers into a list.
+
+    Returns an empty list if the input is empty or invalid.
+    """
+    try:
+        return [x.strip() for x in csv.split(",") if x.strip()]
+    except Exception:
+        return []
+
+
 def detect_platform_label() -> str:
     system = py_platform.system()
     if system == "Darwin":
@@ -316,6 +327,11 @@ def create_parser() -> argparse.ArgumentParser:
     p.add_argument("--litellm", default=_env("LITELLM_API_BASE", "http://localhost:4000"))
     p.add_argument("--cloud-model", default=_env("CLOUD_MODEL", "azure-gpt5,gemini-2.5-pro,claude-opus-4-1-20250805"))
     p.add_argument(
+        "--cloud-models",
+        default=_env("CLOUD_MODELS", ""),
+        help="Comma-separated list of cloud model names; overrides --cloud-model if set",
+    )
+    p.add_argument(
         "--models",
         default=",".join(FIXED_SLM_MODELS),
         help="Comma-separated Ollama model IDs (fixed list by default)",
@@ -561,6 +577,9 @@ async def run() -> None:
         )
         return summary
 
+    # Determine cloud model list (supports both --cloud-models and legacy --cloud-model)
+    cloud_models: List[str] = parse_model_list(getattr(args, "cloud_models", "")) or parse_model_list(getattr(args, "cloud_model", ""))
+
     # Run SLMs (Ollama)
     if args.mode == "llm":
         if not args.skip_ollama:
@@ -575,10 +594,10 @@ async def run() -> None:
     # Run Cloud (LiteLLM/Azure)
     if args.mode == "llm":
         if not args.skip_cloud:
-            cloud_model = args.cloud_model
-            for c in conc_list:
-                summary = await benchmark("cloud", args.litellm, cloud_model, c)
-                rows.append(record_row("cloud", args.litellm, cloud_model, c, args.repetitions, args.prompt, summary))
+            for cloud_model in cloud_models:
+                for c in conc_list:
+                    summary = await benchmark("cloud", args.litellm, cloud_model, c)
+                    rows.append(record_row("cloud", args.litellm, cloud_model, c, args.repetitions, args.prompt, summary))
 
     # RAG mode: call /query on RAG API base, passing model_name as full identifier
     if args.mode == "rag":
@@ -592,10 +611,11 @@ async def run() -> None:
                 vprint(f"Unloading Ollama model: {model} ...")
                 stop_ollama_model_safe(model, resolve_stop_mode(args), args.ollama_container)
         if not args.skip_cloud:
-            full_name = args.cloud_model
-            for c in conc_list:
-                summary = await benchmark_rag("cloud", args.rag_base, full_name, c, questions)
-                rows.append(record_row("cloud", args.rag_base, full_name, c, args.repetitions, questions[0], summary))
+            for cloud_model in cloud_models:
+                full_name = cloud_model
+                for c in conc_list:
+                    summary = await benchmark_rag("cloud", args.rag_base, full_name, c, questions)
+                    rows.append(record_row("cloud", args.rag_base, full_name, c, args.repetitions, questions[0], summary))
 
     # Save CSV
     df = pd.DataFrame(rows)

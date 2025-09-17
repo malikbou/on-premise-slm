@@ -1,0 +1,20 @@
+{
+  "os": "macOS-15.6.1-arm64-arm-64bit",
+  "python": "3.11.1",
+  "cpu": "arm",
+  "processor": "arm",
+  "machine": "arm64",
+  "ram_gb": 64.0,
+  "cpu_count": 10,
+  "cpu_count_logical": 10,
+  "gpu": "Apple Silicon MPS",
+  "vram_gb": null,
+  "commit_sha": "2b04a91",
+  "lib_versions": {
+    "httpx": "0.28.1",
+    "numpy": "2.2.6",
+    "pandas": "2.3.1"
+  },
+  "platform": "mac",
+  "region": null
+}

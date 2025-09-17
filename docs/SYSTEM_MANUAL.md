@@ -32,7 +32,25 @@ Content-Type: application/json
 
 {
   "question": "string",
-  "model": "string"
+  "model_name": "string"  # Local SLM: "ollama/<ollama-model-id>", Cloud: LiteLLM alias (e.g., "azure-gpt5")
+}
+```
+
+- Model naming semantics:
+  - Local SLMs: pass as `ollama/<ollama-model-id>` (e.g., `ollama/hf.co/bartowski/Llama-3.2-3B-Instruct-GGUF:Q4_K_M`).
+  - Cloud models: pass the LiteLLM alias directly (e.g., `azure-gpt5`, `gemini-2.5-pro`, `claude-opus-4-1-20250805`).
+
+### Info
+```bash
+GET /info
+```
+Response fields:
+```json
+{
+  "index_dir": "/app/.rag_cache/<embedding_slug>/faiss_index",
+  "embedding_model": "<embedding-id>",
+  "ollama_base_url": "http://ollama:11434",
+  "litellm_api_base": "http://litellm:4000"
 }
 ```
 
@@ -49,12 +67,32 @@ GET /health
 - `index-builder`: Vector store preparation
 - `benchmarker`: RAGAS evaluation
 
+LiteLLM routing (from `config.yaml`):
+- Requests with `model_name` starting `ollama/*` are forwarded to `OLLAMA_BASE_URL`.
+- Aliases: `azure-gpt5`, `gemini-2.5-pro`, `claude-opus-4-1-20250805` map to their providers.
+
 ### Environment Variables
 ```bash
 OLLAMA_BASE_URL=http://ollama:11434
 OPENAI_API_KEY=your_key_here
 PLATFORM=auto  # auto, mac_local, vast_ai_gpu
 MEMORY_MANAGEMENT=auto  # auto, aggressive, relaxed, minimal
+INDEX_DIR=.rag_cache/<embedding_slug>/faiss_index
+EMBEDDING_MODEL=hf.co/Qwen/Qwen3-Embedding-0.6B-GGUF:Q8_0
+LITELLM_API_BASE=http://litellm:4000
+```
+
+### Index Build CLI
+Build FAISS indexes before starting the API.
+```bash
+# Mac host (containers call host Ollama)
+docker compose up -d litellm
+docker compose run --rm -e OLLAMA_BASE_URL=http://host.docker.internal:11434 index-builder --preset local
+
+# VM (inside Docker network)
+docker compose -f docker-compose.yml -f docker-compose.vm.yml run --rm \
+  -e OLLAMA_BASE_URL=http://ollama:11434 \
+  index-builder --preset vm
 ```
 
 ## Cross-Platform Deployment
@@ -106,33 +144,70 @@ python src/throughput/plot_simple.py \
 Throughput Runner (RAG default)
 - Default `--mode` is `rag`
 - Default RAG API base: `http://localhost:8001`
-- Produces `benchmark-results.csv` with columns including `mode`, `provider`, `rps`, `latency_p95_s`
+- Produces `benchmark-results.csv` with `mode`, `provider`, `rps`, `latency_p95_s`
 - CLI examples:
 ```bash
-# Smoke test
-python src/throughput/runner.py \
-  --requests 2 --repetitions 1 --concurrency 1 \
-  --models hf.co/microsoft/Phi-3-mini-4k-instruct-gguf:Phi-3-mini-4k-instruct-q4.gguf \
-  --skip-cloud --rag-base http://localhost:8001 --quiet
+# VM: quick test (inside compose network)
+docker compose -f docker-compose.yml -f docker-compose.vm.yml run --rm throughput-runner \
+  python -u src/throughput/runner.py --mode llm --platform-preset vm \
+  --ollama-base http://ollama:11434 --litellm http://litellm:4000 \
+  --cloud-models "azure-gpt5,gemini-2.5-pro,claude-opus-4-1-20250805" \
+  --requests 1 --repetitions 1 --concurrency 1
 
-# Full sweep
-python src/throughput/runner.py \
-  --rag-base http://localhost:8001 \
-  --rag-testset data/testset/ucl-cs_single_hop_testset_gpt-4.1_20250906_111904.json \
-  --repetitions 3 --requests 20 --concurrency 1,2,4,8,16 --skip-cloud
+# VM: full benchmark
+docker compose -f docker-compose.yml -f docker-compose.vm.yml run --rm throughput-runner \
+  python -u src/throughput/runner.py --mode llm --platform-preset vm \
+  --ollama-base http://ollama:11434 --litellm http://litellm:4000 \
+  --cloud-models "azure-gpt5,gemini-2.5-pro,claude-opus-4-1-20250805" \
+  --requests 2048 --repetitions 2 --concurrency 1,2,4,8,16,32,64,128,256,512,1024
+
+# VM: medium run
+docker compose -f docker-compose.yml -f docker-compose.vm.yml run --rm throughput-runner \
+  python -u src/throughput/runner.py --mode llm --platform-preset vm \
+  --ollama-base http://ollama:11434 --litellm http://litellm:4000 \
+  --cloud-models "azure-gpt5,gemini-2.5-pro,claude-opus-4-1-20250805" \
+  --requests 160 --repetitions 3 --concurrency 1,2,4,8,16
 ```
 
-VM (Docker network) examples:
-```bash
-# Compose profile inside Docker network
-bash ./scripts/run-throughput.sh
+## Open WebUI Integration
 
-# From host targeting Docker DNS
-python src/throughput/runner.py \
-  --platform-preset vm \
-  --rag-base http://rag-api-bge:8000 \
-  --rag-testset /app/data/testset/ucl-cs_single_hop_testset_gpt-4.1_20250906_111904.json \
-  --repetitions 3 --requests 20 --concurrency 1,2,4,8,16 --skip-cloud
-```
+Use Open WebUI as the chat frontend while retrieval and routing stay in the RAG API and LiteLLM.
+
+### General settings (one-time)
+
+Open WebUI → General:
+
+- OpenAI API → Manage OpenAI API Connections:
+  - Add: `https://api.openai.com/v1` (optional, for direct OpenAI usage)
+  - Add: `http://rag-api-bge:8000/v1` (RAG API OpenAI-compatible surface)
+    - This points to the FastAPI `/v1` endpoints implemented in `src/main.py`.
+
+- Ollama API → Manage Ollama API Connections:
+  - Add: `http://host.docker.internal:11434` (Mac host Ollama from within container)
+  - VM variant: `http://ollama:11434` (if Ollama runs as a container in the same network)
+
+- Direct Connections:
+  - Allow users to connect their own OpenAI-compatible endpoints.
+
+- Cache Base Model List:
+  - If enabled, base models are fetched at startup/save only. Faster UI, but won’t show new models until next refresh/save.
+
+Settings are persisted in the `open_webui_data` volume and survive restarts.
+
+### Model selection and RAG toggle
+
+- In a new chat, select a model returned by `/v1/models` (e.g., `ollama/<model-id>` or a LiteLLM cloud alias like `gpt-4o-mini`).
+- Disable Open WebUI’s built-in RAG for these models to avoid double context injection:
+  - Settings → Documents/RAG → turn off document ingestion/RAG for these models.
+
+### Streaming
+
+- The RAG API supports SSE streaming on `/v1/chat/completions` (`stream=true`). Open WebUI will display tokens as they arrive and terminates on `[DONE]`.
+
+### References
+
+- Open WebUI: https://docs.openwebui.com/
+- Enhanced RAG guidance: https://docs.openwebui.com/features/rag#enhanced-rag-pipeline
+- HTTPS/WebSockets (if fronted by Nginx): https://docs.openwebui.com/tutorials/https-nginx
 
 *This manual is automatically updated by agents when technical changes occur.*

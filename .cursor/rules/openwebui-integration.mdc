@@ -1,0 +1,231 @@
+---
+description: Integrate Open WebUI with FastAPI RAG via OpenAI-compatible Chat Completions (with streaming)
+globs:
+  - src/main.py
+  - docker-compose.yml
+  - src/requirements.txt
+  - docs/**
+alwaysApply: false
+---
+
+Context
+
+- Current architecture (verified): `rag-api-*` FastAPI exposes `/query` that performs retrieval over FAISS and routes LLM calls to either local Ollama (when `model_name` starts with `ollama/`) or to cloud via LiteLLM (OpenAI-compatible) when not. Services in `docker-compose.yml`: `litellm`, `rag-api-*` (bge/qwen3/e5), `open-webui`. Open WebUI already runs with `extra_hosts` mapping and a persistent volume.
+
+- Goal: Use Open WebUI purely as the chat frontend. Keep retrieval in FastAPI. Keep routing logic (Ollama vs cloud) in FastAPI via LiteLLM. Expose FastAPI as an OpenAI-compatible Chat Completions server so Open WebUI can select it like any other model. Support `stream=true` for token streaming.
+
+- References:
+  - Open WebUI Home and Quickstart: [docs.openwebui.com](https://docs.openwebui.com/)
+  - Enhanced RAG pipeline (turn OFF for these models to avoid double retrieval): [RAG feature notes](https://docs.openwebui.com/features/rag#enhanced-rag-pipeline)
+  - Pipelines / Pipes (alternative integration if desired later): [Pipes](https://docs.openwebui.com/pipelines/pipes)
+  - HTTPS and Nginx (WebSocket passthrough required): [HTTPS via Nginx](https://docs.openwebui.com/tutorials/https-nginx)
+
+Target flow (kept intact)
+
+1) Open WebUI → 2) FastAPI `/v1/chat/completions` → 3) FAISS retrieval → 4) Compose query+context → 5) LiteLLM proxy → 6) LLM (Ollama or cloud) → 7) LiteLLM → 8) FastAPI adds sources → 9) Open WebUI displays.
+
+Implementation plan (for the agent)
+
+1) Add OpenAI-compatible endpoints to `src/main.py`
+   - Keep existing `/query` endpoint.
+   - Add `GET /v1/models` that returns the list of model IDs you want to expose via Open WebUI (e.g., `ollama/phi3:mini`, `gpt-4o-mini`, etc.).
+   - Add `POST /v1/chat/completions` that accepts `model`, `messages[]`, and optional `stream`. The logic should:
+     - Extract the last user message as the question.
+     - Perform retrieval using the already loaded FAISS retriever.
+     - Build the stuffed prompt (same as `RetrievalQA` "stuff" chain) using the existing `RAG_PROMPT` and retrieved docs.
+     - Choose LLM client based on `model` prefix (reuse current `ChatOllama` vs `ChatOpenAI` selection and envs `OLLAMA_BASE_URL`, `LITELLM_API_BASE`).
+     - For `stream=false` (default): call `llm.ainvoke(prompt_text)` or `llm.invoke(prompt_text)` and return OpenAI Chat Completions JSON.
+     - For `stream=true`: stream Server-Sent Events with OpenAI-compatible chunk objects and a final `[DONE]` line.
+
+   Minimal models and request types:
+
+```python
+from typing import Optional
+import time, uuid, json
+from fastapi import HTTPException
+from fastapi.responses import StreamingResponse
+
+class ChatMessage(BaseModel):
+    role: str
+    content: str
+
+class ChatCompletionRequest(BaseModel):
+    model: str
+    messages: List[ChatMessage]
+    stream: Optional[bool] = False
+
+@app.get("/v1/models")
+def list_models():
+    return {
+        "object": "list",
+        "data": [
+            {"id": "ollama/phi3:mini", "object": "model"},
+            {"id": "gpt-4o-mini", "object": "model"},
+        ],
+    }
+
+@app.post("/v1/chat/completions")
+async def chat_completions(req: ChatCompletionRequest):
+    question = next((m.content for m in reversed(req.messages) if m.role == "user"), "").strip()
+    if not question:
+        raise HTTPException(status_code=400, detail="No user message provided")
+
+    vectorstore = rag_resources.get("vectorstore")
+    if not vectorstore:
+        raise HTTPException(status_code=503, detail="Vector store not available")
+    retriever = vectorstore.as_retriever()
+    docs = await retriever.aget_relevant_documents(question)
+    context = "\n\n".join(d.page_content for d in docs)
+    prompt_text = RAG_PROMPT.format(context=context, question=question)
+
+    # Select LLM (reuse logic from /query)
+    if req.model.startswith("ollama/"):
+        local_model = req.model.split("/", 1)[-1]
+        llm = ChatOllama(model=local_model, base_url=OLLAMA_BASE_URL, temperature=0, timeout=600)
+    else:
+        llm = ChatOpenAI(model=req.model, openai_api_base=LITELLM_API_BASE, openai_api_key="anything", request_timeout=600)
+
+    if req.stream:
+        async def event_gen():
+            created = int(time.time())
+            cid = f"chatcmpl-{uuid.uuid4()}"
+            # Token streaming
+            async for part in llm.astream(prompt_text):
+                delta = str(part)
+                if not delta:
+                    continue
+                chunk = {
+                    "id": cid,
+                    "object": "chat.completion.chunk",
+                    "created": created,
+                    "model": req.model,
+                    "choices": [{"index": 0, "delta": {"content": delta}, "finish_reason": None}],
+                }
+                yield f"data: {json.dumps(chunk, ensure_ascii=False)}\n\n"
+            # Final chunk
+            final = {
+                "id": cid,
+                "object": "chat.completion.chunk",
+                "created": created,
+                "model": req.model,
+                "choices": [{"index": 0, "delta": {}, "finish_reason": "stop"}],
+            }
+            yield f"data: {json.dumps(final, ensure_ascii=False)}\n\n"
+            yield "data: [DONE]\n\n"
+
+        return StreamingResponse(event_gen(), media_type="text/event-stream")
+
+    # Non-streaming
+    result_text = await llm.ainvoke(prompt_text)
+
+    # Sources block (optional)
+    labels = []
+    for d in docs:
+        label = d.metadata.get("section") or d.metadata.get("source") or d.metadata.get("file_path") or "Document"
+        if label not in labels:
+            labels.append(label)
+    content = str(result_text)
+    if labels:
+        content = f"{content}\n\nSources:\n" + "\n".join(f"- {s}" for s in labels)
+
+    return {
+        "id": f"chatcmpl-{uuid.uuid4()}",
+        "object": "chat.completion",
+        "created": int(time.time()),
+        "model": req.model,
+        "choices": [{"index": 0, "message": {"role": "assistant", "content": content}, "finish_reason": "stop"}],
+        "usage": {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0},
+    }
+```
+
+   Notes:
+   - The above uses `StreamingResponse` and the LLM `astream` API to produce OpenAI-style SSE chunks ending with `[DONE]`.
+   - If preferred, you can use `sse-starlette` and `EventSourceResponse`. Add it to `src/requirements.txt`.
+   - Keep the retrieval step outside the stream (precompute `context`) so tokens can start flowing immediately.
+
+2) Increase Ollama context window for RAG
+
+   - In `ChatOllama`, pass `model_kwargs={"num_ctx": 8192}` (or update your Modelfile) so stuffed context fits, aligning with the RAG guidance. See: [Enhanced RAG pipeline](https://docs.openwebui.com/features/rag#enhanced-rag-pipeline).
+
+```python
+llm = ChatOllama(
+    model=local_model,
+    base_url=OLLAMA_BASE_URL,
+    temperature=0,
+    timeout=600,
+    model_kwargs={"num_ctx": 8192},
+)
+```
+
+3) Open WebUI admin configuration
+
+   - In Admin → Models (or Settings → Models), add a new OpenAI-compatible server for each RAG API you run:
+     - API Base: `http://rag-api-bge:8000/v1` (use Docker DNS names).
+     - API Key: any string (optional).
+     - Default model: choose one you listed in `/v1/models` (e.g., `ollama/phi3:mini`).
+   - For each such model, disable Open WebUI’s built-in RAG/document ingestion to avoid double context injection. Reference: [RAG feature notes](https://docs.openwebui.com/features/rag#enhanced-rag-pipeline).
+   - Ensure WebSockets are allowed; Open WebUI requires WS. If placing behind Nginx with TLS, follow: [HTTPS via Nginx](https://docs.openwebui.com/tutorials/https-nginx).
+
+4) Security and auth (optional)
+
+   - Support `Authorization: Bearer <token>` on `/v1/*` and configure the same token in Open WebUI’s OpenAI server entry.
+   - If exposing over the internet, terminate TLS at Nginx and restrict by IP or auth proxy.
+
+5) Observability (optional)
+
+   - Log: model, retrieval latency, #docs, token counts (if available), LiteLLM route taken.
+   - Add `/metrics` (Prometheus) if needed.
+
+6) Testing checklist
+
+```bash
+# List models
+curl -s http://localhost:8001/v1/models | jq
+
+# Non-streaming
+curl -s http://localhost:8001/v1/chat/completions \
+  -H 'Content-Type: application/json' \
+  -d '{
+        "model": "ollama/phi3:mini",
+        "messages": [{"role":"user","content":"When are term dates?"}],
+        "stream": false
+      }' | jq
+
+# Streaming
+curl -Ns http://localhost:8001/v1/chat/completions \
+  -H 'Content-Type: application/json' \
+  -d '{
+        "model": "ollama/phi3:mini",
+        "messages": [{"role":"user","content":"When are term dates?"}],
+        "stream": true
+      }'
+```
+
+7) Compose and networking notes
+
+   - Keep `open-webui` with `extra_hosts: ["host.docker.internal:host-gateway"]` and `restart: unless-stopped`.
+   - Inter-container access should use service names (`http://rag-api-bge:8000`).
+   - For local Mac host Ollama, services access it via `http://host.docker.internal:11434` (already set in compose).
+
+Docs sync
+
+- After implementing the endpoints and streaming, propose updates to:
+  - `docs/USER_MANUAL.md`: add "Using Open WebUI with custom RAG model" section and screenshots placeholders.
+  - `docs/SYSTEM_MANUAL.md`: add `/v1/*` endpoints, streaming notes, and Open WebUI admin steps.
+  - `README.md`: quickstart bullet to select the RAG model in Open WebUI.
+
+Acceptance criteria
+
+- Open WebUI can select the FastAPI-backed RAG as a model and produce answers with sources.
+- `stream=true` streams tokens using OpenAI-style chunks and terminates with `[DONE]`.
+- Built-in Open WebUI RAG is disabled for these models; no double context injection.
+- Ollama context length increased so retrieved context fits.
+
+Non-goals (for now)
+
+- Migrating retrieval into Open WebUI (consider later via Pipes if desired: [Pipes](https://docs.openwebui.com/pipelines/pipes)).
+- Implementing logprobs or tool-calls in the OpenAI surface.
+
+Notes
+
+- This rule is guidance; implement changes in code files, not here. Match existing code style and avoid reformatting unrelated code.
