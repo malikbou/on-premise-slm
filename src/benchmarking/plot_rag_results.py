@@ -440,7 +440,14 @@ def plot_ranking(
 
         n_rows = len(cell_text)
         fig_h_in = max(2.5, min(18.0, 0.35 * n_rows))
-        fig_w_in = _mm_to_in(200)
+
+        # Calculate dynamic width based on longest pair name
+        max_pair_length = max(len(row[1]) for row in cell_text) if cell_text else 20
+        # Base width + extra width for long pair names (roughly 0.12" per character)
+        extra_width = max(0, (max_pair_length - 20) * 0.12)
+        fig_w_in = _mm_to_in(200) + extra_width
+        fig_w_in = min(fig_w_in, _mm_to_in(300))  # Cap at 300mm to prevent excessive width
+
         fig_tbl, ax_tbl = plt.subplots(figsize=(fig_w_in, fig_h_in))
         ax_tbl.axis("off")
         tbl = ax_tbl.table(
@@ -452,6 +459,19 @@ def plot_ranking(
         )
         tbl.auto_set_font_size(False)
         tbl.set_fontsize(8)
+
+        # Adjust column widths: make pair column wider, others narrower
+        n_cols = len(table_cols)
+        if n_cols > 0:
+            # Pair column gets more space, others get proportionally less
+            pair_col_width = min(0.35, 0.2 + (max_pair_length - 20) * 0.008)
+            other_col_width = (1.0 - pair_col_width) / (n_cols - 1)
+
+            for i in range(n_cols):
+                col_width = pair_col_width if i == 1 else other_col_width  # Column 1 is "Pair"
+                for j in range(n_rows + 1):  # +1 for header row
+                    tbl[(j, i)].set_width(col_width)
+
         tbl.scale(1.0, 1.3)
         fig_tbl.suptitle("Figure E — Rank summary (best to worst)", y=0.98)
         _save(fig_tbl, outdir / "figure_E_rank_summary", fmt)
