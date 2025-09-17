@@ -453,7 +453,7 @@ def plot_ranking(
         tbl = ax_tbl.table(
             cellText=cell_text,
             colLabels=table_cols,
-            loc="center",
+            loc="upper center",  # Position table higher to reduce gap with title
             cellLoc="center",
             colLoc="center",
         )
@@ -473,8 +473,16 @@ def plot_ranking(
                     tbl[(j, i)].set_width(col_width)
 
         tbl.scale(1.0, 1.3)
-        fig_tbl.suptitle("Figure E — Rank summary (best to worst)", y=0.98)
-        _save(fig_tbl, outdir / "figure_E_rank_summary", fmt)
+
+        # Adjust spacing and title position for better layout
+        fig_tbl.subplots_adjust(top=0.9, bottom=0.1)  # Leave space for title, reduce bottom padding
+        fig_tbl.suptitle("Figure E — Rank summary (best to worst)", y=0.95, fontsize=10)
+
+        # Save with manual layout (skip tight_layout for tables)
+        outname = (outdir / "figure_E_rank_summary").with_suffix(f".{fmt}")
+        fig_tbl.savefig(outname, dpi=DPI if fmt == "png" else None, bbox_inches="tight")
+        plt.close(fig_tbl)
+        print(f"✓ wrote {outname}")
     except Exception as e:
         print(f"⚠ Failed to write rank summary markdown: {e}")
 
