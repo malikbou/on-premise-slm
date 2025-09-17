@@ -65,6 +65,8 @@ def _normalize_llm_name(name: str) -> str:
         n = n[len("ollama_") :]
     if n.startswith("hf.co_"):
         n = n[len("hf.co_") :]
+    # Remove date suffixes (e.g., "20250805" from "claude-opus-4-1-20250805")
+    n = re.sub(r"-\d{8}$", "", n)
     # Convert the first underscore into a path separator for readability
     if "_" in n:
         parts = n.split("_", 1)
