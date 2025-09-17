@@ -450,12 +450,15 @@ def plot_ranking(
 
         fig_tbl, ax_tbl = plt.subplots(figsize=(fig_w_in, fig_h_in))
         ax_tbl.axis("off")
+
+        # Use bbox to precisely position the table and minimize whitespace
         tbl = ax_tbl.table(
             cellText=cell_text,
             colLabels=table_cols,
-            loc="upper center",  # Position table higher to reduce gap with title
+            loc="center",
             cellLoc="center",
             colLoc="center",
+            bbox=[0.0, 0.0, 1.0, 1.0],  # Fill the entire axis area
         )
         tbl.auto_set_font_size(False)
         tbl.set_fontsize(8)
@@ -474,9 +477,9 @@ def plot_ranking(
 
         tbl.scale(1.0, 1.3)
 
-        # Adjust spacing and title position for better layout
-        fig_tbl.subplots_adjust(top=0.9, bottom=0.1)  # Leave space for title, reduce bottom padding
-        fig_tbl.suptitle("Figure E — Rank summary (best to worst)", y=0.95, fontsize=10)
+        # Minimize whitespace with tighter layout
+        fig_tbl.subplots_adjust(top=0.85, bottom=0.05, left=0.02, right=0.98)  # Aggressive padding reduction
+        fig_tbl.suptitle("Figure E — Rank summary (best to worst)", y=0.92, fontsize=10)
 
         # Save with manual layout (skip tight_layout for tables)
         outname = (outdir / "figure_E_rank_summary").with_suffix(f".{fmt}")
