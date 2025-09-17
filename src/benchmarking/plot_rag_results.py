@@ -314,7 +314,7 @@ def plot_ranking(
     ranked["llm"] = ranked["llm"].map(lambda s: llm_map.get(s, _shorten_llm_label(s)))
     ranked["embedding"] = ranked["embedding"].map(lambda s: emb_map.get(s, _shorten_embedding_label(s)))
     ranked["pair"] = ranked["embedding"] + " | " + ranked["llm"]
-    ranked = ranked.sort_values("aggregate", ascending=True)
+    ranked = ranked.sort_values("aggregate", ascending=False)
 
     # Calculate adaptive height based on number of pairs (similar to rank table)
     n_pairs = len(ranked)
@@ -322,12 +322,15 @@ def plot_ranking(
     fig_w_in = _mm_to_in(FIGSIZE_MM[0])  # Keep width consistent
 
     fig, ax = plt.subplots(figsize=(fig_w_in, fig_h_in))
+    # For the bar chart, use ascending order (lowest to highest) for better visual flow
+    ranked_for_chart = ranked.sort_values("aggregate", ascending=True)
+
     # Color-code bars by embedding and add legend
     unique_embs = list(dict.fromkeys(ranked["embedding"]))
     cmap = mpl.colormaps.get("tab10")
     emb_to_color = {emb: cmap(i % 10) for i, emb in enumerate(unique_embs)}
-    colors = [emb_to_color[e] for e in ranked["embedding"]]
-    ax.barh(ranked["pair"], ranked["aggregate"], color=colors)
+    colors = [emb_to_color[e] for e in ranked_for_chart["embedding"]]
+    ax.barh(ranked_for_chart["pair"], ranked_for_chart["aggregate"], color=colors)
     ax.set_xlabel("Aggregate score")
     ax.set_title("Figure B — Overall performance ranking (weighted mean)")
     ax.grid(True, which="both", ls=GRID_STYLE, axis="x")
@@ -363,46 +366,25 @@ def plot_ranking(
         table.to_csv(csv_path, index=False)
         print(f"✓ wrote {csv_path}")
 
-    # Additionally, write a Markdown summary with icons for metric winners
+    # Write simplified summary tables
     try:
-        winners = {}
-        for metric in METRICS:
-            idx = df[metric].idxmax()
-            if pd.notna(idx):
-                winners[metric] = (df.loc[idx, "embedding"], df.loc[idx, "llm"])  # raw
-
         ranked_md = ranked.copy()
-        # Icon columns for top performers per metric
-        for metric in METRICS:
-            emb_raw, llm_raw = winners.get(metric, (None, None))
-            if emb_raw is None:
-                ranked_md[f"top_{metric}"] = ""
-                continue
-            # Mark ✅ for the exact winning pair; 🔺 for those within 2% of the max
-            mmax = df[metric].max()
-            ranked_md[f"top_{metric}"] = ranked_md.apply(
-                lambda r: (
-                    "✅" if (r["embedding"] == emb_map.get(emb_raw, _shorten_embedding_label(emb_raw)) and r["llm"] == llm_map.get(llm_raw, _shorten_llm_label(llm_raw)))
-                    else ("🔺" if r[metric] >= 0.98 * mmax else "")
-                ),
-                axis=1,
-            )
 
         # Prepare Markdown table
         md_lines: List[str] = []
-        md_lines.append("| Rank | Pair | Faithfulness | Ans. Rel. | Ctx. Prec. | Ctx. Recall | Mean | F | AR | CP | CR |")
-        md_lines.append("|---:|:---|---:|---:|---:|---:|---:|:--:|:--:|:--:|:--:|")
+        md_lines.append("| Rank | Pair | Faithfulness | Ans. Rel. | Ctx. Prec. | Ctx. Recall | Mean |")
+        md_lines.append("|---:|:---|---:|---:|---:|---:|---:|")
         for i, r in enumerate(ranked_md.itertuples(index=False), start=1):
             pair = f"{r.embedding} | {r.llm}"
             md_lines.append(
-                f"| {i} | {pair} | {r.faithfulness:.3f} | {r.answer_relevancy:.3f} | {r.context_precision:.3f} | {r.context_recall:.3f} | {r.aggregate:.3f} | {getattr(r, 'top_faithfulness', '')} | {getattr(r, 'top_answer_relevancy', '')} | {getattr(r, 'top_context_precision', '')} | {getattr(r, 'top_context_recall', '')} |"
+                f"| {i} | {pair} | {r.faithfulness:.3f} | {r.answer_relevancy:.3f} | {r.context_precision:.3f} | {r.context_recall:.3f} | {r.aggregate:.3f} |"
             )
 
         md_path = outdir / "rank_summary.md"
         md_path.write_text("\n".join(md_lines), encoding="utf-8")
         print(f"✓ wrote {md_path}")
 
-        # Create an HTML table version with similar content and icons
+        # Create an HTML table version with simplified content
         html_rows: List[str] = []
         html_rows.append(
             "<table><thead><tr>"
@@ -413,7 +395,6 @@ def plot_ranking(
             "<th style='text-align:right'>Ctx. Prec.</th>"
             "<th style='text-align:right'>Ctx. Recall</th>"
             "<th style='text-align:right'>Mean</th>"
-            "<th>F</th><th>AR</th><th>CP</th><th>CR</th>"
             "</tr></thead><tbody>"
         )
         for i, r in enumerate(ranked_md.itertuples(index=False), start=1):
@@ -427,10 +408,6 @@ def plot_ranking(
                 f"<td style='text-align:right'>{r.context_precision:.3f}</td>"
                 f"<td style='text-align:right'>{r.context_recall:.3f}</td>"
                 f"<td style='text-align:right'>{r.aggregate:.3f}</td>"
-                f"<td>{getattr(r, 'top_faithfulness', '')}</td>"
-                f"<td>{getattr(r, 'top_answer_relevancy', '')}</td>"
-                f"<td>{getattr(r, 'top_context_precision', '')}</td>"
-                f"<td>{getattr(r, 'top_context_recall', '')}</td>"
                 "</tr>"
             )
         html_rows.append("</tbody></table>")
@@ -447,10 +424,6 @@ def plot_ranking(
             "Ctx. Prec.",
             "Ctx. Recall",
             "Mean",
-            "F",
-            "AR",
-            "CP",
-            "CR",
         ]
         cell_text: List[List[str]] = []
         for i, r in enumerate(ranked_md.itertuples(index=False), start=1):
@@ -462,10 +435,6 @@ def plot_ranking(
                 f"{r.context_precision:.3f}",
                 f"{r.context_recall:.3f}",
                 f"{r.aggregate:.3f}",
-                getattr(r, "top_faithfulness", ""),
-                getattr(r, "top_answer_relevancy", ""),
-                getattr(r, "top_context_precision", ""),
-                getattr(r, "top_context_recall", ""),
             ]
             cell_text.append(row)
 
@@ -484,7 +453,7 @@ def plot_ranking(
         tbl.auto_set_font_size(False)
         tbl.set_fontsize(8)
         tbl.scale(1.0, 1.3)
-        fig_tbl.suptitle("Figure E — Rank summary (best: ✅, within 2%: 🔺)", y=0.98)
+        fig_tbl.suptitle("Figure E — Rank summary (best to worst)", y=0.98)
         _save(fig_tbl, outdir / "figure_E_rank_summary", fmt)
     except Exception as e:
         print(f"⚠ Failed to write rank summary markdown: {e}")
