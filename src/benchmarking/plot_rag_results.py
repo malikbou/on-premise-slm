@@ -316,7 +316,12 @@ def plot_ranking(
     ranked["pair"] = ranked["embedding"] + " | " + ranked["llm"]
     ranked = ranked.sort_values("aggregate", ascending=True)
 
-    fig, ax = plt.subplots(figsize=_figsize_inches())
+    # Calculate adaptive height based on number of pairs (similar to rank table)
+    n_pairs = len(ranked)
+    fig_h_in = max(4.0, min(12.0, 0.3 * n_pairs))  # min 4", max 12", 0.3" per pair
+    fig_w_in = _mm_to_in(FIGSIZE_MM[0])  # Keep width consistent
+
+    fig, ax = plt.subplots(figsize=(fig_w_in, fig_h_in))
     # Color-code bars by embedding and add legend
     unique_embs = list(dict.fromkeys(ranked["embedding"]))
     cmap = mpl.colormaps.get("tab10")
