@@ -176,6 +176,7 @@ time curl -s http://localhost:8001/query -H 'Content-Type: application/json' \
 
 # Test both embedding models
 curl -s http://localhost:8001/info | jq .embedding_model  # Should show "bge-m3"
+curl -s http://localhost:8002/info | jq .embedding_model  # Should show "hf.co/Qwen/Qwen3-Embedding-0.6B-GGUF:Q8_0"
 curl -s http://localhost:8003/info | jq .embedding_model  # Should show "yxchia/multilingual-e5-large-instruct"
 
 # Check GPU utilization
