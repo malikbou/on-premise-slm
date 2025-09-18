@@ -92,31 +92,114 @@ Connect to the instance using SSH from your local machine. You can find the SSH 
 ssh -p <PORT> root@<HOST_IP>
 ```
 
-### B.4.2 Service Health Checks
-
-Run these commands from within the VM to confirm the core services are responsive:
+**Important**: If connecting immediately after VM launch, wait 5-10 minutes for the on-start script to complete. You can monitor progress:
 
 ```bash
-# Check Ollama status
-curl -s http://localhost:11434/api/version | jq .
+# Check if on-start script is still running
+ps aux | grep vm-quickstart
 
-# Check LiteLLM status (should list available models)
-curl -s http://localhost:4000/v1/models | jq .
+# Monitor Docker containers starting up
+docker ps -a
 
-# Check RAG API status (bge embedder instance)
-curl -s http://localhost:8001/info | jq .
+# Check service logs if needed
+docker logs ollama
+docker logs rag-api-bge
 ```
 
-### B.4.3 Running Smoke Tests
+**SSH Connection Gotchas**:
+- Vast.ai VMs use non-standard SSH ports (usually 10000+)
+- SSH host keys change between VM instances - remove old entries: `ssh-keygen -R [host]:port`
+- Some IDEs struggle with non-standard ports - use SSH config file
+- If connection drops, the VM may have been stopped/preempted
 
-The repository includes scripts to run quick, low-volume tests to ensure the evaluation pipelines are functional.
+### B.4.2 Manual Startup (if on-start failed)
+
+If the automated on-start script failed or you need to restart services:
 
 ```bash
 cd /root/on-premise-slm
 
-# Run a small RAG quality and throughput test
-bash scripts/vm-smoke.sh .
+# Full startup sequence
+./scripts/vm-quickstart.sh
+
+# Or step-by-step:
+./scripts/vm-write-env.sh        # Creates .env from environment
+./scripts/vm-build-indexes.sh    # Creates FAISS indexes (required first)
+./scripts/vm-core-up.sh          # Starts Docker services
+./scripts/vm-preload.sh http://localhost:11434  # Downloads models
 ```
+
+**Environment Handling**: The `vm-write-env.sh` script sources `/etc/environment` and Vast.ai account variables, then writes a `.env` file with API keys. **Never put secrets in Vast.ai templates** - use Account → Environment Variables instead.
+
+### B.4.3 Service Health Checks
+
+Run these commands to confirm all services are responsive:
+
+```bash
+# Essential services (must work)
+curl -s http://localhost:11434/api/version | jq .    # Ollama
+curl -s http://localhost:4000/v1/models | jq .      # LiteLLM proxy
+curl -s http://localhost:8001/info | jq .           # RAG API (bge-m3)
+
+# Additional RAG APIs (optional - may not work if indexes failed)
+curl -s http://localhost:8002/info | jq .           # RAG API (qwen3)
+curl -s http://localhost:8003/info | jq .           # RAG API (e5)
+
+# Open WebUI (web interface)
+curl -s http://localhost:3000 >/dev/null && echo "WebUI accessible"
+```
+
+**Troubleshooting**:
+- If port 8001 fails: Check `docker logs rag-api-bge` for FAISS index errors
+- If Ollama fails: Verify GPU access with `nvidia-smi` and check `docker logs ollama`
+- If LiteLLM fails: Missing API keys in environment variables
+- If ports 8002/8003 fail: Secondary embedding indexes may have failed to build
+
+**GPU Performance Issues**:
+- Check GPU access: `nvidia-smi` should show GPU utilization and VRAM usage
+- If "failed to initialize CUDA" appears: Restart Ollama container
+- Expected VRAM usage: ~6-7GB for multiple models
+- Query performance: Should be <2 seconds for typical RAG queries
+
+**Known Issues**:
+- Qwen3 embedding model causes GGML assertion failures - removed from default configuration
+- Only bge-m3 and E5 embeddings are stable and recommended for production use
+
+### B.4.4 Quick Validation Pipeline
+
+```bash
+cd /root/on-premise-slm
+
+# Test RAG query performance (should complete in <2 seconds)
+time curl -s http://localhost:8001/query -H 'Content-Type: application/json' \
+  -d '{"question":"What are the key dates for term?","model_name":"ollama/hf.co/MaziyarPanahi/Phi-3.5-mini-instruct-GGUF:Q4_K_M"}' | jq .answer
+
+# Test both embedding models
+curl -s http://localhost:8001/info | jq .embedding_model  # Should show "bge-m3"
+curl -s http://localhost:8003/info | jq .embedding_model  # Should show "yxchia/multilingual-e5-large-instruct"
+
+# Check GPU utilization
+nvidia-smi  # Should show ~6-7GB VRAM usage with Ollama processes
+
+# Comprehensive smoke test
+./scripts/vm-smoke.sh
+
+# Expected: Query <2sec, GPU active, both embeddings working
+```
+
+### B.4.5 Current Working Configuration
+
+**Stable Embedding Models** (as of September 2025):
+- ✅ **bge-m3**: Primary model, port 8001, 1024-dim embeddings
+- ✅ **yxchia/multilingual-e5-large-instruct**: Secondary model, port 8003, 1024-dim embeddings
+
+**Removed/Problematic Models**:
+- ❌ **hf.co/Qwen/Qwen3-Embedding-0.6B-GGUF:Q8_0**: GGML assertion failures, removed from production
+
+**Performance Benchmarks**:
+- Query latency: <2 seconds with GPU acceleration
+- GPU utilization: 6-7GB VRAM for active models
+- Models loaded: 9 LLMs + 2 embedding models
 
 ## B.5 Development and Evaluation
 
