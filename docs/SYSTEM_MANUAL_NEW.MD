@@ -140,8 +140,6 @@ Run these commands to confirm all services are responsive:
 curl -s http://localhost:11434/api/version | jq .    # Ollama
 curl -s http://localhost:4000/v1/models | jq .      # LiteLLM proxy
 curl -s http://localhost:8001/info | jq .           # RAG API (bge-m3)
-
-# Additional RAG APIs (optional - may not work if indexes failed)
 curl -s http://localhost:8002/info | jq .           # RAG API (qwen3)
 curl -s http://localhost:8003/info | jq .           # RAG API (e5)
 
@@ -160,10 +158,6 @@ curl -s http://localhost:3000 >/dev/null && echo "WebUI accessible"
 - If "failed to initialize CUDA" appears: Restart Ollama container
 - Expected VRAM usage: ~6-7GB for multiple models
 - Query performance: Should be <2 seconds for typical RAG queries
-
-**Known Issues**:
-- Qwen3 embedding model causes GGML assertion failures - removed from default configuration
-- Only bge-m3 and E5 embeddings are stable and recommended for production use
 
 ### B.4.4 Quick Validation Pipeline
 
@@ -187,20 +181,6 @@ nvidia-smi  # Should show ~6-7GB VRAM usage with Ollama processes
 
 # Expected: Query <2sec, GPU active, both embeddings working
 ```
-
-### B.4.5 Current Working Configuration
-
-**Stable Embedding Models** (as of September 2025):
-- ✅ **bge-m3**: Primary model, port 8001, 1024-dim embeddings
-- ✅ **yxchia/multilingual-e5-large-instruct**: Secondary model, port 8003, 1024-dim embeddings
-
-**Removed/Problematic Models**:
-- ❌ **hf.co/Qwen/Qwen3-Embedding-0.6B-GGUF:Q8_0**: GGML assertion failures, removed from production
-
-**Performance Benchmarks**:
-- Query latency: <2 seconds with GPU acceleration
-- GPU utilization: 6-7GB VRAM for active models
-- Models loaded: 9 LLMs + 2 embedding models
 
 ## B.5 Development and Evaluation
 
