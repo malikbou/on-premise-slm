@@ -35,13 +35,35 @@ To enable benchmarking against cloud models, you must acquire API keys from the 
    - As shown in `config.yaml`, LiteLLM uses friendly aliases like `azure-gpt5`. You must ensure the model parameter in `config.yaml` (e.g., `azure/gpt-5-3`) exactly matches your Azure deployment name.
    - You will need separate endpoint credentials (API_BASE, API_VERSION, API_KEY) for each model deployment if they are in different projects or regions.
 
+### B.2.3 Required: Store API keys in Vast Account Environment Variables (do not put secrets in templates)
+
+Vast.ai templates should not contain API keys. Templates that include secrets can be blocked from saving and may show the error "Failed to create template!". Instead, add all provider keys in your Vast console; they will be injected into every instance automatically as secrets and are available to the system at runtime.
+
+1. In the Vast console, go to: Account → Environment Variables → Add Variable.
+2. Paste the following block and replace placeholders with your values:
+
+```
+OPENAI_API_KEY=INSERT YOUR OPENAI KEY
+GEMINI_API_KEY=INSERT YOUR GEMINI KEY
+ANTHROPIC_API_KEY=INSERT YOUR ANTHROPIC KEY
+AZURE_OPENAI_API_BASE=INSERT YOUR AZURE OPENAI KEY
+AZURE_OPENAI_API_VERSION=INSERT YOUR API VERSION KEY
+AZURE_OPENAI_API_KEY=ETC
+AZURE_OPENAI_API_BASE_4_1=INSERT YOUR AZURE OPENAI KEY
+AZURE_OPENAI_API_VERSION_4_1=INSERT ETC
+AZURE_OPENAI_API_KEY_4_1=INSERT ETC
+```
+
+3. Save. These variables will be present inside your VM/container at launch.
+4. Do not duplicate these values in the template; keep the template free of secrets.
+
 ## B.3 Launching and Deployment
 
 ### B.3.1 Selecting and Launching the VM
 
 1. Navigate to the Vast.ai templates page and select the public template for this project (link to be provided).
 2. The template is pre-configured with the necessary Docker image and on-start script.
-3. On the instance configuration page, populate the template's environment variables with the API keys you obtained in the previous step.
+3. Ensure your provider keys are added in Account → Environment Variables (Section B.2.3). Do not place secrets in the template. The instance will receive these variables automatically at launch.
 4. Apply filters to find a suitable GPU instance. The benchmarks for this thesis were performed on an NVIDIA RTX 4090, which is the recommended choice for reproducing results.
 5. Rent the instance. Vast.ai will begin the setup process.
 
@@ -51,7 +73,7 @@ Upon launch, the VM automatically executes an on-start script that performs the 
 
 1. **Installs Dependencies:** git, docker, docker-compose, and the NVIDIA Container Toolkit are installed.
 2. **Clones Repository:** The project's Git repository is cloned to `/root/on-premise-slm`.
-3. **Writes Environment:** The environment variables you set in the template are written to a `.env` file.
+3. **Writes Environment:** The instance environment (including variables injected from Account → Environment Variables) is written to a `.env` file.
 4. **Starts Core Services:** The script runs `docker-compose -f docker-compose.yml -f docker-compose.vm.yml up -d` to launch the full application stack.
 5. **Preloads Models:** All required SLMs and embedding models are pulled into the ollama service.
 6. **Builds Indexes:** The index-builder service runs to create the FAISS vector stores.
