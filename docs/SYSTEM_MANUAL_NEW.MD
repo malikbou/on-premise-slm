@@ -20,8 +20,8 @@ The primary deployment target is a Vast.ai GPU virtual machine. The following st
 
 ### B.2.1 Vast.ai Account Setup
 
-1. Create an account on Vast.ai and add credits.
-2. Follow the Vast.ai Quick Start Guide to familiarize yourself with the platform.
+1. Create an account on [Vast.ai](https://vast.ai/) and add credits.
+2. Follow the [Vast.ai Quick Start Guide](https://docs.vast.ai/quickstart) to familiarize yourself with the platform.
 3. Add your public SSH key to your Vast.ai account settings to enable secure remote access.
 
 ### B.2.2 Cloud Provider API Keys
