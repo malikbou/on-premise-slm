@@ -65,6 +65,8 @@ def _normalize_llm_name(name: str) -> str:
         n = n[len("ollama_") :]
     if n.startswith("hf.co_"):
         n = n[len("hf.co_") :]
+    # Remove date suffixes (e.g., "20250805" from "claude-opus-4-1-20250805")
+    n = re.sub(r"-\d{8}$", "", n)
     # Convert the first underscore into a path separator for readability
     if "_" in n:
         parts = n.split("_", 1)
@@ -312,15 +314,23 @@ def plot_ranking(
     ranked["llm"] = ranked["llm"].map(lambda s: llm_map.get(s, _shorten_llm_label(s)))
     ranked["embedding"] = ranked["embedding"].map(lambda s: emb_map.get(s, _shorten_embedding_label(s)))
     ranked["pair"] = ranked["embedding"] + " | " + ranked["llm"]
-    ranked = ranked.sort_values("aggregate", ascending=True)
+    ranked = ranked.sort_values("aggregate", ascending=False)
 
-    fig, ax = plt.subplots(figsize=_figsize_inches())
+    # Calculate adaptive height based on number of pairs (similar to rank table)
+    n_pairs = len(ranked)
+    fig_h_in = max(4.0, min(12.0, 0.3 * n_pairs))  # min 4", max 12", 0.3" per pair
+    fig_w_in = _mm_to_in(FIGSIZE_MM[0])  # Keep width consistent
+
+    fig, ax = plt.subplots(figsize=(fig_w_in, fig_h_in))
+    # For the bar chart, use ascending order (lowest to highest) for better visual flow
+    ranked_for_chart = ranked.sort_values("aggregate", ascending=True)
+
     # Color-code bars by embedding and add legend
     unique_embs = list(dict.fromkeys(ranked["embedding"]))
     cmap = mpl.colormaps.get("tab10")
     emb_to_color = {emb: cmap(i % 10) for i, emb in enumerate(unique_embs)}
-    colors = [emb_to_color[e] for e in ranked["embedding"]]
-    ax.barh(ranked["pair"], ranked["aggregate"], color=colors)
+    colors = [emb_to_color[e] for e in ranked_for_chart["embedding"]]
+    ax.barh(ranked_for_chart["pair"], ranked_for_chart["aggregate"], color=colors)
     ax.set_xlabel("Aggregate score")
     ax.set_title("Figure B — Overall performance ranking (weighted mean)")
     ax.grid(True, which="both", ls=GRID_STYLE, axis="x")
@@ -356,46 +366,25 @@ def plot_ranking(
         table.to_csv(csv_path, index=False)
         print(f"✓ wrote {csv_path}")
 
-    # Additionally, write a Markdown summary with icons for metric winners
+    # Write simplified summary tables
     try:
-        winners = {}
-        for metric in METRICS:
-            idx = df[metric].idxmax()
-            if pd.notna(idx):
-                winners[metric] = (df.loc[idx, "embedding"], df.loc[idx, "llm"])  # raw
-
         ranked_md = ranked.copy()
-        # Icon columns for top performers per metric
-        for metric in METRICS:
-            emb_raw, llm_raw = winners.get(metric, (None, None))
-            if emb_raw is None:
-                ranked_md[f"top_{metric}"] = ""
-                continue
-            # Mark ✅ for the exact winning pair; 🔺 for those within 2% of the max
-            mmax = df[metric].max()
-            ranked_md[f"top_{metric}"] = ranked_md.apply(
-                lambda r: (
-                    "✅" if (r["embedding"] == emb_map.get(emb_raw, _shorten_embedding_label(emb_raw)) and r["llm"] == llm_map.get(llm_raw, _shorten_llm_label(llm_raw)))
-                    else ("🔺" if r[metric] >= 0.98 * mmax else "")
-                ),
-                axis=1,
-            )
 
         # Prepare Markdown table
         md_lines: List[str] = []
-        md_lines.append("| Rank | Pair | Faithfulness | Ans. Rel. | Ctx. Prec. | Ctx. Recall | Mean | F | AR | CP | CR |")
-        md_lines.append("|---:|:---|---:|---:|---:|---:|---:|:--:|:--:|:--:|:--:|")
+        md_lines.append("| Rank | Pair | Faithfulness | Ans. Rel. | Ctx. Prec. | Ctx. Recall | Mean |")
+        md_lines.append("|---:|:---|---:|---:|---:|---:|---:|")
         for i, r in enumerate(ranked_md.itertuples(index=False), start=1):
             pair = f"{r.embedding} | {r.llm}"
             md_lines.append(
-                f"| {i} | {pair} | {r.faithfulness:.3f} | {r.answer_relevancy:.3f} | {r.context_precision:.3f} | {r.context_recall:.3f} | {r.aggregate:.3f} | {getattr(r, 'top_faithfulness', '')} | {getattr(r, 'top_answer_relevancy', '')} | {getattr(r, 'top_context_precision', '')} | {getattr(r, 'top_context_recall', '')} |"
+                f"| {i} | {pair} | {r.faithfulness:.3f} | {r.answer_relevancy:.3f} | {r.context_precision:.3f} | {r.context_recall:.3f} | {r.aggregate:.3f} |"
             )
 
         md_path = outdir / "rank_summary.md"
         md_path.write_text("\n".join(md_lines), encoding="utf-8")
         print(f"✓ wrote {md_path}")
 
-        # Create an HTML table version with similar content and icons
+        # Create an HTML table version with simplified content
         html_rows: List[str] = []
         html_rows.append(
             "<table><thead><tr>"
@@ -406,7 +395,6 @@ def plot_ranking(
             "<th style='text-align:right'>Ctx. Prec.</th>"
             "<th style='text-align:right'>Ctx. Recall</th>"
             "<th style='text-align:right'>Mean</th>"
-            "<th>F</th><th>AR</th><th>CP</th><th>CR</th>"
             "</tr></thead><tbody>"
         )
         for i, r in enumerate(ranked_md.itertuples(index=False), start=1):
@@ -420,10 +408,6 @@ def plot_ranking(
                 f"<td style='text-align:right'>{r.context_precision:.3f}</td>"
                 f"<td style='text-align:right'>{r.context_recall:.3f}</td>"
                 f"<td style='text-align:right'>{r.aggregate:.3f}</td>"
-                f"<td>{getattr(r, 'top_faithfulness', '')}</td>"
-                f"<td>{getattr(r, 'top_answer_relevancy', '')}</td>"
-                f"<td>{getattr(r, 'top_context_precision', '')}</td>"
-                f"<td>{getattr(r, 'top_context_recall', '')}</td>"
                 "</tr>"
             )
         html_rows.append("</tbody></table>")
@@ -440,10 +424,6 @@ def plot_ranking(
             "Ctx. Prec.",
             "Ctx. Recall",
             "Mean",
-            "F",
-            "AR",
-            "CP",
-            "CR",
         ]
         cell_text: List[List[str]] = []
         for i, r in enumerate(ranked_md.itertuples(index=False), start=1):
@@ -455,30 +435,57 @@ def plot_ranking(
                 f"{r.context_precision:.3f}",
                 f"{r.context_recall:.3f}",
                 f"{r.aggregate:.3f}",
-                getattr(r, "top_faithfulness", ""),
-                getattr(r, "top_answer_relevancy", ""),
-                getattr(r, "top_context_precision", ""),
-                getattr(r, "top_context_recall", ""),
             ]
             cell_text.append(row)
 
         n_rows = len(cell_text)
         fig_h_in = max(2.5, min(18.0, 0.35 * n_rows))
-        fig_w_in = _mm_to_in(200)
+
+        # Calculate dynamic width based on longest pair name
+        max_pair_length = max(len(row[1]) for row in cell_text) if cell_text else 20
+        # Base width + extra width for long pair names (roughly 0.12" per character)
+        extra_width = max(0, (max_pair_length - 20) * 0.12)
+        fig_w_in = _mm_to_in(200) + extra_width
+        fig_w_in = min(fig_w_in, _mm_to_in(300))  # Cap at 300mm to prevent excessive width
+
         fig_tbl, ax_tbl = plt.subplots(figsize=(fig_w_in, fig_h_in))
         ax_tbl.axis("off")
+
+        # Use bbox to precisely position the table and minimize whitespace
         tbl = ax_tbl.table(
             cellText=cell_text,
             colLabels=table_cols,
             loc="center",
             cellLoc="center",
             colLoc="center",
+            bbox=[0.0, 0.0, 1.0, 1.0],  # Fill the entire axis area
         )
         tbl.auto_set_font_size(False)
         tbl.set_fontsize(8)
+
+        # Adjust column widths: make pair column wider, others narrower
+        n_cols = len(table_cols)
+        if n_cols > 0:
+            # Pair column gets more space, others get proportionally less
+            pair_col_width = min(0.35, 0.2 + (max_pair_length - 20) * 0.008)
+            other_col_width = (1.0 - pair_col_width) / (n_cols - 1)
+
+            for i in range(n_cols):
+                col_width = pair_col_width if i == 1 else other_col_width  # Column 1 is "Pair"
+                for j in range(n_rows + 1):  # +1 for header row
+                    tbl[(j, i)].set_width(col_width)
+
         tbl.scale(1.0, 1.3)
-        fig_tbl.suptitle("Figure E — Rank summary (best: ✅, within 2%: 🔺)", y=0.98)
-        _save(fig_tbl, outdir / "figure_E_rank_summary", fmt)
+
+        # Minimize whitespace with tighter layout
+        fig_tbl.subplots_adjust(top=0.85, bottom=0.05, left=0.02, right=0.98)  # Aggressive padding reduction
+        fig_tbl.suptitle("Figure E — Rank summary (best to worst)", y=0.92, fontsize=10)
+
+        # Save with manual layout (skip tight_layout for tables)
+        outname = (outdir / "figure_E_rank_summary").with_suffix(f".{fmt}")
+        fig_tbl.savefig(outname, dpi=DPI if fmt == "png" else None, bbox_inches="tight")
+        plt.close(fig_tbl)
+        print(f"✓ wrote {outname}")
     except Exception as e:
         print(f"⚠ Failed to write rank summary markdown: {e}")
 
