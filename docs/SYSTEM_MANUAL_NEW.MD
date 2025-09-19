@@ -37,8 +37,6 @@ To enable benchmarking against cloud models, you must acquire API keys from the 
 
 ### B.2.3 Required: Store API keys in Vast Account Environment Variables (do not put secrets in templates)
 
-Vast.ai templates should not contain API keys. Templates that include secrets can be blocked from saving and may show the error "Failed to create template!". Instead, add all provider keys in your Vast console; they will be injected into every instance automatically as secrets and are available to the system at runtime.
-
 1. In the Vast console, go to: Account → Environment Variables → Add Variable.
 2. Paste the following block and replace placeholders with your values:
 
@@ -106,7 +104,7 @@ docker logs ollama
 docker logs rag-api-bge
 ```
 
-**SSH Connection Gotchas**:
+**SSH Connection Information**:
 - Vast.ai VMs use non-standard SSH ports (usually 10000+)
 - SSH host keys change between VM instances - remove old entries: `ssh-keygen -R [host]:port`
 - Some IDEs struggle with non-standard ports - use SSH config file
@@ -129,7 +127,7 @@ cd /root/on-premise-slm
 ./scripts/vm-preload.sh http://localhost:11434  # Downloads models
 ```
 
-**Environment Handling**: The `vm-write-env.sh` script sources `/etc/environment` and Vast.ai account variables, then writes a `.env` file with API keys. **Never put secrets in Vast.ai templates** - use Account → Environment Variables instead.
+**Environment Handling**: The `vm-write-env.sh` script sources `/etc/environment` and Vast.ai account variables, then writes a `.env` file with API keys.
 
 ### B.4.3 Service Health Checks
 
