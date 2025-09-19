@@ -138,7 +138,6 @@ services:
       - OLLAMA_BASE_URL=http://host.docker.internal:11434
       - WEBUI_SECRET_KEY=your-secret-key-here
       - WEBUI_NAME=RAG Evaluation WebUI
-      - WEBUI_AUTH=False
     extra_hosts:
       - "host.docker.internal:host-gateway"
     container_name: open-webui
