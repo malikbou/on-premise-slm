@@ -1,7 +1,6 @@
 # Appendix B: System Manual
 
 This manual provides step-by-step instructions for system administrators to deploy and manage the on-premise Small Language Model (SLM) orchestration system on Vast.ai.
-It assumes familiarity with basic Linux commands but **no prior GPU/VM expertise**.
 
 ---
 
@@ -15,6 +14,7 @@ The system runs as a multi-container application using Docker Compose:
 - **litellm** – Unified OpenAI-compatible proxy, routes requests locally or to cloud APIs.
 - **open-webui** – Web interface for users to chat with models.
 - **index-builder** – One-time job to create FAISS indexes from documents.
+- **benchmarker / throughput-runner** – Scripts for evaluation.
 
 **Flow:**
 Documents → Index Builder → RAG APIs → LiteLLM Proxy → OpenWebUI.
@@ -26,8 +26,8 @@ Documents → Index Builder → RAG APIs → LiteLLM Proxy → OpenWebUI.
 ### B.2.1 Vast.ai Account
 1. Create an account: [Vast.ai](https://vast.ai/)
 2. Add credits (recommended: $10 for testing).
-3. [Add your public SSH key](https://vast.ai/docs/ssh-keys/) in account settings.
-   - This ensures WHAT EXACTLY??
+3. [Add your public SSH key](https://vast.ai/docs/ssh-keys/) to account settings.
+   - This allows passwordless login to rented VMs via SSH.
 
 ### B.2.2 API Keys
 Obtain API keys if you plan to benchmark against cloud providers:
@@ -62,17 +62,15 @@ This ensures secrets are available inside the VM at runtime.
 ## B.3 Launching on Vast.ai
 
 ### B.3.1 Apply Template
-1. Navigate to the ready-made template: [Vast.ai On-Premise Template](https://cloud.vast.ai?ref_id=274010&template_id=609448d4f98ab33f7b4c3f8a8477c2ed)
+1. Navigate to the template: [Vast.ai On-Premise Template](https://cloud.vast.ai?ref_id=274010&template_id=609448d4f98ab33f7b4c3f8a8477c2ed)
 2. Apply filters:
    * #GPUs: 1x
    * Location: Europe
    * Sort: Price (inc.)
-3. Scroll until you reach "1x RTX 4090" and click "Rent"
+3. Select **1x RTX 4090** and click **Rent**.
 
 ### B.3.2 Start VM
-1. Rent the instance.
-2. Vast.ai automatically runs the **on-start script**, which:
-
+Vast.ai automatically executes an on-start script:
    * Installs dependencies (Docker, NVIDIA toolkit).
    * Clones the project repo to `/root/on-premise-slm`.
    * Writes `.env` from your account variables.
@@ -80,7 +78,7 @@ This ensures secrets are available inside the VM at runtime.
    * Preloads models into **ollama**.
    * Builds FAISS indexes.
 
-Allow \~5–10 minutes for setup.
+Allow \~5–10 minutes.
 
 ---
 
@@ -110,8 +108,33 @@ curl -s http://localhost:4000/v1/models | jq .
 curl -s http://localhost:8001/info | jq .
 ```
 
-All should return JSON.
+### B.4.4 If Health Checks Fail
 
+Run recovery scripts:
+
+```bash
+cd /root/on-premise-slm
+./scripts/vm-quickstart.sh
+```
+
+Or step-by-step:
+```bash
+cd /root/on-premise-slm
+./scripts/vm-write-env.sh
+./scripts/vm-core-up.sh
+./scripts/vm-preload.sh http://localhost:11434
+./scripts/vm-build-indexes.sh
+```
+
+Check GPU:
+```bash
+nvidia-smi
+```
+
+If Ollama is not using GPU:
+```bash
+docker restart ollama
+```
 ---
 
 ## B.5 Accessing OpenWebUI
@@ -122,7 +145,7 @@ OpenWebUI provides the main user interface.
 
 1. In Vast.ai console → Instance → **IP Port Info**.
 2. Look for mapping like: `90.240.219.112:28244 → 3000/tcp`.
-3. Open browser at:
+3. Open:
 
    ```
    http://90.240.219.112:28244
@@ -131,62 +154,95 @@ OpenWebUI provides the main user interface.
 ### B.5.2 First-Time Setup
 
 1. Create an **admin account**.
-2. Configure models:
+2. Configure:
 
-   * Disable unused defaults.
-   * Enable only `rag/api/bge`.
-   * Upload **suggested prompts** (provided with system).
+   * **Admin Settings → Connections → Manage OpenAI API Connections → +**
 
-> **Tip:** Take a screenshot of the Vast.ai port mapping for clarity.
+     * Add: `http://rag-api-bge:8000/v1` → Save
+   * Disable **Ollama API**.
+   * **Models tab:** Disable cloud models if desired.
+   * **Interface → Import Prompt Suggestions:**
+     Upload `data/prompt-suggestions/prompt-suggestions-ucl-cs-handbook.json`.
+   * **Add additional users:**
+     Navbar → **Users** → **+** → **Add User** (provide email & password).
+
+3. Start using the app:
+
+   * Home icon → run a suggested prompt.
+   * If slow: run `nvidia-smi` and restart Ollama.
+
 
 ---
 
-## B.6 Development & Monitoring
+## B.6 Running Evaluations
 
-### B.6.1 Logs
+### B.6.1 Lightweight Local Benchmark
 
 ```bash
-docker logs open-webui
-docker logs rag-api-bge
+docker compose -f docker-compose.yml -f docker-compose.vm.yml run --rm benchmarker
 ```
 
-### B.6.2 GPU Monitoring
+### B.6.2 Lightweight Throughput
 
 ```bash
-nvidia-smi
+docker compose -f docker-compose.yml -f docker-compose.vm.yml run --rm throughput-runner
 ```
 
-Expect \~6–7 GB VRAM usage with Ollama loaded.
+### B.6.3 Full Benchmark (5+ hrs, includes cloud models)
 
-### B.6.3 Remote Editing
+```bash
+docker compose -f docker-compose.yml -f docker-compose.vm.yml run --rm benchmarker --preset full
+```
 
-Use **VS Code Remote SSH** or Cursor to connect to the VM.
-Path: `/root/on-premise-slm`.
+### B.6.4 Full Throughput (5+ hrs)
 
----
-
-## B.7 Troubleshooting
-
-* **OpenWebUI not loading**:
-
-  * Check `docker ps` → ensure `open-webui` running.
-  * Run `docker port open-webui` → confirm mapping.
-* **Curl checks fail**:
-
-  * Check logs of the failing service.
-* **CUDA errors**:
-
-  * Restart `ollama`:
-
-    ```bash
-    docker restart ollama
-    ```
+```bash
+docker compose -f docker-compose.yml -f docker-compose.vm.yml run --rm throughput-runner --preset full
+```
 
 ---
 
-## B.8 Source Code
+## B.7 Results and Graphs
 
-The complete source is available at:
+Results saved under `/root/on-premise-slm/results`.
+
+### B.7.1 View Files
+
+```bash
+ls results/
+```
+
+### B.7.2 Generate Graphs
+
+```bash
+python src/plotting/plot_results.py results/<filename>.json
+```
+
+### B.7.3 Export Results
+
+From local machine:
+
+```bash
+scp -P <PORT> root@<HOST_IP>:/root/on-premise-slm/results/* ./results/
+```
+
+---
+
+## B.8 Common Issues & Fixes
+
+| Issue             | Fix                                                 |
+| ----------------- | --------------------------------------------------- |
+| WebUI not loading | `docker logs open-webui`, check port mapping        |
+| Curl checks fail  | `./scripts/vm-quickstart.sh`                        |
+| GPU idle          | `nvidia-smi`; if idle → `docker restart ollama`     |
+| FAISS error       | `./scripts/vm-build-indexes.sh`                     |
+| Missing API keys  | `./scripts/vm-write-env.sh` after updating env vars |
+
+---
+
+## B.9 Source Code
+
+Complete source code:
 [GitHub Repository](https://github.com/your-repo-link)
 
 ---
