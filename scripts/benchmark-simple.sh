@@ -17,7 +17,7 @@ docker compose -f docker-compose.yml -f docker-compose.vm.yml up -d \
 
 # Run simple benchmark using the container's built-in command + our flags
 docker compose -f docker-compose.yml -f docker-compose.vm.yml \
-  run --rm benchmarker python -u src/benchmarking/benchmark.py --preset vm --mode generate --num-questions 5 \
-  --models  "ollama/hf.co/bartowski/Llama-3.2-3B-Instruct-GGUF:Q4_K_M,ollama/hf.co/tiiuae/Falcon3-3B-Instruct-GGUF:Q4_K_M,ollama/hf.co/Qwen/Qwen2.5-3B-Instruct-GGUF:Q4_K_M"
+  run --rm benchmarker python -u src/benchmarking/benchmark.py --preset vm --num-questions 3 \
+  --models  "ollama/hf.co/tiiuae/Falcon3-3B-Instruct-GGUF:Q4_K_M,ollama/hf.co/Qwen/Qwen2.5-3B-Instruct-GGUF:Q4_K_M"
 
 echo "[benchmark-simple] Done. See results under results/benchmarking/"
