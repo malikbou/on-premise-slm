@@ -201,7 +201,7 @@ With a remote IDE connection, you can easily trigger the full benchmarking scrip
 
 ```bash
 # From a terminal in your IDE or an SSH session:
-docker-compose -f docker-compose.yml -f docker-compose.vm.yml run --rm benchmarker
+docker compose -f docker-compose.yml -f docker-compose.vm.yml run --rm benchmarker
 ```
 
 **Performance and Throughput Evaluation:**
@@ -209,7 +209,7 @@ docker-compose -f docker-compose.yml -f docker-compose.vm.yml run --rm benchmark
 ```bash
 # Edit the command in docker-compose.vm.yml for the `throughput-runner`
 # service to specify the models and parameters you wish to test.
-docker-compose -f docker-compose.yml -f docker-compose.vm.yml run --rm throughput-runner
+docker compose -f docker-compose.yml -f docker-compose.vm.yml run --rm throughput-runner
 ```
 
 Results will be saved to the `results/` directory.
