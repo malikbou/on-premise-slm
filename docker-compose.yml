@@ -41,6 +41,7 @@ services:
 
   benchmarker:
     build: .
+    profiles: ["benchmark"]
     command: ["python", "src/benchmarking/benchmark.py"]
     volumes:
       - ./src:/app/src
@@ -142,19 +143,6 @@ services:
       - "host.docker.internal:host-gateway"
     container_name: open-webui
     restart: unless-stopped
-
-  ollama-benchmark:
-    build: .
-    command: ["python", "src/ollama_benchmark.py", "--questions", "5", "--concurrency", "2"]
-    volumes:
-      - ./src:/app/src
-      - ./testset:/app/testset:ro
-      - ./results:/app/results
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    container_name: ollama-benchmark
-    env_file:
-      - .env
 
 volumes:
   rag_cache:
