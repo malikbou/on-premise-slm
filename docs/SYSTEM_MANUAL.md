@@ -128,7 +128,7 @@ cd /root/on-premise-slm
 
 Check GPU:
 ```bash
-nvidia-smi
+watch -n 0.5 nvidia-smi
 ```
 
 If Ollama is not using GPU:
@@ -179,25 +179,25 @@ OpenWebUI provides the main user interface.
 ### B.6.1 Lightweight Local Benchmark
 
 ```bash
-docker compose -f docker-compose.yml -f docker-compose.vm.yml run --rm benchmarker
+./scripts/benchmark-simple.sh
 ```
 
 ### B.6.2 Lightweight Throughput
 
 ```bash
-docker compose -f docker-compose.yml -f docker-compose.vm.yml run --rm throughput-runner
+./scripts/throughput-simple.sh
 ```
 
 ### B.6.3 Full Benchmark (5+ hrs, includes cloud models)
 
 ```bash
-docker compose -f docker-compose.yml -f docker-compose.vm.yml run --rm benchmarker --preset full
+./scripts/benchmark-full.sh
 ```
 
 ### B.6.4 Full Throughput (5+ hrs)
 
 ```bash
-docker compose -f docker-compose.yml -f docker-compose.vm.yml run --rm throughput-runner --preset full
+./scripts/throughput-full.sh
 ```
 
 ---
