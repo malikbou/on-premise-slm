@@ -226,6 +226,21 @@ From local machine:
 scp -P <PORT> root@<HOST_IP>:/root/on-premise-slm/results/* ./results/
 ```
 
+### B.7.4 Remote Editing with VS Code / Cursor
+
+For easier development and inspection of files, you can connect directly to the VM via SSH from your IDE.
+
+- **VS Code:** Use the [Remote - SSH extension](https://code.visualstudio.com/docs/remote/ssh).
+- **Cursor:** Cursor has built-in support for remote SSH (see [cursor.com](https://www.cursor.com/)).
+
+Once connected, open the folder:
+```bash
+/root/on-premise-slm
+```
+
+This allows you to edit files, run scripts, and monitor logs directly from your IDE.
+
+
 ---
 
 ## B.8 Common Issues & Fixes
