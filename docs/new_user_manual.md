@@ -1,6 +1,6 @@
 # Open WebUI User Guide
 
-This guide is for end-users who want to interact with the RAG system through the Open WebUI interface. It assumes the system has already been set up by an administrator.
+This guide is for users who want to interact with the RAG system through the Open WebUI interface. It assumes the system has already been set up by an administrator. (SYSTEM MANUAL REFERENCE)
 
 ## A.1 Getting Started
 
@@ -25,31 +25,16 @@ This guide is for end-users who want to interact with the RAG system through the
    - Choose a username and password
    - **Note**: The first user becomes the admin
 
-2. **Admin vs Regular Users**
-   - **Admin**: Can configure models and manage users
-   - **Regular users**: Can chat with available models
-
 ## A.2 Using the Chat Interface
 
 ### A.2.1 Selecting Models
 
 You'll see different types of models available:
 
-**🤖 RAG-Enabled Models** (Recommended for handbook questions)
+**RAG-Enabled Models** (Recommended for handbook questions)
 - Names like: `ollama/phi3:mini`, `ollama/phi-4:mini`
 - **Best for**: Questions about course information, deadlines, procedures
 - **Features**: Retrieves relevant information from handbook documents
 
-**☁️ Cloud Models** (General purpose)
-- Names like: `gpt-4o-mini`, `claude-opus`
-- **Best for**: General knowledge, coding help, creative tasks
-- **Note**: May not have access to local handbook information
-
 ### A.2.2 Getting Better Answers
-
-**For Handbook/Course Questions:**
-- ✅ Use RAG-enabled models (`ollama/` models)
-- ✅ Be specific: "When is the CS dissertation deadline?"
-- ✅ Ask follow-up questions for clarification
-
-**Examples of Good Questions:**
+**Examples of Questions:**
