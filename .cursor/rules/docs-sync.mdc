@@ -1,18 +1,14 @@
 ---
-description: Auto-propose updates to USER_MANUAL, SYSTEM_MANUAL, and README when behavior changes
+description: Auto-propose updates to README when behavior changes
 globs:
   - src/**
   - scripts/**
   - config.yaml
   - README.md
-  - docs/USER_MANUAL.md
-  - docs/SYSTEM_MANUAL.md
 alwaysApply: false
 ---
 
 - When diffs in `src/**` or `scripts/**` affect behavior, propose precise edits to:
-  - `docs/USER_MANUAL.md`: user flows, flags/CLI changes, UI/API examples, screenshots placeholders.
-  - `docs/SYSTEM_MANUAL.md`: architecture, build/run commands, env vars, services, config keys/paths.
   - `README.md`: quickstart, features summary, entrypoints, minimal examples.
 
 - Triggers indicating behavior change (non-exhaustive):
