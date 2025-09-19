@@ -214,6 +214,81 @@ docker compose -f docker-compose.yml -f docker-compose.vm.yml run --rm throughpu
 
 Results will be saved to the `results/` directory.
 
+## B.5.3 Accessing Open WebUI
+
+Open WebUI provides a user-friendly web interface for interacting with your RAG system and testing models. After deployment, you can access it through your browser.
+
+### Finding Your Open WebUI URL
+
+**Important**: Vast.ai maps internal container ports to random external ports. You cannot access Open WebUI directly on port 3000.
+
+1. **Get Port Mapping Information**:
+   - In your Vast.ai console, navigate to your running instance
+   - Click the **"IP Port Info"** button at the top of the instance details
+   - Look for the port mapping that shows: `YOUR_IP:XXXXX -> 3000/tcp`
+
+2. **Access Open WebUI**:
+   - Use the external port number from the mapping above
+   - Open your browser and navigate to: `http://YOUR_IP:XXXXX`
+   - Example: If you see `90.240.219.112:28244 -> 3000/tcp`, then access `http://90.240.219.112:28244`
+
+### Initial Setup
+
+1. **First-Time Access**: Open WebUI will prompt you to create an admin account on your first visit
+2. **Configure Models**: Once logged in, you can configure access to:
+   - Local Ollama models via the containerized Ollama service
+   - RAG-enabled models through the FastAPI endpoints
+   - Cloud models via the LiteLLM proxy
+
+### Troubleshooting Open WebUI Access
+
+**If Open WebUI is not accessible**:
+
+```bash
+# 1. Verify the container is running
+docker ps | grep open-webui
+
+# 2. Check container logs for errors
+docker logs open-webui
+
+# 3. Test local access from within the VM
+curl -I http://localhost:3000
+
+# 4. Verify port mapping
+docker port open-webui
+```
+
+**Expected output for healthy Open WebUI**:
+```bash
+# docker port open-webui should show:
+8080/tcp -> 0.0.0.0:3000
+
+# curl -I http://localhost:3000 should return:
+HTTP/1.1 200 OK
+server: uvicorn
+```
+
+### Alternative Access Method: SSH Tunnel
+
+If you prefer to access Open WebUI through an SSH tunnel:
+
+```bash
+# From your local machine
+ssh -p YOUR_SSH_PORT root@YOUR_VM_IP -L 3000:localhost:3000
+```
+
+Then access `http://localhost:3000` in your local browser.
+
+### Port Reference
+
+Your Vast.ai instance exposes the following services (check "IP Port Info" for actual external ports):
+
+- **Open WebUI**: Internal port 3000 (mapped to random external port)
+- **RAG API (BGE)**: Internal port 8001 (mapped to random external port)
+- **RAG API (E5)**: Internal port 8003 (mapped to random external port)
+- **LiteLLM Proxy**: Internal port 4000 (mapped to random external port)
+- **Ollama**: Internal port 11434 (mapped to random external port)
+
 ## B.6 Source Code
 
 The complete source code for this project is available in a public Git repository: https://github.com/malikbou/on-premise-slm
