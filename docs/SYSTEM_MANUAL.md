@@ -1,213 +1,263 @@
-# System Manual: Technical Implementation
+# Appendix B: System Manual
 
-## Architecture Overview
+This manual provides step-by-step instructions for system administrators to deploy and manage the on-premise Small Language Model (SLM) orchestration system on Vast.ai.
 
-### Core Components
-1. **RAG API** (`src/main.py`): FastAPI service with retrieval and generation
-2. **Index Builder** (`src/build_index.py`): FAISS vector store creation
-3. **RAGAS Benchmarker** (`src/benchmarking/benchmark.py`): Quality evaluation with parallel metrics
-4. **Throughput Tester** (`load-testing/openai_llm_benchmark.py`): Performance analysis
-5. **Results Visualizer** (`src/benchmarking/plot_rag_results.py`): Figure generation from RAG evaluation
+---
 
-### Service Architecture
-```
-┌─────────────────┐    ┌──────────────┐    ┌─────────────┐
-│   LiteLLM       │    │   RAG API    │    │   Ollama    │
-│   (Proxy)       │◄──►│   (FastAPI)  │◄──►│   (Models)  │
-└─────────────────┘    └──────────────┘    └─────────────┘
-         │                       │
-         ▼                       ▼
-┌─────────────────┐    ┌──────────────┐
-│   OpenAI API    │    │   FAISS      │
-│   (Evaluation)  │    │   (Vector DB)│
-└─────────────────┘    └──────────────┘
-```
+## B.1 System Overview
 
-## API Documentation
+**Architecture at a Glance**
+The system runs as a multi-container application using Docker Compose:
 
-### RAG Query Endpoint
+- **ollama** – Serves local SLMs and embedding models (GPU-accelerated).
+- **rag-api-{embedder}** – FastAPI services for retrieval using FAISS indexes.
+- **litellm** – Unified OpenAI-compatible proxy, routes requests locally or to cloud APIs.
+- **open-webui** – Web interface for users to chat with models.
+- **index-builder** – One-time job to create FAISS indexes from documents.
+- **benchmarker / throughput-runner** – Scripts for evaluation.
+
+**Flow:**
+Documents → Index Builder → RAG APIs → LiteLLM Proxy → OpenWebUI.
+
+---
+
+## B.2 Prerequisites
+
+### B.2.1 Vast.ai Account
+1. Create an account: [Vast.ai](https://vast.ai/)
+2. Add credits (recommended: $10 for testing).
+3. [Add your public SSH key](https://vast.ai/docs/ssh-keys/) to account settings.
+   - This allows passwordless login to rented VMs via SSH.
+
+### B.2.2 API Keys
+Obtain API keys if you plan to benchmark against cloud providers:
+
+- [OpenAI](https://platform.openai.com/account/api-keys)
+- [Anthropic](https://console.anthropic.com/settings/keys)
+- [Google Gemini](https://aistudio.google.com/app/apikey)
+
+### B.2.3 Setting Environment Variables
+In the Vast.ai console:
+**Account → Environment Variables → Add Variable**
+
+Paste the following (replace placeholders with your keys):
+
 ```bash
-POST /query
-Content-Type: application/json
+OPENAI_API_KEY=xxxx
+ANTHROPIC_API_KEY=xxxx
+GEMINI_API_KEY=xxxx
+AZURE_OPENAI_API_BASE=https://emtechfoundrytrial2.cognitiveservices.azure.com
+AZURE_OPENAI_API_VERSION=2024-12-01-preview
+AZURE_OPENAI_API_KEY=XXXX
+AZURE_OPENAI_API_BASE_4_1=https://llm-benchmarking.cognitiveservices.azure.com
+AZURE_OPENAI_API_VERSION_4_1=2025-01-01-preview
+AZURE_OPENAI_API_KEY_4_1=XXXX
+````
 
-{
-  "question": "string",
-  "model_name": "string"  # Local SLM: "ollama/<ollama-model-id>", Cloud: LiteLLM alias (e.g., "azure-gpt5")
-}
-```
+This ensures secrets are available inside the VM at runtime.
+**Do not hardcode secrets into templates.**
 
-- Model naming semantics:
-  - Local SLMs: pass as `ollama/<ollama-model-id>` (e.g., `ollama/hf.co/bartowski/Llama-3.2-3B-Instruct-GGUF:Q4_K_M`).
-  - Cloud models: pass the LiteLLM alias directly (e.g., `azure-gpt5`, `gemini-2.5-pro`, `claude-opus-4-1-20250805`).
+---
 
-### Info
+## B.3 Launching on Vast.ai
+
+### B.3.1 Apply Template
+1. Navigate to the template: [Vast.ai On-Premise Template](https://cloud.vast.ai?ref_id=274010&template_id=609448d4f98ab33f7b4c3f8a8477c2ed)
+2. Apply filters:
+   * #GPUs: 1x
+   * Location: Europe
+   * Sort: Price (inc.)
+3. Select **1x RTX 4090** and click **Rent**.
+
+### B.3.2 Start VM
+Vast.ai automatically executes an on-start script:
+   * Installs dependencies (Docker, NVIDIA toolkit).
+   * Clones the project repo to `/root/on-premise-slm`.
+   * Writes `.env` from your account variables.
+   * Launches Docker stack with `docker-compose.yml` + `docker-compose.vm.yml`.
+   * Preloads models into **ollama**.
+   * Builds FAISS indexes.
+
+Allow \~5–10 minutes.
+
+---
+
+## B.4 Verification
+
+### B.4.1 Connect via SSH
+
 ```bash
-GET /info
-```
-Response fields:
-```json
-{
-  "index_dir": "/app/.rag_cache/<embedding_slug>/faiss_index",
-  "embedding_model": "<embedding-id>",
-  "ollama_base_url": "http://ollama:11434",
-  "litellm_api_base": "http://litellm:4000"
-}
+ssh -p <PORT> root@<HOST_IP>
 ```
 
-### Health Check
+(Find port and IP in Vast.ai console → **Instances** → **Connect**.)
+
+### B.4.2 Check Services
+
 ```bash
-GET /health
+docker ps
 ```
 
-## Configuration Reference
+Expected containers: `ollama`, `litellm`, `rag-api-bge`, `rag-api-qwen3`, `rag-api-e5`, `open-webui`.
 
-### Docker Services
-- `litellm`: LLM proxy and routing
-- `rag-api`: Main RAG application
-- `index-builder`: Vector store preparation
-- `benchmarker`: RAGAS evaluation
+### B.4.3 Quick Health Checks
 
-LiteLLM routing (from `config.yaml`):
-- Requests with `model_name` starting `ollama/*` are forwarded to `OLLAMA_BASE_URL`.
-- Aliases: `azure-gpt5`, `gemini-2.5-pro`, `claude-opus-4-1-20250805` map to their providers.
-
-### Environment Variables
 ```bash
-OLLAMA_BASE_URL=http://ollama:11434
-OPENAI_API_KEY=your_key_here
-PLATFORM=auto  # auto, mac_local, vast_ai_gpu
-MEMORY_MANAGEMENT=auto  # auto, aggressive, relaxed, minimal
-INDEX_DIR=.rag_cache/<embedding_slug>/faiss_index
-EMBEDDING_MODEL=hf.co/Qwen/Qwen3-Embedding-0.6B-GGUF:Q8_0
-LITELLM_API_BASE=http://litellm:4000
+curl -s http://localhost:11434/api/version | jq .
+curl -s http://localhost:4000/v1/models | jq .
+curl -s http://localhost:8001/info | jq .
 ```
 
-### Index Build CLI
-Build FAISS indexes before starting the API.
+### B.4.4 If Health Checks Fail
+
+Run recovery scripts:
+
 ```bash
-# Mac host (containers call host Ollama)
-docker compose up -d litellm
-docker compose run --rm -e OLLAMA_BASE_URL=http://host.docker.internal:11434 index-builder --preset local
-
-# VM (inside Docker network)
-docker compose -f docker-compose.yml -f docker-compose.vm.yml run --rm \
-  -e OLLAMA_BASE_URL=http://ollama:11434 \
-  index-builder --preset vm
+cd /root/on-premise-slm
+./scripts/vm-quickstart.sh
 ```
 
-## Cross-Platform Deployment
-
-### Mac Local (Development)
-- CPU/MPS fallback when no GPU available
-- Relaxed memory management
-- Smaller batch sizes for testing
-
-### Vast.ai GPU VM (Production)
-- CUDA optimization with 12GB VRAM management
-- Aggressive memory cleanup between models
-- Full-scale benchmarking capabilities
-- Compose profiles for on-demand runs: `benchmarker` and `throughput-runner`
-- Helper scripts: `scripts/run-benchmarks.sh`, `scripts/run-throughput.sh`, `scripts/fetch-results.sh`
-
-## Technical Implementation Details
-
-### GPU Memory Management
-- Automatic model unloading after evaluation
-- Memory monitoring at key stages
-- Platform-specific optimization
-
-### Evaluation Framework
-- RAGAS metrics: Answer relevancy, faithfulness, context recall/precision
-- Parallel processing with ThreadPoolExecutor
-- Memory-optimized testset loading
-
-### Results Visualization
-RAG Quality Figures
-- Input: `results/benchmarking/TIMESTAMP/summary.json`
-- Output: `results/benchmarking/TIMESTAMP/figures/` (Figures A–E + CSV/MD/HTML)
-- CLI:
+Or step-by-step:
 ```bash
-python src/benchmarking/plot_rag_results.py results/benchmarking/TIMESTAMP/summary.json -f png
+cd /root/on-premise-slm
+./scripts/vm-write-env.sh
+./scripts/vm-core-up.sh
+./scripts/vm-preload.sh http://localhost:11434
+./scripts/vm-build-indexes.sh
 ```
 
-Throughput Figures (Simple Plotter)
-- Input: `results/runs/TIMESTAMP_PLATFORM/throughput/benchmark-results.csv`
-- Optional: `results/runs/TIMESTAMP_PLATFORM/throughput/system-info.json`
-- Output: `results/runs/TIMESTAMP_PLATFORM/throughput/charts/`
-- CLI:
+Check GPU:
 ```bash
-python src/throughput/plot_simple.py \
-  results/runs/TIMESTAMP_PLATFORM/throughput/benchmark-results.csv \
-  -s results/runs/TIMESTAMP_PLATFORM/throughput/system-info.json -f png
+nvidia-smi
 ```
 
-Throughput Runner (RAG default)
-- Default `--mode` is `rag`
-- Default RAG API base: `http://localhost:8001`
-- Produces `benchmark-results.csv` with `mode`, `provider`, `rps`, `latency_p95_s`
-- CLI examples:
+If Ollama is not using GPU:
 ```bash
-# VM: quick test (inside compose network)
-docker compose -f docker-compose.yml -f docker-compose.vm.yml run --rm throughput-runner \
-  python -u src/throughput/runner.py --mode llm --platform-preset vm \
-  --ollama-base http://ollama:11434 --litellm http://litellm:4000 \
-  --cloud-models "azure-gpt5,gemini-2.5-pro,claude-opus-4-1-20250805" \
-  --requests 1 --repetitions 1 --concurrency 1
+docker restart ollama
+```
+---
 
-# VM: full benchmark
-docker compose -f docker-compose.yml -f docker-compose.vm.yml run --rm throughput-runner \
-  python -u src/throughput/runner.py --mode llm --platform-preset vm \
-  --ollama-base http://ollama:11434 --litellm http://litellm:4000 \
-  --cloud-models "azure-gpt5,gemini-2.5-pro,claude-opus-4-1-20250805" \
-  --requests 2048 --repetitions 2 --concurrency 1,2,4,8,16,32,64,128,256,512,1024
+## B.5 Accessing OpenWebUI
 
-# VM: medium run
-docker compose -f docker-compose.yml -f docker-compose.vm.yml run --rm throughput-runner \
-  python -u src/throughput/runner.py --mode llm --platform-preset vm \
-  --ollama-base http://ollama:11434 --litellm http://litellm:4000 \
-  --cloud-models "azure-gpt5,gemini-2.5-pro,claude-opus-4-1-20250805" \
-  --requests 160 --repetitions 3 --concurrency 1,2,4,8,16
+OpenWebUI provides the main user interface.
+
+### B.5.1 Find External URL
+
+1. In Vast.ai console → Instance → **IP Port Info**.
+2. Look for mapping like: `90.240.219.112:28244 → 3000/tcp`.
+3. Open:
+
+   ```
+   http://90.240.219.112:28244
+   ```
+
+### B.5.2 First-Time Setup
+
+1. Create an **admin account**.
+2. Configure:
+
+   * **Admin Settings → Connections → Manage OpenAI API Connections → +**
+
+     * Add: `http://rag-api-bge:8000/v1` → Save
+   * Disable **Ollama API**.
+   * **Models tab:** Disable cloud models if desired.
+   * **Interface → Import Prompt Suggestions:**
+     Upload `data/prompt-suggestions/prompt-suggestions-ucl-cs-handbook.json`.
+   * **Add additional users:**
+     Navbar → **Users** → **+** → **Add User** (provide email & password).
+
+3. Start using the app:
+
+   * Home icon → run a suggested prompt.
+   * If slow: run `nvidia-smi` and restart Ollama.
+
+
+---
+
+## B.6 Running Evaluations
+
+### B.6.1 Lightweight Local Benchmark
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.vm.yml run --rm benchmarker
 ```
 
-## Open WebUI Integration
+### B.6.2 Lightweight Throughput
 
-Use Open WebUI as the chat frontend while retrieval and routing stay in the RAG API and LiteLLM.
+```bash
+docker compose -f docker-compose.yml -f docker-compose.vm.yml run --rm throughput-runner
+```
 
-### General settings (one-time)
+### B.6.3 Full Benchmark (5+ hrs, includes cloud models)
 
-Open WebUI → General:
+```bash
+docker compose -f docker-compose.yml -f docker-compose.vm.yml run --rm benchmarker --preset full
+```
 
-- OpenAI API → Manage OpenAI API Connections:
-  - Add: `https://api.openai.com/v1` (optional, for direct OpenAI usage)
-  - Add: `http://rag-api-bge:8000/v1` (RAG API OpenAI-compatible surface)
-    - This points to the FastAPI `/v1` endpoints implemented in `src/main.py`.
+### B.6.4 Full Throughput (5+ hrs)
 
-- Ollama API → Manage Ollama API Connections:
-  - Add: `http://host.docker.internal:11434` (Mac host Ollama from within container)
-  - VM variant: `http://ollama:11434` (if Ollama runs as a container in the same network)
+```bash
+docker compose -f docker-compose.yml -f docker-compose.vm.yml run --rm throughput-runner --preset full
+```
 
-- Direct Connections:
-  - Allow users to connect their own OpenAI-compatible endpoints.
+---
 
-- Cache Base Model List:
-  - If enabled, base models are fetched at startup/save only. Faster UI, but won’t show new models until next refresh/save.
+## B.7 Results and Graphs
 
-Settings are persisted in the `open_webui_data` volume and survive restarts.
+Results saved under `/root/on-premise-slm/results`.
 
-### Model selection and RAG toggle
+### B.7.1 View Files
 
-- In a new chat, select a model returned by `/v1/models` (e.g., `ollama/<model-id>` or a LiteLLM cloud alias like `gpt-4o-mini`).
-- Disable Open WebUI’s built-in RAG for these models to avoid double context injection:
-  - Settings → Documents/RAG → turn off document ingestion/RAG for these models.
+```bash
+ls results/
+```
 
-### Streaming
+### B.7.2 Generate Graphs
 
-- The RAG API supports SSE streaming on `/v1/chat/completions` (`stream=true`). Open WebUI will display tokens as they arrive and terminates on `[DONE]`.
+```bash
+python src/plotting/plot_results.py results/<filename>.json
+```
 
-### References
+### B.7.3 Export Results
 
-- Open WebUI: https://docs.openwebui.com/
-- Enhanced RAG guidance: https://docs.openwebui.com/features/rag#enhanced-rag-pipeline
-- HTTPS/WebSockets (if fronted by Nginx): https://docs.openwebui.com/tutorials/https-nginx
+From local machine:
 
-*This manual is automatically updated by agents when technical changes occur.*
+```bash
+scp -P <PORT> root@<HOST_IP>:/root/on-premise-slm/results/* ./results/
+```
+
+### B.7.4 Remote Editing with VS Code / Cursor
+
+For easier development and inspection of files, you can connect directly to the VM via SSH from your IDE.
+
+- **VS Code:** Use the [Remote - SSH extension](https://code.visualstudio.com/docs/remote/ssh).
+- **Cursor:** Cursor has built-in support for remote SSH (see [cursor.com](https://www.cursor.com/)).
+
+Once connected, open the folder:
+```bash
+/root/on-premise-slm
+```
+
+This allows you to edit files, run scripts, and monitor logs directly from your IDE.
+
+
+---
+
+## B.8 Common Issues & Fixes
+
+| Issue             | Fix                                                 |
+| ----------------- | --------------------------------------------------- |
+| WebUI not loading | `docker logs open-webui`, check port mapping        |
+| Curl checks fail  | `./scripts/vm-quickstart.sh`                        |
+| GPU idle          | `nvidia-smi`; if idle → `docker restart ollama`     |
+| FAISS error       | `./scripts/vm-build-indexes.sh`                     |
+| Missing API keys  | `./scripts/vm-write-env.sh` after updating env vars |
+
+---
+
+## B.9 Source Code
+
+Complete source code:
+[GitHub Repository](https://github.com/your-repo-link)
+
+---

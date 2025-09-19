@@ -1,145 +1,76 @@
-# User Manual: On-Premise SLM RAG Evaluation
+# Appendix C: User Manual
 
-## Installation
+This guide explains how to use the on-premise RAG system through the OpenWebUI interface.
+It assumes that the system has already been set up by an administrator following the System Manual.
 
-### Prerequisites
-- Python 3.8+
-- Docker and Docker Compose
-- Git
+---
 
-### Platform-Specific Setup
+## A.1 Getting Started
 
-#### Mac Local Development
-```bash
-# Clone repository
-git clone <repo-url>
-cd on-premise-slm
+### A.1.1 Accessing the System
+1. Your administrator will provide you with:
+   - **System URL** (e.g. `http://90.240.219.112:28244`)
+   - **Username and password**
+2. Open the URL in your web browser (Chrome, Firefox, Safari, or mobile browser).
+3. Log in with the credentials you received.
 
-# Install dependencies
-pip install -r src/requirements.txt
+> **Note:** Only the first administrator creates an account directly. All other accounts are added by the admin via **Users → + → Add User**.
 
-# Start services
-docker-compose up -d
-```
+---
 
-#### Vast.ai GPU VM Deployment
-```bash
-# Clone repository
-git clone <repo-url>
-cd on-premise-slm
+## A.2 Using the Chat Interface
 
-# Start core services (GPU)
-docker compose -f docker-compose.yml -f docker-compose.vm.yml up -d ollama litellm rag-api-bge rag-api-qwen3 rag-api-e5
+### A.2.1 Selecting Models
+When you open the chat interface, you will see available models.
+These names may look long, for example:
 
-# (Optional) Preload models and then build indexes
-docker exec ollama bash -lc "/app/scripts/preload-ollama-models.sh" || ./scripts/preload-ollama-models.sh
-docker compose -f docker-compose.yml -f docker-compose.vm.yml run --rm -e OLLAMA_BASE_URL=http://ollama:11434 index-builder --preset vm
+- `ollama/hf.co/microsoft/Phi-3-mini-4k-instruct-gguf:Phi-3-mini-4k-instruct-q4.gguf"`
+- `ollama/hf.co/MaziyarPanahi/Phi-3.5-mini-instruct-GGUF:Q4_K_M`
+- `ollama/hf.co/MaziyarPanahi/Phi-4-mini-instruct-GGUF:Q4_K_M`
+- `ollama/hf.co/bartowski/Llama-3.2-3B-Instruct-GGUF:Q4_K_M`
+- `ollama/hf.co/tiiuae/Falcon3-3B-Instruct-GGUF:Q4_K_M`
+- `ollama/hf.co/Qwen/Qwen2.5-3B-Instruct-GGUF:Q4_K_M`
 
-# Curl checks
-curl -s http://localhost:11434/api/version | jq .
-curl -s http://localhost:4000/v1/models | jq .
-curl -s http://localhost:8001/info | jq .
+Your administrator will indicate which models to use.
+- **Recommended for handbook queries:** `Falcon3-3B`
+- Other models are available for experimentation.
 
-# On-demand benchmarking and throughput
-bash ./scripts/run-benchmarks.sh
-bash ./scripts/run-throughput.sh
+### A.2.2 Suggested Prompts
+Your administrator has uploaded a set of **suggested prompts** during setup.
+To use them:
+1. Click the **Prompt Suggestions** dropdown in the chat bar.
+2. Select a prompt (e.g. *“What are the MSc Computer Science term dates?”*).
+3. Run it with your chosen model.
 
-# Fetch results back to your laptop (from local machine)
-# Example: scripts/fetch-results.sh root@<vm_ip> /root/on-premise-slm ./results_remote <ssh_port>
-bash ./scripts/fetch-results.sh root@<vm_ip> /root/on-premise-slm ./results_remote 22
-```
+This helps you quickly test and explore the system.
 
-## Usage Workflows
+---
 
-### Cross-Platform Development
-1. **Local Testing (Mac)**: Develop and test with small datasets
-2. **Production Deployment (Vast.ai)**: Full-scale benchmarking with GPU acceleration
+## A.3 Tips for Better Answers
+- **Be specific**: Ask precise questions (e.g. *“What is the deadline for COMP0073 submission?”*).
+- **Use context**: If unclear, rephrase the question to include keywords from the handbook.
+- **Try different models**: Some may perform better for certain queries.
 
-### RAG Evaluation
-```bash
-# Build vector indexes (host/local) or via compose (VM)
-# Local (Mac):
-docker compose run --rm -e OLLAMA_BASE_URL=http://host.docker.internal:11434 index-builder --preset local
-# VM:
-docker compose -f docker-compose.yml -f docker-compose.vm.yml run --rm -e OLLAMA_BASE_URL=http://ollama:11434 index-builder --preset vm
+---
 
-# Run RAGAS benchmarking
-python src/benchmarking/benchmark.py --preset local  # or --preset vm when running inside compose
+## A.4 Troubleshooting (for Users)
 
-# Throughput testing
-cd load-testing
-python openai_llm_benchmark.py
-```
+- **Can’t log in?**
+  - Check that you are using the correct URL and credentials.
+  - Contact your administrator if you need a password reset.
 
-### Visualize RAG Results (summary.json → figures)
-```bash
-# Basic (PNG)
-python src/benchmarking/plot_rag_results.py \
-  results/benchmarking/TIMESTAMP/summary.json -f png
+- **Chat feels slow or unresponsive?**
+  - Inform your administrator. They may need to restart the model container or check GPU usage.
 
-# PDF
-python src/benchmarking/plot_rag_results.py \
-  results/benchmarking/TIMESTAMP/summary.json -f pdf
-```
-Outputs: `results/benchmarking/TIMESTAMP/figures/` (Figures A–E + CSV/MD/HTML)
+- **No suggested prompts visible?**
+  - Ask your administrator to confirm that the prompt file was uploaded (see System Manual B.5.2).
 
-### Visualize Throughput Results (simple)
-```bash
-# Basic (PNG)
-python src/throughput/plot_simple.py \
-  results/runs/TIMESTAMP_PLATFORM/throughput/benchmark-results.csv \
-  -s results/runs/TIMESTAMP_PLATFORM/throughput/system-info.json -f png
+---
 
-# Example (from latest run)
-python src/throughput/plot_simple.py \
-  results/runs/20250909_130035_mac/throughput/benchmark-results.csv \
-  -s results/runs/20250909_130035_mac/throughput/system-info.json
-```
-Outputs: `results/runs/TIMESTAMP_PLATFORM/throughput/charts/`
+## A.5 Summary
+- Log in with credentials from your administrator.
+- Select one of the available models.
+- Use suggested prompts for quick access to common questions.
+- Contact your administrator if you encounter issues.
 
-Generated figures:
-- models_rps_vs_concurrency.png
-- models_latency_p95_vs_concurrency.png
-- models_tail_ratio_vs_concurrency.png
-- provider_rps_vs_concurrency.png
-- provider_latency_p95_vs_concurrency.png
-- provider_tail_ratio_vs_concurrency.png
-
-### Run Throughput Benchmark (RAG default)
-```bash
-# Minimal smoke test (local SLM via RAG API bge @ 8001)
-python src/throughput/runner.py \
-  --requests 2 --repetitions 1 --concurrency 1 \
-  --models hf.co/microsoft/Phi-3-mini-4k-instruct-gguf:Phi-3-mini-4k-instruct-q4.gguf \
-  --skip-cloud --rag-base http://localhost:8001 --quiet
-
-# Full RAG sweep
-python src/throughput/runner.py \
-  --rag-base http://localhost:8001 \
-  --rag-testset data/testset/ucl-cs_single_hop_testset_gpt-4.1_20250906_111904.json \
-  --repetitions 3 --requests 20 --concurrency 1,2,4,8,16 --skip-cloud
-```
-
-### SSH tunnels (optional)
-```bash
-ssh -L 11434:localhost:11434 -L 4000:localhost:4000 -L 8001:localhost:8001 -L 3000:localhost:3000 <user>@<vm_ip>
-```
-
-## Configuration
-
-### Environment Variables
-- `OLLAMA_BASE_URL`: Ollama server endpoint
-- `OPENAI_API_KEY`: OpenAI API key for evaluation
-- `PLATFORM`: auto, mac_local, vast_ai_gpu
-
-### Model Configuration
-Edit `config.yaml` for LiteLLM routing and model management.
-
-## Troubleshooting
-
-### Common Issues
-- **GPU Memory**: Use `docker-compose.vm.yml` for 12GB VRAM management
-- **Mac Compatibility**: Automatic fallback to CPU/MPS when GPU unavailable
-- **Model Loading**: Automatic model unloading prevents OOM errors
-
-*This manual is automatically updated by agents when components change.*
+---
