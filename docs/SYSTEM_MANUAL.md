@@ -215,7 +215,15 @@ ls results/
 ### B.7.2 Generate Graphs
 
 ```bash
-python src/plotting/plot_results.py results/<filename>.json
+# for RAG Quality Benchmark
+docker compose -f docker-compose.yml -f docker-compose.vm.yml \
+  run --rm benchmarker python src/benchmarking/plot_rag_results.py \
+  results/TIMESTAMP/summary.json
+
+# for throughput testing
+docker compose -f docker-compose.yml -f docker-compose.vm.yml \
+  run --rm benchmarker python src/throughput/plot_simple.py \
+  results/TIMESTAMP/benchmark-results.csv
 ```
 
 ### B.7.3 Export Results
