@@ -233,6 +233,45 @@ def _load_label_map(path: Path | None) -> Tuple[Dict[str, str], Dict[str, str]]:
 
 
 # --- Plotting helpers ---
+def _get_embedding_color_map(embeddings: Iterable[str], emb_map: Dict[str, str] = None) -> Dict[str, Tuple[float, float, float, float]]:
+    """Create consistent color mapping for embedding models."""
+    # Define explicit colors for known embeddings (RGBA tuples)
+    explicit_colors = {
+        "bge-m3": (0.12156862745098039, 0.4666666666666667, 0.7058823529411765, 1.0),  # blue (tab10 color 0)
+        "e5-large": (0.17254901960784313, 0.6274509803921569, 0.17254901960784313, 1.0),  # green (tab10 color 2)
+        "Qwen3-0.6B (Q8)": (1.0, 0.4980392156862745, 0.054901960784313725, 1.0),  # orange (tab10 color 1)
+    }
+
+    # Get tab10 colormap for fallback colors
+    cmap = mpl.colormaps.get("tab10")
+
+    # Create mapping
+    color_map = {}
+    used_indices = {0, 1, 2}  # Reserve indices for explicit colors
+    fallback_index = 3
+
+    for emb in embeddings:
+        # Convert to shortened label for color lookup (only if emb_map is provided, indicating raw names)
+        if emb_map is not None:
+            # Raw embedding names - need to convert to shortened labels
+            emb_label = emb_map.get(emb, _shorten_embedding_label(emb))
+        else:
+            # Already shortened labels - check if they need further shortening or are already in explicit_colors
+            emb_label = emb if emb in explicit_colors else _shorten_embedding_label(emb)
+
+        if emb_label in explicit_colors:
+            color_map[emb] = explicit_colors[emb_label]
+        else:
+            # Use fallback colors for unknown embeddings
+            while fallback_index in used_indices:
+                fallback_index += 1
+            color_map[emb] = cmap(fallback_index % 10)
+            used_indices.add(fallback_index % 10)
+            fallback_index += 1
+
+    return color_map
+
+
 def _figsize_inches() -> Tuple[float, float]:
     return (_mm_to_in(FIGSIZE_MM[0]), _mm_to_in(FIGSIZE_MM[1]))
 
@@ -277,10 +316,15 @@ def plot_grouped_bars(
     bar_width = total_width / n_embs
     offsets = np.linspace(-total_width / 2 + bar_width / 2, total_width / 2 - bar_width / 2, n_embs)
 
+    # Create consistent color mapping using explicit colors (pivot.columns already contains shortened labels)
+    emb_to_color = _get_embedding_color_map(pivot.columns)
+
     fig, ax = plt.subplots(figsize=_figsize_inches())
     for i, emb in enumerate(pivot.columns):
         values = pivot[emb].values
-        ax.bar(x + offsets[i], values, width=bar_width, label=str(emb))
+        # Use consistent color for this embedding
+        color = emb_to_color.get(emb, (0.5, 0.5, 0.5, 1.0))  # fallback to gray
+        ax.bar(x + offsets[i], values, width=bar_width, label=str(emb), color=color)
 
     ax.set_xticks(x)
     ax.set_xticklabels([str(v) for v in pivot.index], rotation=XTICK_ROT, ha="right", fontsize=XTICK_FSIZE)
@@ -327,9 +371,8 @@ def plot_ranking(
 
     # Color-code bars by embedding and add legend
     unique_embs = list(dict.fromkeys(ranked["embedding"]))
-    cmap = mpl.colormaps.get("tab10")
-    emb_to_color = {emb: cmap(i % 10) for i, emb in enumerate(unique_embs)}
-    colors = [emb_to_color[e] for e in ranked_for_chart["embedding"]]
+    emb_to_color = _get_embedding_color_map(unique_embs)
+    colors = [emb_to_color.get(e, (0.5, 0.5, 0.5, 1.0)) for e in ranked_for_chart["embedding"]]
     ax.barh(ranked_for_chart["pair"], ranked_for_chart["aggregate"], color=colors)
     ax.set_xlabel("Aggregate score")
     ax.set_title("Overall performance ranking (weighted mean)")
@@ -502,6 +545,10 @@ def plot_radar_profiles(
         print("⚠ No data for radar profiles. Skipping.")
         return
 
+    # Create consistent color mapping using explicit colors
+    unique_embs = list(dict.fromkeys(df["embedding"].unique()))
+    emb_to_color = _get_embedding_color_map(unique_embs, emb_map)
+
     categories = list(METRICS)
     angles = np.linspace(0, 2 * np.pi, len(categories), endpoint=False)
     angles = np.concatenate([angles, [angles[0]]])  # close the loop
@@ -510,10 +557,13 @@ def plot_radar_profiles(
         values = [row[m] for m in categories]
         values = np.concatenate([values, [values[0]]])  # close the loop
 
+        # Get the color for this embedding
+        color = emb_to_color.get(emb, (0.5, 0.5, 0.5, 1.0))  # fallback to gray
+
         fig = plt.figure(figsize=_figsize_inches())
         ax = fig.add_subplot(111, polar=True)
-        ax.plot(angles, values, marker="o", linewidth=2)
-        ax.fill(angles, values, alpha=0.25)
+        ax.plot(angles, values, marker="o", linewidth=2, color=color)
+        ax.fill(angles, values, alpha=0.25, color=color)
         ax.set_xticks(angles[:-1])
         ax.set_xticklabels([c.replace("_", " ") for c in categories])
         ax.set_yticklabels([])
