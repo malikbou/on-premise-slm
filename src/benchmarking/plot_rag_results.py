@@ -332,7 +332,7 @@ def plot_ranking(
     colors = [emb_to_color[e] for e in ranked_for_chart["embedding"]]
     ax.barh(ranked_for_chart["pair"], ranked_for_chart["aggregate"], color=colors)
     ax.set_xlabel("Aggregate score")
-    ax.set_title("Figure B — Overall performance ranking (weighted mean)")
+    ax.set_title("Overall performance ranking (weighted mean)")
     ax.grid(True, which="both", ls=GRID_STYLE, axis="x")
     handles = [mpl.patches.Patch(color=emb_to_color[e], label=e) for e in unique_embs]
     # Legend inline (lower-right inside, away from y labels)
@@ -479,7 +479,7 @@ def plot_ranking(
 
         # Minimize whitespace with tighter layout
         fig_tbl.subplots_adjust(top=0.85, bottom=0.05, left=0.02, right=0.98)  # Aggressive padding reduction
-        fig_tbl.suptitle("Figure E — Rank summary (best to worst)", y=0.92, fontsize=10)
+        fig_tbl.suptitle("Rank summary (Best to Worst)", y=0.92, fontsize=10)
 
         # Save with manual layout (skip tight_layout for tables)
         outname = (outdir / "figure_E_rank_summary").with_suffix(f".{fmt}")
@@ -566,7 +566,7 @@ def plot_heatmaps(
         ax.set_xticklabels(list(pivot.columns), rotation=XTICK_ROT, ha="right", fontsize=XTICK_FSIZE)
         ax.set_xlabel("LLMs")
         ax.set_ylabel("Embeddings")
-        ax.set_title(f"Figure D — {metric.replace('_', ' ').capitalize()}")
+        ax.set_title(f"{metric.replace('_', ' ').capitalize()} Heatmap")
 
         # Colorbar
         cbar = fig.colorbar(im, ax=ax)
