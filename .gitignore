@@ -79,3 +79,4 @@ data/ragas-airline-dataset/
 src/testset/ragas-example.ipynb
 
 docs/THESIS
+.cursor
