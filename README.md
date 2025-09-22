@@ -210,12 +210,6 @@ python src/throughput/plot_simple.py \
   - `provider_tail_ratio_vs_concurrency.png` — provider mean tail ratio
   - `provider_error_rate_vs_concurrency.png` — error rate (cloud; if applicable)
 
-- How to interpret
-  - Look for where RPS flattens as concurrency rises (saturation point).
-  - Rising p95 faster than avg indicates long-tail latency growth under load.
-  - Tail ratio near 1 reflects stable performance; >2–3 suggests volatile tails.
-  - Provider mean plots summarize overall trends; models_* plots show per-model differences.
-
 ### Docker Services
 - **litellm**: LLM gateway proxy for cloud/local model routing
 - **rag-api**: Main RAG API with FAISS retrieval
@@ -243,21 +237,6 @@ results/
 │   └── cross_platform_analysis.csv
 └── archive/
 ```
-
-### Hardware Context
-All results include comprehensive hardware information:
-- System specifications (CPU, RAM, GPU)
-- Platform identification (Mac local vs Vast.ai VM)
-- Memory usage tracking (system RAM vs VRAM)
-- Environment metadata for reproducibility
-
-## Academic Standards
-
-- **Reproducibility**: Complete hardware and environment logging
-- **Rigor**: Established RAGAS metrics for credible evaluation
-- **Documentation**: Comprehensive agent instructions and configuration
-- **Presentation**: Professional charts suitable for thesis documentation
-- **Cross-Platform**: Validated across development and production environments
 
 ## License
 
