@@ -24,12 +24,9 @@ It assumes that the system has already been set up by an administrator following
 When you open the chat interface, you will see available models.
 These names may look long, for example:
 
-- `ollama/hf.co/microsoft/Phi-3-mini-4k-instruct-gguf:Phi-3-mini-4k-instruct-q4.gguf"`
-- `ollama/hf.co/MaziyarPanahi/Phi-3.5-mini-instruct-GGUF:Q4_K_M`
 - `ollama/hf.co/MaziyarPanahi/Phi-4-mini-instruct-GGUF:Q4_K_M`
 - `ollama/hf.co/bartowski/Llama-3.2-3B-Instruct-GGUF:Q4_K_M`
 - `ollama/hf.co/tiiuae/Falcon3-3B-Instruct-GGUF:Q4_K_M`
-- `ollama/hf.co/Qwen/Qwen2.5-3B-Instruct-GGUF:Q4_K_M`
 
 Your administrator will indicate which models to use.
 - **Recommended for handbook queries:** `Falcon3-3B`
